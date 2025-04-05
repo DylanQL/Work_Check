@@ -9,7 +9,6 @@ Table (Usuario)
 *middle_name
 *last_name
 *second_last_name
-*score_ts -- Integer value
 *user_type -- Here you can specify manager, employee, administrator, etc.
 *position_id (FK)
 
@@ -100,3 +99,8 @@ Table(UserAccount)
 *password
 *usuario_id (FK) -- Foreign key referencing usuario.id
 *status -- active, inactive, locked, etc.
+
+Table(TimeSheetScore)
+*id (PK)
+*usuario_id (FK)
+*score_ts -- Integer value
