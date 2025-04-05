@@ -1,0 +1,102 @@
+Table (Position)
+*id (PK)
+*position_code
+*position_name
+
+Table (Usuario)
+*id (PK)
+*first_name
+*middle_name
+*last_name
+*second_last_name
+*score_ts -- Integer value
+*user_type -- Here you can specify manager, employee, administrator, etc.
+*position_id (FK)
+
+Table (EvaluationDetails)
+*id (PK)
+*R1
+*R2
+*R3
+*R4
+*R5
+*R_comments
+*L1
+*L2
+*L3
+*L4
+*L5
+*L_comments
+*H1
+*H2
+*H3
+*H4
+*H5
+*H_comments
+*E1
+*E2
+*E3
+*E4
+*E_comments
+*C1
+*C2
+*C3
+*C4
+*C5
+*C6
+*C_comments
+*M1
+*M2
+*M_comments
+*V1
+*V2
+*V3
+*V4
+*V5
+*V_comments
+*final_comments
+
+Table(Summary)
+*id (PK)
+*employee_id (FK) -- This is a FK referencing the id in the usuario table
+*evaluator_id (FK) -- This is a FK referencing the id in the usuario table
+*R --Ponderado Responsabilidades de la posición 
+*L --Ponderado Responsabilidades por liderazgo
+*H --Ponderado Habilidades
+*E --Ponderado Enfoque
+*C --Ponderado Competencia Técnica
+*M --Ponderado Metas y Resultados
+*V --Ponderado Valores Corporativos
+*final_score --Suma de ponderados
+*performance_level -- Here the level is determined based on final score
+*evaluation_type -- Here it will specify if it's for employees or leaders
+*created_at
+*position_id -- This is the current position according to Table (Usuario)
+
+
+Table(Temp_EvaluationAssignment)
+*id (PK)
+*evaluator_id (FK) -- This is a FK referencing the id in the usuario table
+*employee_id (FK) -- This is a FK referencing the id in the usuario table
+*status 
+*created_at
+*Summary_id (FK)
+*evaluationDetails_id (FK)
+*evaluation_cycle
+
+Table(Permanent_EvaluationAssignment)
+*id (PK)
+*evaluator_id (FK) -- This is a FK referencing the id in the usuario table
+*employee_id (FK) -- This is a FK referencing the id in the usuario table
+*status 
+*created_at
+*Summary_id (FK)
+*evaluationDetails_id (FK)
+*evaluation_cycle
+
+Table(UserAccount)
+*id (PK)
+*username
+*password
+*usuario_id (FK) -- Foreign key referencing usuario.id
+*status -- active, inactive, locked, etc.
