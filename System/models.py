@@ -114,3 +114,7 @@ class UserAccount(models.Model):
     password = models.CharField(max_length=128)  # Esto luego lo encriptaremos
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
     status = models.CharField(max_length=20)
+
+class EvaluationCycle(models.Model):
+    name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)

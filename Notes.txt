@@ -104,3 +104,8 @@ Table(TimeSheetScore)
 *id (PK)
 *usuario_id (FK)
 *score_ts -- Integer value
+
+Table EvaluationCycle
+*id (PK)
+*name
+*created_at = models.DateTimeField(auto_now_add=True)
