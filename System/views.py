@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from functools import wraps
 from django.contrib import messages
 from .models import *
+from django.db import transaction
+
 
 # Decorador personalizado para verificar que el usuario haya iniciado sesión
 def login_required(view_func):
@@ -403,3 +405,250 @@ def employees_evaluations(request):
     """
     assignments = Permanent_EvaluationAssignment.objects.filter(summary__evaluation_type="Empleados")
     return render(request, 'System/employees_evaluations.html', {'assignments': assignments})
+
+
+@login_required
+def evaluate_leaders(request):
+    """
+    Muestra y procesa un formulario para evaluar a líderes.
+    - Solo se pueden evaluar usuarios que estén en Temp_EvaluationAssignment
+      asignados al usuario logueado.
+    - Se asigna la posición automáticamente al seleccionar el usuario a evaluar.
+    - Si el status en Temp_EvaluationAssignment es 'Completado', se cargan
+      los datos de EvaluationDetails para edición.
+    - Al enviar el formulario, se crean/actualizan los registros en 
+      EvaluationDetails y Summary, y se actualiza Temp_EvaluationAssignment.
+    """
+    # 1. Obtener el usuario logueado y sus asignaciones
+    current_user_id = request.session.get('user_id')
+    # Encontrar al usuario en la tabla UserAccount para relacionar con la tabla Usuario
+    # asumiendo que el campo user_id en session corresponde a un UserAccount
+    from .models import UserAccount
+    try:
+        current_user_account = UserAccount.objects.get(id=current_user_id)
+        current_usuario = current_user_account.usuario
+    except UserAccount.DoesNotExist:
+        return redirect('login')
+
+    # Filtrar asignaciones temporales donde el evaluador sea el usuario logueado
+    temp_assignments = Temp_EvaluationAssignment.objects.filter(evaluator=current_usuario)
+
+    # Obtener la lista de usuarios (employee) asignados a este evaluador
+    # (solo su ID y su nombre para mostrar en el select)
+    assigned_employees = [assignment.employee for assignment in temp_assignments]
+
+    # Preparamos un diccionario para mapear employee_id -> assignment
+    assignment_by_employee = {a.employee.id: a for a in temp_assignments}
+
+    # 2. Manejo de la selección del usuario y carga de datos
+    selected_employee_id = request.GET.get('employee_id', '')
+    selected_employee = None
+    assignment_selected = None
+    evaluation_details_data = {}
+    status_already_completed = False
+
+    if selected_employee_id:
+        try:
+            selected_employee_id = int(selected_employee_id)
+            selected_employee = Usuario.objects.get(id=selected_employee_id)
+            # Obtener la asignación
+            assignment_selected = assignment_by_employee.get(selected_employee_id)
+            if assignment_selected and assignment_selected.status == "Completado":
+                # Cargar los datos de la EvaluationDetails existente
+                if assignment_selected.evaluation_details:
+                    ed = assignment_selected.evaluation_details
+                    status_already_completed = True
+                    # Convertir el objeto a diccionario para precargar en el formulario
+                    evaluation_details_data = {
+                        'R1': ed.R1, 'R2': ed.R2, 'R3': ed.R3, 'R4': ed.R4, 'R5': ed.R5,
+                        'R_comments': ed.R_comments,
+                        'L1': ed.L1, 'L2': ed.L2, 'L3': ed.L3, 'L4': ed.L4, 'L5': ed.L5,
+                        'L_comments': ed.L_comments,
+                        'H1': ed.H1, 'H2': ed.H2, 'H3': ed.H3, 'H4': ed.H4, 'H5': ed.H5,
+                        'H_comments': ed.H_comments,
+                        'E1': ed.E1, 'E2': ed.E2, 'E3': ed.E3, 'E4': ed.E4,
+                        'E_comments': ed.E_comments,
+                        'C1': ed.C1, 'C2': ed.C2, 'C3': ed.C3, 'C4': ed.C4, 'C5': ed.C5, 'C6': ed.C6,
+                        'C_comments': ed.C_comments,
+                        'M1': ed.M1, 'M2': ed.M2,
+                        'M_comments': ed.M_comments,
+                        'V1': ed.V1, 'V2': ed.V2, 'V3': ed.V3, 'V4': ed.V4, 'V5': ed.V5,
+                        'V_comments': ed.V_comments,
+                        'final_comments': ed.final_comments
+                    }
+        except (ValueError, Usuario.DoesNotExist):
+            selected_employee = None
+
+    # 3. Procesamiento del formulario en POST
+    if request.method == 'POST':
+        # Se asume que el usuario a evaluar viene en un campo hidden
+        employee_id_post = request.POST.get('employee_id')
+        try:
+            employee_id_post = int(employee_id_post)
+        except (ValueError, TypeError):
+            employee_id_post = None
+        
+        # Recogemos todos los campos
+        R1 = request.POST.get('R1', 0)
+        R2 = request.POST.get('R2', 0)
+        R3 = request.POST.get('R3', 0)
+        R4 = request.POST.get('R4', 0)
+        R5 = request.POST.get('R5', 0)
+        R_comments = request.POST.get('R_comments', '')
+
+        L1 = request.POST.get('L1', 0)
+        L2 = request.POST.get('L2', 0)
+        L3 = request.POST.get('L3', 0)
+        L4 = request.POST.get('L4', 0)
+        L5 = request.POST.get('L5', 0)
+        L_comments = request.POST.get('L_comments', '')
+
+        H1 = request.POST.get('H1', 0)
+        H2 = request.POST.get('H2', 0)
+        H3 = request.POST.get('H3', 0)
+        H4 = request.POST.get('H4', 0)
+        H5 = request.POST.get('H5', 0)
+        H_comments = request.POST.get('H_comments', '')
+
+        E1 = request.POST.get('E1', 0)
+        E2 = request.POST.get('E2', 0)
+        E3 = request.POST.get('E3', 0)
+        E4 = request.POST.get('E4', 0)
+        E_comments = request.POST.get('E_comments', '')
+
+        C1 = request.POST.get('C1', 0)
+        C2 = request.POST.get('C2', 0)
+        C3 = request.POST.get('C3', 0)
+        C4 = request.POST.get('C4', 0)
+        C5 = request.POST.get('C5', 0)
+        C6 = request.POST.get('C6', 0)
+        C_comments = request.POST.get('C_comments', '')
+
+        M1 = request.POST.get('M1', 0)
+        M2 = request.POST.get('M2', 0)
+        M_comments = request.POST.get('M_comments', '')
+
+        V1 = request.POST.get('V1', 0)
+        V2 = request.POST.get('V2', 0)
+        V3 = request.POST.get('V3', 0)
+        V4 = request.POST.get('V4', 0)
+        V5 = request.POST.get('V5', 0)
+        V_comments = request.POST.get('V_comments', '')
+
+        final_comments = request.POST.get('final_comments', '')
+
+        # Botones
+        button_clicked = request.POST.get('action')
+
+        if button_clicked == "Limpiar formulario":
+            return redirect('evaluate_leaders')  # o la URL que quieras recargar
+
+        # Si se hace clic en "Enviar formulario"
+        if button_clicked == "Enviar formulario" and employee_id_post:
+            # Se maneja la creación/actualización de EvaluationDetails y Summary
+            with transaction.atomic():
+                # 1. Crear/actualizar EvaluationDetails
+                assignment = assignment_by_employee.get(employee_id_post)
+                if not assignment:
+                    # Error, no hay asignación
+                    return redirect('evaluate_leaders')
+
+                if assignment.evaluation_details:
+                    # Actualizar
+                    ed = assignment.evaluation_details
+                else:
+                    # Crear
+                    ed = EvaluationDetails()
+
+                ed.R1 = R1; ed.R2 = R2; ed.R3 = R3; ed.R4 = R4; ed.R5 = R5; ed.R_comments = R_comments
+                ed.L1 = L1; ed.L2 = L2; ed.L3 = L3; ed.L4 = L4; ed.L5 = L5; ed.L_comments = L_comments
+                ed.H1 = H1; ed.H2 = H2; ed.H3 = H3; ed.H4 = H4; ed.H5 = H5; ed.H_comments = H_comments
+                ed.E1 = E1; ed.E2 = E2; ed.E3 = E3; ed.E4 = E4; ed.E_comments = E_comments
+                ed.C1 = C1; ed.C2 = C2; ed.C3 = C3; ed.C4 = C4; ed.C5 = C5; ed.C6 = C6; ed.C_comments = C_comments
+                ed.M1 = M1; ed.M2 = M2; ed.M_comments = M_comments
+                ed.V1 = V1; ed.V2 = V2; ed.V3 = V3; ed.V4 = V4; ed.V5 = V5; ed.V_comments = V_comments
+                ed.final_comments = final_comments
+                ed.save()
+
+                assignment.evaluation_details = ed
+
+                # 2. Crear/actualizar Summary
+                # Calcular promedios
+                def avg(*values):
+                    vals = [int(v) for v in values]
+                    return sum(vals)/len(vals) if len(vals) > 0 else 0
+
+                R_avg = avg(R1, R2, R3, R4, R5)
+                L_avg = avg(L1, L2, L3, L4, L5)
+                H_avg = avg(H1, H2, H3, H4, H5)
+                E_avg = avg(E1, E2, E3, E4)
+                C_avg = avg(C1, C2, C3, C4, C5, C6)
+                M_avg = avg(M1, M2)
+                V_avg = avg(V1, V2, V3, V4, V5)
+
+                # Pesos
+                w_R = 0.20
+                w_L = 0.20
+                w_H = 0.10
+                w_E = 0.10
+                w_C = 0.15
+                w_M = 0.15
+                w_V = 0.10
+
+                R_weighted = R_avg * w_R
+                L_weighted = L_avg * w_L
+                H_weighted = H_avg * w_H
+                E_weighted = E_avg * w_E
+                C_weighted = C_avg * w_C
+                M_weighted = M_avg * w_M
+                V_weighted = V_avg * w_V
+
+                final_score = R_weighted + L_weighted + H_weighted + E_weighted + C_weighted + M_weighted + V_weighted
+
+                # Performance Level (ejemplo)
+                if final_score >= 4.5:
+                    performance_level = "Sobresaliente"
+                elif final_score >= 3.5:
+                    performance_level = "Muy Bueno"
+                elif final_score >= 2.5:
+                    performance_level = "Bueno"
+                else:
+                    performance_level = "Regular"
+
+                # Buscar o crear Summary
+                if assignment.summary:
+                    summ = assignment.summary
+                else:
+                    summ = Summary()
+
+                # Rellenar summary
+                summ.employee = assignment.employee
+                summ.evaluator = assignment.evaluator
+                summ.R = R_weighted
+                summ.L = L_weighted
+                summ.H = H_weighted
+                summ.E = E_weighted
+                summ.C = C_weighted
+                summ.M = M_weighted
+                summ.V = V_weighted
+                summ.final_score = final_score
+                summ.performance_level = performance_level
+                summ.evaluation_type = "Lideres"  # Se asume que es para líderes
+                # Se obtiene la posición del empleado
+                summ.position = assignment.employee.position
+                summ.save()
+
+                assignment.summary = summ
+                # Actualizar status
+                assignment.status = "Completado"
+                assignment.save()
+
+            return redirect('evaluate_leaders')  # O a otra URL de confirmación
+
+    context = {
+        'assigned_employees': assigned_employees,
+        'selected_employee': selected_employee,
+        'evaluation_details_data': evaluation_details_data,
+        'status_already_completed': status_already_completed
+    }
+    return render(request, 'System/evaluate_leaders.html', context)

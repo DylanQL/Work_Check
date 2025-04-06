@@ -60,4 +60,8 @@ urlpatterns = [
 
     # Ruta para evaluaciones de empleados
     path('employees_evaluations/', views.employees_evaluations, name='employees_evaluations'),
+
+    # Ruta para evaluación de líderes
+    path('evaluate_leaders/', views.evaluate_leaders, name='evaluate_leaders'),
+
 ]
