@@ -335,3 +335,41 @@ def send_assignments_to_historic(request):
         return redirect('list_temp_assignments')
     
     return render(request, 'System/confirm_send_assignments.html', {})
+
+
+# Vistas para mostrar los registros históricos (Permanent_EvaluationAssignment)
+# y para mostrar el detalle de los registros de Summary y EvaluationDetails.
+
+@login_required
+def list_permanent_assignments(request):
+    """
+    Lista todos los registros históricos de evaluaciones permanentes.
+    Se muestra una tabla con los registros; en los campos 'summary' y 'evaluation_details'
+    se incluyen enlaces a la vista de detalle correspondiente si existe el registro.
+    """
+    assignments = Permanent_EvaluationAssignment.objects.all()
+    return render(request, 'System/manage_permanent_assignments.html', {'assignments': assignments})
+
+@login_required
+def detail_summary(request, summary_id):
+    """
+    Muestra el detalle de un registro Summary.
+    Si no se encuentra el registro, redirige a la lista de asignaciones permanentes.
+    """
+    try:
+        summary = Summary.objects.get(id=summary_id)
+    except Summary.DoesNotExist:
+        return redirect('list_permanent_assignments')
+    return render(request, 'System/detail_summary.html', {'summary': summary})
+
+@login_required
+def detail_evaluation_details(request, evaluation_details_id):
+    """
+    Muestra el detalle de un registro EvaluationDetails.
+    Si el registro no existe, redirige a la lista de asignaciones permanentes.
+    """
+    try:
+        details = EvaluationDetails.objects.get(id=evaluation_details_id)
+    except EvaluationDetails.DoesNotExist:
+        return redirect('list_permanent_assignments')
+    return render(request, 'System/detail_evaluation_details.html', {'details': details})

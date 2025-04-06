@@ -1,0 +1,50 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Histórico de Evaluaciones Permanentes{% endblock %}
+{% block content %}
+    <h2>Histórico de Evaluaciones Permanentes</h2>
+    <table border="1" cellspacing="0" cellpadding="5">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Evaluator</th>
+                <th>Employee</th>
+                <th>Status</th>
+                <th>Evaluation Cycle</th>
+                <th>Summary</th>
+                <th>Evaluation Details</th>
+                <th>Fecha Creación</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assign in assignments %}
+                <tr>
+                    <td>{{ assign.id }}</td>
+                    <td>{{ assign.evaluator.first_name }} {{ assign.evaluator.last_name }}</td>
+                    <td>{{ assign.employee.first_name }} {{ assign.employee.last_name }}</td>
+                    <td>{{ assign.status }}</td>
+                    <td>{{ assign.evaluation_cycle }}</td>
+                    <td>
+                        {% if assign.summary %}
+                            <a href="{% url 'detail_summary' assign.summary.id %}">{{ assign.summary.id }}</a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if assign.evaluation_details %}
+                            <a href="{% url 'detail_evaluation_details' assign.evaluation_details.id %}">{{ assign.evaluation_details.id }}</a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>{{ assign.created_at }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8">No hay registros históricos.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

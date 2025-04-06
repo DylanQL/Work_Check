@@ -1,0 +1,21 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Detalle de Summary{% endblock %}
+{% block content %}
+    <h2>Detalle de Summary (ID: {{ summary.id }})</h2>
+    <p>Empleado: {{ summary.employee.first_name }} {{ summary.employee.last_name }}</p>
+    <p>Evaluador: {{ summary.evaluator.first_name }} {{ summary.evaluator.last_name }}</p>
+    <p>R: {{ summary.R }}</p>
+    <p>L: {{ summary.L }}</p>
+    <p>H: {{ summary.H }}</p>
+    <p>E: {{ summary.E }}</p>
+    <p>C: {{ summary.C }}</p>
+    <p>M: {{ summary.M }}</p>
+    <p>V: {{ summary.V }}</p>
+    <p>Final Score: {{ summary.final_score }}</p>
+    <p>Performance Level: {{ summary.performance_level }}</p>
+    <p>Evaluation Type: {{ summary.evaluation_type }}</p>
+    <p>Fecha de Creación: {{ summary.created_at }}</p>
+    <p>Posición: {{ summary.position.position_name }}</p>
+    <a href="{% url 'list_permanent_assignments' %}">Volver</a>
+{% endblock %}

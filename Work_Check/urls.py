@@ -49,4 +49,9 @@ urlpatterns = [
     path('temp_assignments/update/<int:assignment_id>/', views.update_temp_evaluation_assignment, name='update_temp_assignment'),
     path('temp_assignments/delete/<int:assignment_id>/', views.delete_temp_evaluation_assignment, name='delete_temp_assignment'),
     path('temp_assignments/send/', views.send_assignments_to_historic, name='send_temp_assignments'),
+
+    # Rutas para registros históricos
+    path('permanent_assignments/', views.list_permanent_assignments, name='list_permanent_assignments'),
+    path('summary/<int:summary_id>/', views.detail_summary, name='detail_summary'),
+    path('evaluation_details/<int:evaluation_details_id>/', views.detail_evaluation_details, name='detail_evaluation_details'),
 ]
