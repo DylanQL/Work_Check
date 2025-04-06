@@ -140,3 +140,29 @@ def update_account(request, account_id):
         return redirect('list_accounts')
     
     return render(request, 'System/update_account.html', {'account': account})
+
+# Vista para listar los Timesheet Scores
+@login_required
+def list_timesheets(request):
+    timesheets = TimeSheetScore.objects.all()
+    return render(request, 'System/manage_timesheets.html', {'timesheets': timesheets})
+
+# Vista para actualizar un Timesheet Score
+@login_required
+def update_timesheet(request, timesheet_id):
+    try:
+        timesheet = TimeSheetScore.objects.get(id=timesheet_id)
+    except TimeSheetScore.DoesNotExist:
+        return redirect('list_timesheets')
+    
+    if request.method == 'POST':
+        score_value = request.POST.get('score_ts').strip()
+        try:
+            timesheet.score_ts = int(score_value)
+        except ValueError:
+            error = "El valor debe ser un número entero."
+            return render(request, 'System/update_timesheet.html', {'timesheet': timesheet, 'error': error})
+        timesheet.save()
+        return redirect('list_timesheets')
+    
+    return render(request, 'System/update_timesheet.html', {'timesheet': timesheet})
