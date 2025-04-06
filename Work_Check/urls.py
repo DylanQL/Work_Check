@@ -57,4 +57,7 @@ urlpatterns = [
 
     # Ruta para evaluaciones de líderes
     path('leaders_evaluations/', views.leaders_evaluations, name='leaders_evaluations'),
+
+    # Ruta para evaluaciones de empleados
+    path('employees_evaluations/', views.employees_evaluations, name='employees_evaluations'),
 ]

@@ -388,3 +388,18 @@ def leaders_evaluations(request):
     """
     assignments = Permanent_EvaluationAssignment.objects.filter(summary__evaluation_type="Lideres")
     return render(request, 'System/leaders_evaluations.html', {'assignments': assignments})
+
+@login_required
+def employees_evaluations(request):
+    """
+    Muestra las evaluaciones de empleados.
+    
+    Se filtran los registros de Permanent_EvaluationAssignment cuyo registro
+    asociado de Summary tenga evaluation_type igual a "Empleados". De cada registro,
+    se muestran:
+      - Desde Permanent_EvaluationAssignment: evaluation_cycle.
+      - Desde Summary: employee, evaluator, R, H, E, C, M, V, final_score,
+        performance_level y position.
+    """
+    assignments = Permanent_EvaluationAssignment.objects.filter(summary__evaluation_type="Empleados")
+    return render(request, 'System/employees_evaluations.html', {'assignments': assignments})
