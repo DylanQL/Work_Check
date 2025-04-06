@@ -1,0 +1,24 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Actualizar Cuenta{% endblock %}
+{% block content %}
+    <h2>Actualizar Cuenta</h2>
+    <form method="post">
+        {% csrf_token %}
+        <label>Username:</label>
+        <input type="text" name="username" value="{{ account.username }}" required><br>
+        <label>Password:</label>
+        <input type="text" name="password" value="{{ account.password }}" required><br>
+        <label>Status:</label>
+        <input type="text" name="status" value="{{ account.status }}" required><br>
+        <label>Usuario:</label>
+        <select name="usuario" required>
+            {% for usuario in usuarios %}
+                <option value="{{ usuario.id }}" {% if usuario.id == account.usuario.id %}selected{% endif %}>
+                    {{ usuario.first_name }} {{ usuario.last_name }}
+                </option>
+            {% endfor %}
+        </select><br>
+        <button type="submit">Actualizar Cuenta</button>
+    </form>
+{% endblock %}

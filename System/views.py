@@ -105,3 +105,33 @@ def update_user(request, user_id):
     
     positions = Position.objects.all()
     return render(request, 'System/update_user.html', {'usuario': usuario, 'positions': positions})
+
+
+# Vista para listar las cuentas (gestión de UserAccount)
+@login_required
+def list_accounts(request):
+    accounts = UserAccount.objects.all()
+    return render(request, 'System/manage_accounts.html', {'accounts': accounts})
+
+# Vista para actualizar una cuenta existente
+@login_required
+def update_account(request, account_id):
+    try:
+        account = UserAccount.objects.get(id=account_id)
+    except UserAccount.DoesNotExist:
+        return redirect('list_accounts')
+    
+    if request.method == 'POST':
+        account.username = request.POST.get('username').strip()
+        account.password = request.POST.get('password').strip()
+        account.status = request.POST.get('status').strip()
+        usuario_id = request.POST.get('usuario')
+        try:
+            account.usuario = Usuario.objects.get(id=usuario_id)
+        except Usuario.DoesNotExist:
+            pass  # Se podría manejar un error específico si se requiere
+        account.save()
+        return redirect('list_accounts')
+    
+    usuarios = Usuario.objects.all()
+    return render(request, 'System/update_account.html', {'account': account, 'usuarios': usuarios})

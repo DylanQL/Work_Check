@@ -1,0 +1,25 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Agregar Cuenta{% endblock %}
+{% block content %}
+    <h2>Agregar Cuenta</h2>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <label>Username:</label>
+        <input type="text" name="username" required><br>
+        <label>Password:</label>
+        <input type="text" name="password" required><br>
+        <label>Status:</label>
+        <input type="text" name="status" required><br>
+        <label>Usuario:</label>
+        <select name="usuario" required>
+            {% for usuario in usuarios %}
+                <option value="{{ usuario.id }}">{{ usuario.first_name }} {{ usuario.last_name }}</option>
+            {% endfor %}
+        </select><br>
+        <button type="submit">Agregar Cuenta</button>
+    </form>
+{% endblock %}

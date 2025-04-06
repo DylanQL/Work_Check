@@ -25,4 +25,8 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('add_user/', views.add_user, name='add_user'),
     path('update_user/<int:user_id>/', views.update_user, name='update_user'),
+    
+    # Rutas para la gestión de cuentas (UserAccount)
+    path('accounts/', views.list_accounts, name='list_accounts'),
+    path('accounts/update/<int:account_id>/', views.update_account, name='update_account'),
 ]
