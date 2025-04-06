@@ -36,4 +36,10 @@ urlpatterns = [
     # Rutas para gestión de Timesheet Scores
     path('timesheets/', views.list_timesheets, name='list_timesheets'),
     path('timesheets/update/<int:timesheet_id>/', views.update_timesheet, name='update_timesheet'),
+
+    # Rutas para gestión de ciclos de evaluación
+    path('evaluation_cycles/', views.list_evaluation_cycles, name='list_evaluation_cycles'),
+    path('evaluation_cycles/create/', views.create_evaluation_cycle, name='create_evaluation_cycle'),
+    path('evaluation_cycles/update/<int:cycle_id>/', views.update_evaluation_cycle, name='update_evaluation_cycle'),
+    path('evaluation_cycles/delete/<int:cycle_id>/', views.delete_evaluation_cycle, name='delete_evaluation_cycle'),
 ]

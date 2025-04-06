@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from functools import wraps
-from .models import UserAccount, Usuario, Position, TimeSheetScore
+from .models import UserAccount, Usuario, Position, TimeSheetScore, EvaluationCycle
 
 # Decorador personalizado para verificar que el usuario haya iniciado sesión
 def login_required(view_func):
@@ -166,3 +166,56 @@ def update_timesheet(request, timesheet_id):
         return redirect('list_timesheets')
     
     return render(request, 'System/update_timesheet.html', {'timesheet': timesheet})
+
+# Vista para listar los ciclos de evaluación
+@login_required
+def list_evaluation_cycles(request):
+    cycles = EvaluationCycle.objects.all()
+    return render(request, 'System/manage_evaluation_cycles.html', {'cycles': cycles})
+
+# Vista para crear un nuevo ciclo de evaluación
+@login_required
+def create_evaluation_cycle(request):
+    if request.method == 'POST':
+        name = request.POST.get('name').strip()
+        if name:
+            EvaluationCycle.objects.create(name=name)
+            return redirect('list_evaluation_cycles')
+        else:
+            error = "El nombre es requerido."
+            return render(request, 'System/create_evaluation_cycle.html', {'error': error})
+    return render(request, 'System/create_evaluation_cycle.html')
+
+# Vista para actualizar un ciclo de evaluación existente
+@login_required
+def update_evaluation_cycle(request, cycle_id):
+    try:
+        cycle = EvaluationCycle.objects.get(id=cycle_id)
+    except EvaluationCycle.DoesNotExist:
+        return redirect('list_evaluation_cycles')
+    
+    if request.method == 'POST':
+        name = request.POST.get('name').strip()
+        if name:
+            cycle.name = name
+            cycle.save()
+            return redirect('list_evaluation_cycles')
+        else:
+            error = "El nombre es requerido."
+            return render(request, 'System/update_evaluation_cycle.html', {'cycle': cycle, 'error': error})
+    
+    return render(request, 'System/update_evaluation_cycle.html', {'cycle': cycle})
+
+# Vista para eliminar un ciclo de evaluación
+@login_required
+def delete_evaluation_cycle(request, cycle_id):
+    try:
+        cycle = EvaluationCycle.objects.get(id=cycle_id)
+    except EvaluationCycle.DoesNotExist:
+        return redirect('list_evaluation_cycles')
+    
+    if request.method == 'POST':
+        cycle.delete()
+        return redirect('list_evaluation_cycles')
+    
+    return render(request, 'System/delete_evaluation_cycle.html', {'cycle': cycle})
