@@ -1,0 +1,355 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Evaluar Empleados{% endblock %}
+{% block content %}
+<h2>Evaluación Semestral de Desempeño y Desarrollo Profesional (Empleados)</h2>
+
+<!-- Selector para elegir al empleado asignado -->
+<form method="get" action="">
+    <label>Seleccionar usuario a evaluar:</label>
+    <select name="employee_id" onchange="this.form.submit()">
+        <option value="">-- Seleccione --</option>
+        {% for emp in assigned_employees %}
+            <option value="{{ emp.id }}" {% if selected_employee and emp.id == selected_employee.id %}selected{% endif %}>
+                {{ emp.first_name }} {{ emp.last_name }}
+            </option>
+        {% endfor %}
+    </select>
+</form>
+
+{% if selected_employee %}
+    <hr>
+    <p><strong>Posición del usuario a evaluar:</strong> {{ selected_employee.position.position_name }}</p>
+    <hr>
+    <!-- Formulario de evaluación -->
+    <form method="post">
+        {% csrf_token %}
+        <!-- Campo hidden para identificar al empleado evaluado -->
+        <input type="hidden" name="employee_id" value="{{ selected_employee.id }}">
+
+        <!-- Sección: Responsabilidades de la posición (R) -->
+        <h3>Responsabilidades de la posición</h3>
+        <table border="1" cellspacing="0" cellpadding="5">
+            <tr>
+                <th>R1</th>
+                <td><input type="number" name="R1" id="R1" value="{{ evaluation_details_data.R1|default_if_none:'' }}" oninput="calcCategory('R')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>R2</th>
+                <td><input type="number" name="R2" id="R2" value="{{ evaluation_details_data.R2|default_if_none:'' }}" oninput="calcCategory('R')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>R3</th>
+                <td><input type="number" name="R3" id="R3" value="{{ evaluation_details_data.R3|default_if_none:'' }}" oninput="calcCategory('R')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>R4</th>
+                <td><input type="number" name="R4" id="R4" value="{{ evaluation_details_data.R4|default_if_none:'' }}" oninput="calcCategory('R')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>R5</th>
+                <td><input type="number" name="R5" id="R5" value="{{ evaluation_details_data.R5|default_if_none:'' }}" oninput="calcCategory('R')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>Comentarios R</th>
+                <td><textarea name="R_comments">{{ evaluation_details_data.R_comments }}</textarea></td>
+            </tr>
+            <tr>
+                <th>Promedio R</th>
+                <td><span id="R_avg">0</span></td>
+            </tr>
+        </table>
+
+        <!-- Sección: Habilidades (H) -->
+        <h3>Habilidades</h3>
+        <table border="1" cellspacing="0" cellpadding="5">
+            <tr>
+                <th>H1</th>
+                <td><input type="number" name="H1" id="H1" value="{{ evaluation_details_data.H1|default_if_none:'' }}" oninput="calcCategory('H')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>H2</th>
+                <td><input type="number" name="H2" id="H2" value="{{ evaluation_details_data.H2|default_if_none:'' }}" oninput="calcCategory('H')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>H3</th>
+                <td><input type="number" name="H3" id="H3" value="{{ evaluation_details_data.H3|default_if_none:'' }}" oninput="calcCategory('H')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>H4</th>
+                <td><input type="number" name="H4" id="H4" value="{{ evaluation_details_data.H4|default_if_none:'' }}" oninput="calcCategory('H')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>H5</th>
+                <td><input type="number" name="H5" id="H5" value="{{ evaluation_details_data.H5|default_if_none:'' }}" oninput="calcCategory('H')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>Comentarios H</th>
+                <td><textarea name="H_comments">{{ evaluation_details_data.H_comments }}</textarea></td>
+            </tr>
+            <tr>
+                <th>Promedio H</th>
+                <td><span id="H_avg">0</span></td>
+            </tr>
+        </table>
+
+        <!-- Sección: Enfoque (E) -->
+        <h3>Enfoque</h3>
+        <table border="1" cellspacing="0" cellpadding="5">
+            <tr>
+                <th>E1</th>
+                <td><input type="number" name="E1" id="E1" value="{{ evaluation_details_data.E1|default_if_none:'' }}" oninput="calcCategory('E')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>E2</th>
+                <td><input type="number" name="E2" id="E2" value="{{ evaluation_details_data.E2|default_if_none:'' }}" oninput="calcCategory('E')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>E3</th>
+                <td><input type="number" name="E3" id="E3" value="{{ evaluation_details_data.E3|default_if_none:'' }}" oninput="calcCategory('E')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>E4</th>
+                <td><input type="number" name="E4" id="E4" value="{{ evaluation_details_data.E4|default_if_none:'' }}" oninput="calcCategory('E')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>Comentarios E</th>
+                <td><textarea name="E_comments">{{ evaluation_details_data.E_comments }}</textarea></td>
+            </tr>
+            <tr>
+                <th>Promedio E</th>
+                <td><span id="E_avg">0</span></td>
+            </tr>
+        </table>
+
+        <!-- Sección: Competencia Técnica (C) -->
+        <h3>Competencia Técnica</h3>
+        <table border="1" cellspacing="0" cellpadding="5">
+            <tr>
+                <th>C1</th>
+                <td><input type="number" name="C1" id="C1" value="{{ evaluation_details_data.C1|default_if_none:'' }}" oninput="calcCategory('C')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>C2</th>
+                <td><input type="number" name="C2" id="C2" value="{{ evaluation_details_data.C2|default_if_none:'' }}" oninput="calcCategory('C')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>C3</th>
+                <td><input type="number" name="C3" id="C3" value="{{ evaluation_details_data.C3|default_if_none:'' }}" oninput="calcCategory('C')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>C4</th>
+                <td><input type="number" name="C4" id="C4" value="{{ evaluation_details_data.C4|default_if_none:'' }}" oninput="calcCategory('C')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>C5</th>
+                <td><input type="number" name="C5" id="C5" value="{{ evaluation_details_data.C5|default_if_none:'' }}" oninput="calcCategory('C')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>C6</th>
+                <td><input type="number" name="C6" id="C6" value="{{ evaluation_details_data.C6|default_if_none:'' }}" oninput="calcCategory('C')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>Comentarios C</th>
+                <td><textarea name="C_comments">{{ evaluation_details_data.C_comments }}</textarea></td>
+            </tr>
+            <tr>
+                <th>Promedio C</th>
+                <td><span id="C_avg">0</span></td>
+            </tr>
+        </table>
+
+        <!-- Sección: Metas y Resultados (M) -->
+        <h3>Metas y Resultados</h3>
+        <table border="1" cellspacing="0" cellpadding="5">
+            <tr>
+                <th>M1</th>
+                <td><input type="number" name="M1" id="M1" value="{{ evaluation_details_data.M1|default_if_none:'' }}" oninput="calcCategory('M')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>M2</th>
+                <td><input type="number" name="M2" id="M2" value="{{ evaluation_details_data.M2|default_if_none:'' }}" oninput="calcCategory('M')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>Comentarios M</th>
+                <td><textarea name="M_comments">{{ evaluation_details_data.M_comments }}</textarea></td>
+            </tr>
+            <tr>
+                <th>Promedio M</th>
+                <td><span id="M_avg">0</span></td>
+            </tr>
+        </table>
+
+        <!-- Sección: Valores Corporativos (V) -->
+        <h3>Valores Corporativos</h3>
+        <table border="1" cellspacing="0" cellpadding="5">
+            <tr>
+                <th>V1</th>
+                <td><input type="number" name="V1" id="V1" value="{{ evaluation_details_data.V1|default_if_none:'' }}" oninput="calcCategory('V')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>V2</th>
+                <td><input type="number" name="V2" id="V2" value="{{ evaluation_details_data.V2|default_if_none:'' }}" oninput="calcCategory('V')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>V3</th>
+                <td><input type="number" name="V3" id="V3" value="{{ evaluation_details_data.V3|default_if_none:'' }}" oninput="calcCategory('V')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>V4</th>
+                <td><input type="number" name="V4" id="V4" value="{{ evaluation_details_data.V4|default_if_none:'' }}" oninput="calcCategory('V')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>V5</th>
+                <td><input type="number" name="V5" id="V5" value="{{ evaluation_details_data.V5|default_if_none:'' }}" oninput="calcCategory('V')" min="1" max="5"></td>
+            </tr>
+            <tr>
+                <th>Comentarios V</th>
+                <td><textarea name="V_comments">{{ evaluation_details_data.V_comments }}</textarea></td>
+            </tr>
+            <tr>
+                <th>Promedio V</th>
+                <td><span id="V_avg">0</span></td>
+            </tr>
+        </table>
+
+        <!-- Comentarios finales -->
+        <h3>Comentarios Finales</h3>
+        <textarea name="final_comments" rows="4" cols="50">{{ evaluation_details_data.final_comments }}</textarea>
+
+        <hr>
+        <!-- Resumen de desempeño -->
+        <h3>RESUMEN DE DESEMPEÑO</h3>
+        <table border="1" cellspacing="0" cellpadding="5">
+            <tr>
+                <th>Área de Evaluación</th>
+                <th>Score (Promedio)</th>
+                <th>Weight</th>
+                <th>Weighted Score</th>
+            </tr>
+            <tr>
+                <td>Responsabilidades de la posición (R)</td>
+                <td><span id="R_avg2">0</span></td>
+                <td>0.40</td>
+                <td><span id="R_weighted">0</span></td>
+            </tr>
+            <tr>
+                <td>Habilidades (H)</td>
+                <td><span id="H_avg2">0</span></td>
+                <td>0.10</td>
+                <td><span id="H_weighted">0</span></td>
+            </tr>
+            <tr>
+                <td>Enfoque (E)</td>
+                <td><span id="E_avg2">0</span></td>
+                <td>0.10</td>
+                <td><span id="E_weighted">0</span></td>
+            </tr>
+            <tr>
+                <td>Competencia Técnica (C)</td>
+                <td><span id="C_avg2">0</span></td>
+                <td>0.15</td>
+                <td><span id="C_weighted">0</span></td>
+            </tr>
+            <tr>
+                <td>Metas y Resultados (M)</td>
+                <td><span id="M_avg2">0</span></td>
+                <td>0.15</td>
+                <td><span id="M_weighted">0</span></td>
+            </tr>
+            <tr>
+                <td>Valores Corporativos (V)</td>
+                <td><span id="V_avg2">0</span></td>
+                <td>0.10</td>
+                <td><span id="V_weighted">0</span></td>
+            </tr>
+            <tr>
+                <th colspan="3">Total</th>
+                <th><span id="final_score">0</span></th>
+            </tr>
+        </table>
+
+        <br>
+        <button type="submit" name="action" value="Enviar formulario">Enviar formulario</button>
+        <button type="submit" name="action" value="Limpiar formulario">Limpiar formulario</button>
+    </form>
+{% endif %}
+
+<script>
+// Función para calcular el promedio de una categoría
+function calcCategory(category) {
+    let inputs = [];
+    if (category === 'R') {
+        for(let i = 1; i <= 5; i++){
+            inputs.push(document.getElementById(category + i));
+        }
+    } else if (category === 'H') {
+        for(let i = 1; i <= 5; i++){
+            inputs.push(document.getElementById(category + i));
+        }
+    } else if (category === 'E') {
+        for(let i = 1; i <= 4; i++){
+            inputs.push(document.getElementById(category + i));
+        }
+    } else if (category === 'C') {
+        for(let i = 1; i <= 6; i++){
+            inputs.push(document.getElementById(category + i));
+        }
+    } else if (category === 'M') {
+        for(let i = 1; i <= 2; i++){
+            inputs.push(document.getElementById(category + i));
+        }
+    } else if (category === 'V') {
+        for(let i = 1; i <= 5; i++){
+            inputs.push(document.getElementById(category + i));
+        }
+    }
+    let sum = 0;
+    inputs.forEach(el => {
+        sum += parseFloat(el.value) || 0;
+    });
+    let totalCount = inputs.length;
+    let avg = sum / totalCount;
+    document.getElementById(category + "_avg").textContent = avg.toFixed(2);
+    updateSummary();
+}
+
+function updateSummary() {
+    // Obtener los promedios de cada categoría
+    let Ravg = parseFloat(document.getElementById("R_avg").textContent) || 0;
+    let Havg = parseFloat(document.getElementById("H_avg").textContent) || 0;
+    let Eavg = parseFloat(document.getElementById("E_avg").textContent) || 0;
+    let Cavg = parseFloat(document.getElementById("C_avg").textContent) || 0;
+    let Mavg = parseFloat(document.getElementById("M_avg").textContent) || 0;
+    let Vavg = parseFloat(document.getElementById("V_avg").textContent) || 0;
+    
+    // Actualizar promedios en el resumen
+    document.getElementById("R_avg2").textContent = Ravg.toFixed(2);
+    document.getElementById("H_avg2").textContent = Havg.toFixed(2);
+    document.getElementById("E_avg2").textContent = Eavg.toFixed(2);
+    document.getElementById("C_avg2").textContent = Cavg.toFixed(2);
+    document.getElementById("M_avg2").textContent = Mavg.toFixed(2);
+    document.getElementById("V_avg2").textContent = Vavg.toFixed(2);
+    
+    // Pesos para evaluaciones de empleados
+    let wR = 0.40, wH = 0.10, wE = 0.10, wC = 0.15, wM = 0.15, wV = 0.10;
+    
+    let Rw = Ravg * wR;
+    let Hw = Havg * wH;
+    let Ew = Eavg * wE;
+    let Cw = Cavg * wC;
+    let Mw = Mavg * wM;
+    let Vw = Vavg * wV;
+    
+    document.getElementById("R_weighted").textContent = Rw.toFixed(2);
+    document.getElementById("H_weighted").textContent = Hw.toFixed(2);
+    document.getElementById("E_weighted").textContent = Ew.toFixed(2);
+    document.getElementById("C_weighted").textContent = Cw.toFixed(2);
+    document.getElementById("M_weighted").textContent = Mw.toFixed(2);
+    document.getElementById("V_weighted").textContent = Vw.toFixed(2);
+    
+    let total = Rw + Hw + Ew + Cw + Mw + Vw;
+    document.getElementById("final_score").textContent = total.toFixed(2);
+}
+</script>
+{% endblock %}

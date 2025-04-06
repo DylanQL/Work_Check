@@ -652,3 +652,228 @@ def evaluate_leaders(request):
         'status_already_completed': status_already_completed
     }
     return render(request, 'System/evaluate_leaders.html', context)
+
+@login_required
+def evaluate_employees(request):
+    """
+    Vista para evaluar a empleados.
+    
+    Solo se muestran los empleados asignados al evaluador logueado (de Temp_EvaluationAssignment) 
+    cuyo user_type sea "Empleado". Si la asignación ya tiene status "Completado", se precargan los datos
+    de EvaluationDetails para editar.
+    
+    Al enviar el formulario se crean o actualizan los registros en EvaluationDetails y Summary, 
+    y se actualiza el registro de Temp_EvaluationAssignment con los IDs correspondientes y se marca como "Completado".
+    
+    Los ponderados para el cálculo son:
+      - Responsabilidades de la posición (R): 0.40
+      - Habilidades (H): 0.10
+      - Enfoque (E): 0.10
+      - Competencia Técnica (C): 0.15
+      - Metas y Resultados (M): 0.15
+      - Valores Corporativos (V): 0.10
+    """
+    # Obtener el usuario logueado (asumimos que el user_id en sesión corresponde a un UserAccount)
+    current_user_id = request.session.get('user_id')
+    from .models import UserAccount  # Asegúrate de tener importado UserAccount
+    try:
+        current_user_account = UserAccount.objects.get(id=current_user_id)
+        current_usuario = current_user_account.usuario
+    except UserAccount.DoesNotExist:
+        return redirect('login')
+
+    # Filtrar asignaciones temporales donde el evaluador sea el usuario logueado y el empleado tenga user_type "Empleado"
+    temp_assignments = Temp_EvaluationAssignment.objects.filter(evaluator=current_usuario, employee__user_type="Empleado")
+    
+    # Lista de empleados asignados
+    assigned_employees = [assignment.employee for assignment in temp_assignments]
+    # Mapeo: employee_id -> asignación
+    assignment_by_employee = {a.employee.id: a for a in temp_assignments}
+
+    # Capturar el empleado seleccionado vía GET
+    selected_employee_id = request.GET.get('employee_id', '')
+    selected_employee = None
+    assignment_selected = None
+    evaluation_details_data = {}
+    status_already_completed = False
+
+    if selected_employee_id:
+        try:
+            selected_employee_id = int(selected_employee_id)
+            selected_employee = current_usuario.__class__.objects.get(id=selected_employee_id)
+            # O alternativamente: Usuario.objects.get(id=selected_employee_id)
+            assignment_selected = assignment_by_employee.get(selected_employee_id)
+            if assignment_selected and assignment_selected.status == "Completado":
+                if assignment_selected.evaluation_details:
+                    ed = assignment_selected.evaluation_details
+                    status_already_completed = True
+                    evaluation_details_data = {
+                        'R1': ed.R1, 'R2': ed.R2, 'R3': ed.R3, 'R4': ed.R4, 'R5': ed.R5,
+                        'R_comments': ed.R_comments,
+                        'H1': ed.H1, 'H2': ed.H2, 'H3': ed.H3, 'H4': ed.H4, 'H5': ed.H5,
+                        'H_comments': ed.H_comments,
+                        'E1': ed.E1, 'E2': ed.E2, 'E3': ed.E3, 'E4': ed.E4,
+                        'E_comments': ed.E_comments,
+                        'C1': ed.C1, 'C2': ed.C2, 'C3': ed.C3, 'C4': ed.C4, 'C5': ed.C5, 'C6': ed.C6,
+                        'C_comments': ed.C_comments,
+                        'M1': ed.M1, 'M2': ed.M2,
+                        'M_comments': ed.M_comments,
+                        'V1': ed.V1, 'V2': ed.V2, 'V3': ed.V3, 'V4': ed.V4, 'V5': ed.V5,
+                        'V_comments': ed.V_comments,
+                        'final_comments': ed.final_comments
+                    }
+        except (ValueError, Exception):
+            selected_employee = None
+
+    # Procesar el envío del formulario
+    if request.method == 'POST':
+        # Se asume que se envía un campo hidden "employee_id"
+        employee_id_post = request.POST.get('employee_id')
+        try:
+            employee_id_post = int(employee_id_post)
+        except (ValueError, TypeError):
+            employee_id_post = None
+
+        # Recoger todos los campos del formulario para EvaluationDetails
+        R1 = request.POST.get('R1', 0)
+        R2 = request.POST.get('R2', 0)
+        R3 = request.POST.get('R3', 0)
+        R4 = request.POST.get('R4', 0)
+        R5 = request.POST.get('R5', 0)
+        R_comments = request.POST.get('R_comments', '')
+
+        H1 = request.POST.get('H1', 0)
+        H2 = request.POST.get('H2', 0)
+        H3 = request.POST.get('H3', 0)
+        H4 = request.POST.get('H4', 0)
+        H5 = request.POST.get('H5', 0)
+        H_comments = request.POST.get('H_comments', '')
+
+        E1 = request.POST.get('E1', 0)
+        E2 = request.POST.get('E2', 0)
+        E3 = request.POST.get('E3', 0)
+        E4 = request.POST.get('E4', 0)
+        E_comments = request.POST.get('E_comments', '')
+
+        C1 = request.POST.get('C1', 0)
+        C2 = request.POST.get('C2', 0)
+        C3 = request.POST.get('C3', 0)
+        C4 = request.POST.get('C4', 0)
+        C5 = request.POST.get('C5', 0)
+        C6 = request.POST.get('C6', 0)
+        C_comments = request.POST.get('C_comments', '')
+
+        M1 = request.POST.get('M1', 0)
+        M2 = request.POST.get('M2', 0)
+        M_comments = request.POST.get('M_comments', '')
+
+        V1 = request.POST.get('V1', 0)
+        V2 = request.POST.get('V2', 0)
+        V3 = request.POST.get('V3', 0)
+        V4 = request.POST.get('V4', 0)
+        V5 = request.POST.get('V5', 0)
+        V_comments = request.POST.get('V_comments', '')
+
+        final_comments = request.POST.get('final_comments', '')
+
+        button_clicked = request.POST.get('action')
+        if button_clicked == "Limpiar formulario":
+            return redirect('evaluate_employees')
+
+        if button_clicked == "Enviar formulario" and employee_id_post:
+            from django.db import transaction
+            with transaction.atomic():
+                assignment = assignment_by_employee.get(employee_id_post)
+                if not assignment:
+                    return redirect('evaluate_employees')
+                # Crear o actualizar EvaluationDetails
+                if assignment.evaluation_details:
+                    ed = assignment.evaluation_details
+                else:
+                    from .models import EvaluationDetails
+                    ed = EvaluationDetails()
+                ed.R1 = R1; ed.R2 = R2; ed.R3 = R3; ed.R4 = R4; ed.R5 = R5; ed.R_comments = R_comments
+                ed.H1 = H1; ed.H2 = H2; ed.H3 = H3; ed.H4 = H4; ed.H5 = H5; ed.H_comments = H_comments
+                ed.E1 = E1; ed.E2 = E2; ed.E3 = E3; ed.E4 = E4; ed.E_comments = E_comments
+                ed.C1 = C1; ed.C2 = C2; ed.C3 = C3; ed.C4 = C4; ed.C5 = C5; ed.C6 = C6; ed.C_comments = C_comments
+                ed.M1 = M1; ed.M2 = M2; ed.M_comments = M_comments
+                ed.V1 = V1; ed.V2 = V2; ed.V3 = V3; ed.V4 = V4; ed.V5 = V5; ed.V_comments = V_comments
+                ed.final_comments = final_comments
+                ed.save()
+                assignment.evaluation_details = ed
+
+                # Calcular promedios (conversión a float)
+                def avg(*vals):
+                    try:
+                        numbers = [float(v) for v in vals]
+                        return sum(numbers)/len(numbers) if numbers else 0
+                    except:
+                        return 0
+
+                R_avg = avg(R1, R2, R3, R4, R5)
+                H_avg = avg(H1, H2, H3, H4, H5)
+                E_avg = avg(E1, E2, E3, E4)
+                C_avg = avg(C1, C2, C3, C4, C5, C6)
+                M_avg = avg(M1, M2)
+                V_avg = avg(V1, V2, V3, V4, V5)
+
+                # Ponderados para empleados
+                w_R = 0.40
+                w_H = 0.10
+                w_E = 0.10
+                w_C = 0.15
+                w_M = 0.15
+                w_V = 0.10
+
+                R_weighted = R_avg * w_R
+                H_weighted = H_avg * w_H
+                E_weighted = E_avg * w_E
+                C_weighted = C_avg * w_C
+                M_weighted = M_avg * w_M
+                V_weighted = V_avg * w_V
+
+                final_score = R_weighted + H_weighted + E_weighted + C_weighted + M_weighted + V_weighted
+
+                # Ejemplo de performance_level basado en final_score
+                if final_score >= 4.5:
+                    performance_level = "Sobresaliente"
+                elif final_score >= 3.5:
+                    performance_level = "Muy Bueno"
+                elif final_score >= 2.5:
+                    performance_level = "Bueno"
+                else:
+                    performance_level = "Regular"
+
+                # Crear o actualizar Summary
+                if assignment.summary:
+                    summ = assignment.summary
+                else:
+                    from .models import Summary
+                    summ = Summary()
+                summ.employee = assignment.employee
+                summ.evaluator = assignment.evaluator
+                summ.R = R_weighted
+                summ.H = H_weighted
+                summ.E = E_weighted
+                summ.C = C_weighted
+                summ.M = M_weighted
+                summ.V = V_weighted
+                summ.final_score = final_score
+                summ.performance_level = performance_level
+                summ.evaluation_type = "Empleados"
+                summ.position = assignment.employee.position
+                summ.save()
+
+                assignment.summary = summ
+                assignment.status = "Completado"
+                assignment.save()
+
+            return redirect('evaluate_employees')
+    
+    context = {
+        'assigned_employees': assigned_employees,
+        'selected_employee': selected_employee,
+        'evaluation_details_data': evaluation_details_data,
+        'status_already_completed': status_already_completed,
+    }
+    return render(request, 'System/evaluate_employees.html', context)
