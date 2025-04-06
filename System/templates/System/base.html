@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
+    <!-- Barra de navegación principal -->
     <nav>
         <ul>
             <li><a href="{% url 'home' %}">Inicio</a></li>
@@ -16,9 +17,11 @@
             <li><a href="{% url 'list_evaluation_cycles' %}">Ciclos de Evaluación</a></li>
             <li><a href="{% url 'list_temp_assignments' %}">Asignación Evaluaciones</a></li>
             <li><a href="{% url 'list_permanent_assignments' %}">Histórico Evaluaciones</a></li>
+            <li><a href="{% url 'leaders_evaluations' %}">Evaluaciones de Líderes</a></li>
             <li><a href="{% url 'logout' %}">Cerrar sesión</a></li>
         </ul>
     </nav>
+    <!-- Contenido específico de cada vista -->
     {% block content %}
     {% endblock %}
 </body>

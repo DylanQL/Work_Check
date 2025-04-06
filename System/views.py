@@ -373,3 +373,18 @@ def detail_evaluation_details(request, evaluation_details_id):
     except EvaluationDetails.DoesNotExist:
         return redirect('list_permanent_assignments')
     return render(request, 'System/detail_evaluation_details.html', {'details': details})
+
+
+@login_required
+def leaders_evaluations(request):
+    """
+    Muestra las evaluaciones de líderes.
+    
+    Se filtran los registros de Permanent_EvaluationAssignment cuyo 
+    Summary asociado tenga evaluation_type igual a "Lideres".
+    De cada registro se muestra:
+      - Desde Permanent_EvaluationAssignment: evaluation_cycle.
+      - Desde Summary: employee, evaluator, R, L, H, E, C, M, V, final_score, performance_level y position.
+    """
+    assignments = Permanent_EvaluationAssignment.objects.filter(summary__evaluation_type="Lideres")
+    return render(request, 'System/leaders_evaluations.html', {'assignments': assignments})

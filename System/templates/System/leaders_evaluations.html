@@ -1,0 +1,50 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Evaluaciones de Líderes{% endblock %}
+{% block content %}
+    <h2>Evaluaciones de Líderes</h2>
+    <table border="1" cellspacing="0" cellpadding="5">
+        <thead>
+            <tr>
+                <th>Evaluation Cycle</th>
+                <th>Employee</th>
+                <th>Evaluator</th>
+                <th>R</th>
+                <th>L</th>
+                <th>H</th>
+                <th>E</th>
+                <th>C</th>
+                <th>M</th>
+                <th>V</th>
+                <th>Final Score</th>
+                <th>Performance Level</th>
+                <th>Position</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assignment in assignments %}
+                {% if assignment.summary %}
+                    <tr>
+                        <td>{{ assignment.evaluation_cycle }}</td>
+                        <td>{{ assignment.summary.employee.first_name }} {{ assignment.summary.employee.last_name }}</td>
+                        <td>{{ assignment.summary.evaluator.first_name }} {{ assignment.summary.evaluator.last_name }}</td>
+                        <td>{{ assignment.summary.R }}</td>
+                        <td>{{ assignment.summary.L }}</td>
+                        <td>{{ assignment.summary.H }}</td>
+                        <td>{{ assignment.summary.E }}</td>
+                        <td>{{ assignment.summary.C }}</td>
+                        <td>{{ assignment.summary.M }}</td>
+                        <td>{{ assignment.summary.V }}</td>
+                        <td>{{ assignment.summary.final_score }}</td>
+                        <td>{{ assignment.summary.performance_level }}</td>
+                        <td>{{ assignment.summary.position.position_name }}</td>
+                    </tr>
+                {% endif %}
+            {% empty %}
+                <tr>
+                    <td colspan="13">No hay evaluaciones de líderes.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

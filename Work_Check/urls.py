@@ -54,4 +54,7 @@ urlpatterns = [
     path('permanent_assignments/', views.list_permanent_assignments, name='list_permanent_assignments'),
     path('summary/<int:summary_id>/', views.detail_summary, name='detail_summary'),
     path('evaluation_details/<int:evaluation_details_id>/', views.detail_evaluation_details, name='detail_evaluation_details'),
+
+    # Ruta para evaluaciones de líderes
+    path('leaders_evaluations/', views.leaders_evaluations, name='leaders_evaluations'),
 ]
