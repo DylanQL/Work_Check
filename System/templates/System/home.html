@@ -1,39 +1,7 @@
 {% extends 'System/base.html' %}
+{% load static %}
 {% block title %}Inicio{% endblock %}
 {% block content %}
     <h2>Bienvenido a Work Check</h2>
     <p>Selecciona una opción del menú.</p>
-    
-    <h3>Lista de Usuarios</h3>
-    <table border="1" cellspacing="0" cellpadding="5">
-        <thead>
-            <tr>
-                <th>Nombre Completo</th>
-                <th>Tipo</th>
-                <th>Posición</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for usuario in usuarios %}
-                <tr>
-                    <td>
-                        {{ usuario.first_name }} 
-                        {% if usuario.middle_name %}{{ usuario.middle_name }}{% endif %} 
-                        {{ usuario.last_name }} 
-                        {% if usuario.second_last_name %}{{ usuario.second_last_name }}{% endif %}
-                    </td>
-                    <td>{{ usuario.user_type }}</td>
-                    <td>{{ usuario.position.position_name }}</td>
-                    <td>
-                        <a href="{% url 'update_user' usuario.id %}">Actualizar</a>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="4">No hay usuarios registrados.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 {% endblock %}

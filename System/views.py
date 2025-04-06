@@ -36,8 +36,13 @@ def logout_view(request):
 # Vista principal (acceso restringido)
 @login_required
 def home(request):
+    return render(request, 'System/home.html')
+
+# Nueva vista para gestionar usuarios (lista de usuarios)
+@login_required
+def manage_users(request):
     usuarios = Usuario.objects.all()
-    return render(request, 'System/home.html', {'usuarios': usuarios})
+    return render(request, 'System/manage_users.html', {'usuarios': usuarios})
 
 
 # Vista para agregar usuarios

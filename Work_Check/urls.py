@@ -23,10 +23,13 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('', views.home, name='home'),
+
+    # Rutas para gestión de usuarios
+    path('users/', views.manage_users, name='manage_users'),
     path('add_user/', views.add_user, name='add_user'),
     path('update_user/<int:user_id>/', views.update_user, name='update_user'),
-    
-    # Rutas para la gestión de cuentas (UserAccount)
+
+    # Rutas para la gestión de cuentas existentes...
     path('accounts/', views.list_accounts, name='list_accounts'),
     path('accounts/update/<int:account_id>/', views.update_account, name='update_account'),
 ]
