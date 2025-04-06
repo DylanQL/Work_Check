@@ -24,6 +24,7 @@
                     <td>{{ assign.employee.first_name }} {{ assign.employee.last_name }}</td>
                     <td>{{ assign.status }}</td>
                     <td>{{ assign.evaluation_cycle }}</td>
+                    <!-- Columna para Summary: si existe, se muestra como enlace a detail_summary -->
                     <td>
                         {% if assign.summary %}
                             <a href="{% url 'detail_summary' assign.summary.id %}">{{ assign.summary.id }}</a>
@@ -31,9 +32,10 @@
                             -
                         {% endif %}
                     </td>
+                    <!-- Columna para Evaluation Details: si Summary tiene evaluation_details, se muestra como enlace -->
                     <td>
-                        {% if assign.evaluation_details %}
-                            <a href="{% url 'detail_evaluation_details' assign.evaluation_details.id %}">{{ assign.evaluation_details.id }}</a>
+                        {% if assign.summary and assign.summary.evaluation_details %}
+                            <a href="{% url 'detail_evaluation_details' assign.summary.evaluation_details.id %}">{{ assign.summary.evaluation_details.id }}</a>
                         {% else %}
                             -
                         {% endif %}
