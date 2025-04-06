@@ -60,4 +60,7 @@ urlpatterns = [
 
     # Ruta para evaluaciones de empleados
     path('employees_evaluations/', views.employees_evaluations, name='employees_evaluations'),
+
+    path('evaluation_form/', views.evaluation_form_view, name='evaluation_form'),
+
 ]

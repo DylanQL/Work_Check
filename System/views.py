@@ -403,3 +403,187 @@ def employees_evaluations(request):
     """
     assignments = Permanent_EvaluationAssignment.objects.filter(summary__evaluation_type="Empleados")
     return render(request, 'System/employees_evaluations.html', {'assignments': assignments})
+
+
+
+@login_required
+def evaluation_form_view(request):
+    """
+    Vista para mostrar y procesar el Formulario de Evaluación.
+    - Solo aparecen usuarios (employee) con status "Pendiente" asignados al usuario logueado (evaluator).
+    - Al enviar, se crea un registro en EvaluationDetails y Summary.
+    - Se actualiza el campo summary en Temp_EvaluationAssignment con el ID del Summary creado.
+    """
+    # 1. Identificar al usuario logueado
+    user_account_id = request.session.get('user_id')
+    # Obtener el usuario (evaluator) asociado a esa cuenta
+    # Asumiendo que tienes un modelo UserAccount que relaciona con Usuario
+    from .models import UserAccount  
+    try:
+        user_account = UserAccount.objects.get(id=user_account_id)
+        evaluator_usuario = user_account.usuario
+    except UserAccount.DoesNotExist:
+        return redirect('logout')
+
+    # 2. Obtener los empleados asignados al usuario logueado con status "Pendiente"
+    #    (Temp_EvaluationAssignment)
+    assignments = Temp_EvaluationAssignment.objects.filter(
+        evaluator=evaluator_usuario,
+        status="Pendiente"
+    )
+
+    # Obtener la lista de usuarios (employee) y sus posiciones
+    # para rellenar el select y luego actualizar dinámicamente la posición
+    employees_data = []
+    for a in assignments:
+        emp = a.employee
+        employees_data.append({
+            'id': emp.id,
+            'nombre': f"{emp.first_name} {emp.last_name}",
+            'position': emp.position.position_name  # se asume que emp.position existe
+        })
+
+    if request.method == 'POST':
+        # 3. Procesar el envío del formulario
+        #    a) Identificar al employee seleccionado y la asignación
+        employee_id = request.POST.get('employee_id')
+        try:
+            assignment = Temp_EvaluationAssignment.objects.get(
+                evaluator=evaluator_usuario,
+                employee_id=employee_id,
+                status="Pendiente"
+            )
+        except Temp_EvaluationAssignment.DoesNotExist:
+            messages.error(request, "No se encontró la asignación pendiente para ese usuario.")
+            return redirect('evaluation_form')
+
+        # b) Crear registro en EvaluationDetails con los campos R1..R5, L1..L5, etc.
+        #    Parsear valores numéricos (pueden llegar como strings)
+        def parse_int(value):
+            try:
+                return int(value)
+            except:
+                return 0
+
+        R1 = parse_int(request.POST.get('R1'))
+        R2 = parse_int(request.POST.get('R2'))
+        R3 = parse_int(request.POST.get('R3'))
+        R4 = parse_int(request.POST.get('R4'))
+        R5 = parse_int(request.POST.get('R5'))
+        R_comments = request.POST.get('R_comments', '')
+
+        L1 = parse_int(request.POST.get('L1'))
+        L2 = parse_int(request.POST.get('L2'))
+        L3 = parse_int(request.POST.get('L3'))
+        L4 = parse_int(request.POST.get('L4'))
+        L5 = parse_int(request.POST.get('L5'))
+        L_comments = request.POST.get('L_comments', '')
+
+        H1 = parse_int(request.POST.get('H1'))
+        H2 = parse_int(request.POST.get('H2'))
+        H3 = parse_int(request.POST.get('H3'))
+        H4 = parse_int(request.POST.get('H4'))
+        H5 = parse_int(request.POST.get('H5'))
+        H_comments = request.POST.get('H_comments', '')
+
+        E1 = parse_int(request.POST.get('E1'))
+        E2 = parse_int(request.POST.get('E2'))
+        E3 = parse_int(request.POST.get('E3'))
+        E4 = parse_int(request.POST.get('E4'))
+        E_comments = request.POST.get('E_comments', '')
+
+        C1 = parse_int(request.POST.get('C1'))
+        C2 = parse_int(request.POST.get('C2'))
+        C3 = parse_int(request.POST.get('C3'))
+        C4 = parse_int(request.POST.get('C4'))
+        C5 = parse_int(request.POST.get('C5'))
+        C6 = parse_int(request.POST.get('C6'))
+        C_comments = request.POST.get('C_comments', '')
+
+        M1 = parse_int(request.POST.get('M1'))
+        M2 = parse_int(request.POST.get('M2'))
+        M_comments = request.POST.get('M_comments', '')
+
+        V1 = parse_int(request.POST.get('V1'))
+        V2 = parse_int(request.POST.get('V2'))
+        V3 = parse_int(request.POST.get('V3'))
+        V4 = parse_int(request.POST.get('V4'))
+        V5 = parse_int(request.POST.get('V5'))
+        V_comments = request.POST.get('V_comments', '')
+
+        final_comments = request.POST.get('final_comments', '')
+
+        # Crear EvaluationDetails
+        evaluation_details = EvaluationDetails.objects.create(
+            R1=R1, R2=R2, R3=R3, R4=R4, R5=R5, R_comments=R_comments,
+            L1=L1, L2=L2, L3=L3, L4=L4, L5=L5, L_comments=L_comments,
+            H1=H1, H2=H2, H3=H3, H4=H4, H5=H5, H_comments=H_comments,
+            E1=E1, E2=E2, E3=E3, E4=E4, E_comments=E_comments,
+            C1=C1, C2=C2, C3=C3, C4=C4, C5=C5, C6=C6, C_comments=C_comments,
+            M1=M1, M2=M2, M_comments=M_comments,
+            V1=V1, V2=V2, V3=V3, V4=V4, V5=V5, V_comments=V_comments,
+            final_comments=final_comments
+        )
+
+        # c) Calcular promedios y final_score
+        avg_R = (R1 + R2 + R3 + R4 + R5) / 5
+        avg_L = (L1 + L2 + L3 + L4 + L5) / 5
+        avg_H = (H1 + H2 + H3 + H4 + H5) / 5
+        avg_E = (E1 + E2 + E3 + E4) / 4
+        avg_C = (C1 + C2 + C3 + C4 + C5 + C6) / 6
+        avg_M = (M1 + M2) / 2
+        avg_V = (V1 + V2 + V3 + V4 + V5) / 5
+
+        # Ponderaciones
+        weighted_R = avg_R * 0.20
+        weighted_L = avg_L * 0.20
+        weighted_H = avg_H * 0.10
+        weighted_E = avg_E * 0.10
+        weighted_C = avg_C * 0.15
+        weighted_M = avg_M * 0.15
+        weighted_V = avg_V * 0.10
+
+        final_score = weighted_R + weighted_L + weighted_H + weighted_E + weighted_C + weighted_M + weighted_V
+
+        # d) Determinar performance_level según final_score
+        if 1.0 <= final_score <= 1.99:
+            performance_level = "Nivel 1"
+        elif 2.0 <= final_score <= 2.74:
+            performance_level = "Nivel 2"
+        elif 2.75 <= final_score <= 3.49:
+            performance_level = "Nivel 3"
+        elif 3.5 <= final_score <= 4.49:
+            performance_level = "Nivel 4"
+        elif 4.5 <= final_score <= 5.0:
+            performance_level = "Nivel 5"
+        else:
+            performance_level = "Fuera de rango"
+
+        # e) Crear Summary
+        #    Asumimos que evaluation_type podría ser "Empleados" o "Lideres". 
+        #    Aquí podrías definir la lógica para setearlo según tu necesidad.
+        #    Como no está especificado, usaremos "Empleados" a modo de ejemplo.
+        summary_obj = Summary.objects.create(
+            employee=assignment.employee,
+            evaluator=assignment.evaluator,
+            R=avg_R, L=avg_L, H=avg_H, E=avg_E, C=avg_C, M=avg_M, V=avg_V,
+            final_score=final_score,
+            performance_level=performance_level,
+            evaluation_type="Empleados",  # o "Lideres" según corresponda
+            position=assignment.employee.position,
+            evaluation_details=evaluation_details
+        )
+
+        # f) Actualizar Temp_EvaluationAssignment con el summary recién creado
+        assignment.summary = summary_obj
+        # (Opcional) Cambiar el status a "Completado"
+        assignment.status = "Completado"
+        assignment.save()
+
+        messages.success(request, "Evaluación guardada exitosamente.")
+        return redirect('evaluation_form')
+
+    # GET: mostrar el formulario
+    return render(request, 'System/evaluation_form.html', {
+        'employees_data': employees_data
+    })

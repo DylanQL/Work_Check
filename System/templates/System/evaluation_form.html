@@ -1,0 +1,267 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Formulario de Evaluación{% endblock %}
+{% block content %}
+<h2>Formulario de Evaluación</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    <!-- Selección de usuario a evaluar -->
+    <label>Seleccionar usuario a evaluar:</label>
+    <select name="employee_id" id="employeeSelect" onchange="updatePosition()" required>
+        <option value="">-- Seleccionar --</option>
+        {% for emp in employees_data %}
+            <option value="{{ emp.id }}">{{ emp.nombre }}</option>
+        {% endfor %}
+    </select>
+    <br><br>
+
+    <!-- Posición del usuario seleccionado -->
+    <label>Posición del usuario a evaluar:</label>
+    <span id="positionDisplay"></span>
+    <br><br>
+
+    <!-- Sección R (Responsabilidades de la posición) -->
+    <h3>Responsabilidades de la posición (R1..R5)</h3>
+    <div>
+        <label>R1:</label><input type="number" name="R1" id="R1" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>R2:</label><input type="number" name="R2" id="R2" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>R3:</label><input type="number" name="R3" id="R3" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>R4:</label><input type="number" name="R4" id="R4" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>R5:</label><input type="number" name="R5" id="R5" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>Comentarios R:</label><br>
+        <textarea name="R_comments" rows="2" cols="50"></textarea>
+        <p>Promedio R: <span id="avgR">0</span></p>
+    </div>
+
+    <!-- Sección L (Responsabilidades por liderazgo) -->
+    <h3>Responsabilidades por liderazgo (L1..L5)</h3>
+    <div>
+        <label>L1:</label><input type="number" name="L1" id="L1" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>L2:</label><input type="number" name="L2" id="L2" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>L3:</label><input type="number" name="L3" id="L3" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>L4:</label><input type="number" name="L4" id="L4" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>L5:</label><input type="number" name="L5" id="L5" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>Comentarios L:</label><br>
+        <textarea name="L_comments" rows="2" cols="50"></textarea>
+        <p>Promedio L: <span id="avgL">0</span></p>
+    </div>
+
+    <!-- Sección H (Habilidades) -->
+    <h3>Habilidades (H1..H5)</h3>
+    <div>
+        <label>H1:</label><input type="number" name="H1" id="H1" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>H2:</label><input type="number" name="H2" id="H2" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>H3:</label><input type="number" name="H3" id="H3" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>H4:</label><input type="number" name="H4" id="H4" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>H5:</label><input type="number" name="H5" id="H5" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>Comentarios H:</label><br>
+        <textarea name="H_comments" rows="2" cols="50"></textarea>
+        <p>Promedio H: <span id="avgH">0</span></p>
+    </div>
+
+    <!-- Sección E (Enfoque) -->
+    <h3>Enfoque (E1..E4)</h3>
+    <div>
+        <label>E1:</label><input type="number" name="E1" id="E1" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>E2:</label><input type="number" name="E2" id="E2" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>E3:</label><input type="number" name="E3" id="E3" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>E4:</label><input type="number" name="E4" id="E4" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>Comentarios E:</label><br>
+        <textarea name="E_comments" rows="2" cols="50"></textarea>
+        <p>Promedio E: <span id="avgE">0</span></p>
+    </div>
+
+    <!-- Sección C (Competencia Técnica) -->
+    <h3>Competencia Técnica (C1..C6)</h3>
+    <div>
+        <label>C1:</label><input type="number" name="C1" id="C1" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>C2:</label><input type="number" name="C2" id="C2" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>C3:</label><input type="number" name="C3" id="C3" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>C4:</label><input type="number" name="C4" id="C4" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>C5:</label><input type="number" name="C5" id="C5" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>C6:</label><input type="number" name="C6" id="C6" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>Comentarios C:</label><br>
+        <textarea name="C_comments" rows="2" cols="50"></textarea>
+        <p>Promedio C: <span id="avgC">0</span></p>
+    </div>
+
+    <!-- Sección M (Metas y Resultados) -->
+    <h3>Metas y Resultados (M1..M2)</h3>
+    <div>
+        <label>M1:</label><input type="number" name="M1" id="M1" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>M2:</label><input type="number" name="M2" id="M2" min="1" max="5" value="0" oninput="calculateAll()"><br>
+        <label>Comentarios M:</label><br>
+        <textarea name="M_comments" rows="2" cols="50"></textarea>
+        <p>Promedio M: <span id="avgM">0</span></p>
+    </div>
+
+    <!-- Sección V (Valores Corporativos) -->
+    <h3>Valores Corporativos (V1..V5)</h3>
+    <div>
+        <label>V1:</label><input type="number" name="V1" id="V1" min="0" max="1" value="0" oninput="calculateAll()"><br>
+        <label>V2:</label><input type="number" name="V2" id="V2" min="0" max="1" value="0" oninput="calculateAll()"><br>
+        <label>V3:</label><input type="number" name="V3" id="V3" min="0" max="1" value="0" oninput="calculateAll()"><br>
+        <label>V4:</label><input type="number" name="V4" id="V4" min="0" max="1" value="0" oninput="calculateAll()"><br>
+        <label>V5:</label><input type="number" name="V5" id="V5" min="0" max="1" value="0" oninput="calculateAll()"><br>
+        <label>Comentarios V:</label><br>
+        <textarea name="V_comments" rows="2" cols="50"></textarea>
+        <p>Promedio V: <span id="avgV">0</span></p>
+    </div>
+
+    <!-- Comentarios finales -->
+    <h3>Comentarios Finales</h3>
+    <textarea name="final_comments" rows="3" cols="60"></textarea>
+
+    <!-- Resumen de Desempeño (cálculo dinámico) -->
+    <h3>Resumen de Desempeño</h3>
+    <p>Score (Promedio) | Weight | Weighted Score</p>
+    <p>Responsabilidades de la posición: <span id="avgRDisplay">0</span> x 0.20 = <span id="weightedR">0</span></p>
+    <p>Responsabilidades por liderazgo: <span id="avgLDisplay">0</span> x 0.20 = <span id="weightedL">0</span></p>
+    <p>Habilidades: <span id="avgHDisplay">0</span> x 0.10 = <span id="weightedH">0</span></p>
+    <p>Enfoque: <span id="avgEDisplay">0</span> x 0.10 = <span id="weightedE">0</span></p>
+    <p>Competencia Técnica: <span id="avgCDisplay">0</span> x 0.15 = <span id="weightedC">0</span></p>
+    <p>Metas y Resultados: <span id="avgMDisplay">0</span> x 0.15 = <span id="weightedM">0</span></p>
+    <p>Valores Corporativos: <span id="avgVDisplay">0</span> x 0.10 = <span id="weightedV">0</span></p>
+
+    <p>Total: <span id="finalScore">0</span></p>
+    <p>Nivel de Desempeño: <span id="performanceLevel">-</span></p>
+
+    <br>
+    <button type="submit">Enviar formulario</button>
+    <button type="reset" onclick="resetForm()">Limpiar formulario</button>
+</form>
+
+<!-- Diccionario para actualizar dinámicamente la posición en pantalla -->
+<script>
+    const employeesData = JSON.parse(`{{ employees_data|safe|escapejs }}`);
+
+    // Convertir array a objeto {id: position_name}
+    let userPositions = {};
+    employeesData.forEach(item => {
+        userPositions[item.id] = item.position;
+    });
+
+    function updatePosition() {
+        const select = document.getElementById("employeeSelect");
+        const userId = select.value;
+        const positionDisplay = document.getElementById("positionDisplay");
+        positionDisplay.innerText = userPositions[userId] || "";
+    }
+
+    function resetForm() {
+        // Además de "reset", podrías limpiar manualmente spans de promedio y posición
+        document.getElementById("positionDisplay").innerText = "";
+        document.getElementById("finalScore").innerText = "0";
+        document.getElementById("performanceLevel").innerText = "-";
+        // y así para los demás spans...
+    }
+
+    function calculateAll() {
+        // Leer valores
+        const R1 = parseFloat(document.getElementById("R1").value) || 0;
+        const R2 = parseFloat(document.getElementById("R2").value) || 0;
+        const R3 = parseFloat(document.getElementById("R3").value) || 0;
+        const R4 = parseFloat(document.getElementById("R4").value) || 0;
+        const R5 = parseFloat(document.getElementById("R5").value) || 0;
+
+        const L1 = parseFloat(document.getElementById("L1").value) || 0;
+        const L2 = parseFloat(document.getElementById("L2").value) || 0;
+        const L3 = parseFloat(document.getElementById("L3").value) || 0;
+        const L4 = parseFloat(document.getElementById("L4").value) || 0;
+        const L5 = parseFloat(document.getElementById("L5").value) || 0;
+
+        const H1 = parseFloat(document.getElementById("H1").value) || 0;
+        const H2 = parseFloat(document.getElementById("H2").value) || 0;
+        const H3 = parseFloat(document.getElementById("H3").value) || 0;
+        const H4 = parseFloat(document.getElementById("H4").value) || 0;
+        const H5 = parseFloat(document.getElementById("H5").value) || 0;
+
+        const E1 = parseFloat(document.getElementById("E1").value) || 0;
+        const E2 = parseFloat(document.getElementById("E2").value) || 0;
+        const E3 = parseFloat(document.getElementById("E3").value) || 0;
+        const E4 = parseFloat(document.getElementById("E4").value) || 0;
+
+        const C1 = parseFloat(document.getElementById("C1").value) || 0;
+        const C2 = parseFloat(document.getElementById("C2").value) || 0;
+        const C3 = parseFloat(document.getElementById("C3").value) || 0;
+        const C4 = parseFloat(document.getElementById("C4").value) || 0;
+        const C5 = parseFloat(document.getElementById("C5").value) || 0;
+        const C6 = parseFloat(document.getElementById("C6").value) || 0;
+
+        const M1 = parseFloat(document.getElementById("M1").value) || 0;
+        const M2 = parseFloat(document.getElementById("M2").value) || 0;
+
+        const V1 = parseFloat(document.getElementById("V1").value) || 0;
+        const V2 = parseFloat(document.getElementById("V2").value) || 0;
+        const V3 = parseFloat(document.getElementById("V3").value) || 0;
+        const V4 = parseFloat(document.getElementById("V4").value) || 0;
+        const V5 = parseFloat(document.getElementById("V5").value) || 0;
+
+        // Calcular promedios
+        const avgR = (R1 + R2 + R3 + R4 + R5) / 5;
+        const avgL = (L1 + L2 + L3 + L4 + L5) / 5;
+        const avgH = (H1 + H2 + H3 + H4 + H5) / 5;
+        const avgE = (E1 + E2 + E3 + E4) / 4;
+        const avgC = (C1 + C2 + C3 + C4 + C5 + C6) / 6;
+        const avgM = (M1 + M2) / 2;
+        const avgV = (V1 + V2 + V3 + V4 + V5) / 5;
+
+        // Mostrar promedios
+        document.getElementById("avgR").innerText = avgR.toFixed(2);
+        document.getElementById("avgL").innerText = avgL.toFixed(2);
+        document.getElementById("avgH").innerText = avgH.toFixed(2);
+        document.getElementById("avgE").innerText = avgE.toFixed(2);
+        document.getElementById("avgC").innerText = avgC.toFixed(2);
+        document.getElementById("avgM").innerText = avgM.toFixed(2);
+        document.getElementById("avgV").innerText = avgV.toFixed(2);
+
+        // También mostrar en el "Resumen de Desempeño"
+        document.getElementById("avgRDisplay").innerText = avgR.toFixed(2);
+        document.getElementById("avgLDisplay").innerText = avgL.toFixed(2);
+        document.getElementById("avgHDisplay").innerText = avgH.toFixed(2);
+        document.getElementById("avgEDisplay").innerText = avgE.toFixed(2);
+        document.getElementById("avgCDisplay").innerText = avgC.toFixed(2);
+        document.getElementById("avgMDisplay").innerText = avgM.toFixed(2);
+        document.getElementById("avgVDisplay").innerText = avgV.toFixed(2);
+
+        // Calcular Weighted Score
+        const weightedR = avgR * 0.20;
+        const weightedL = avgL * 0.20;
+        const weightedH = avgH * 0.10;
+        const weightedE = avgE * 0.10;
+        const weightedC = avgC * 0.15;
+        const weightedM = avgM * 0.15;
+        const weightedV = avgV * 0.10;
+
+        document.getElementById("weightedR").innerText = weightedR.toFixed(2);
+        document.getElementById("weightedL").innerText = weightedL.toFixed(2);
+        document.getElementById("weightedH").innerText = weightedH.toFixed(2);
+        document.getElementById("weightedE").innerText = weightedE.toFixed(2);
+        document.getElementById("weightedC").innerText = weightedC.toFixed(2);
+        document.getElementById("weightedM").innerText = weightedM.toFixed(2);
+        document.getElementById("weightedV").innerText = weightedV.toFixed(2);
+
+        // Sumar final
+        const finalScore = weightedR + weightedL + weightedH + weightedE + weightedC + weightedM + weightedV;
+        document.getElementById("finalScore").innerText = finalScore.toFixed(2);
+
+        // Determinar performance level (versión en el frontend, a modo ilustrativo)
+        let perfLevel = "-";
+        if (finalScore >= 1.0 && finalScore <= 1.99) {
+            perfLevel = "Nivel 1";
+        } else if (finalScore >= 2.0 && finalScore <= 2.74) {
+            perfLevel = "Nivel 2";
+        } else if (finalScore >= 2.75 && finalScore <= 3.49) {
+            perfLevel = "Nivel 3";
+        } else if (finalScore >= 3.5 && finalScore <= 4.49) {
+            perfLevel = "Nivel 4";
+        } else if (finalScore >= 4.5 && finalScore <= 5.0) {
+            perfLevel = "Nivel 5";
+        }
+
+        document.getElementById("performanceLevel").innerText = perfLevel;
+    }
+</script>
+{% endblock %}
