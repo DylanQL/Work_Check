@@ -309,10 +309,14 @@ def delete_temp_evaluation_assignment(request, assignment_id):
     
     return render(request, 'System/delete_temp_evaluation_assignment.html', {'assignment': assignment})
 
-# Enviar registros a histórico:
 @login_required
 def send_assignments_to_historic(request):
-    # Primero, verificar que todos los registros tengan status "Completado"
+    """
+    Envía los registros de Temp_EvaluationAssignment a Permanent_EvaluationAssignment,
+    copiando el campo summary (ID del Summary) a la nueva instancia.
+    Antes de enviar se verifica que todos los registros tengan status "Completado" y
+    que cada asignación tenga un summary asociado.
+    """
     assignments = Temp_EvaluationAssignment.objects.all()
     incomplete = assignments.exclude(status="Completado")
     if incomplete.exists():
@@ -320,21 +324,26 @@ def send_assignments_to_historic(request):
         return redirect('list_temp_assignments')
     
     if request.method == 'POST':
-        # Copiar cada registro a Permanent_EvaluationAssignment
         for assign in assignments:
+            if not assign.summary:
+                messages.error(
+                    request,
+                    f"La asignación para el empleado {assign.employee.first_name} {assign.employee.last_name} no tiene summary asociado."
+                )
+                return redirect('list_temp_assignments')
             Permanent_EvaluationAssignment.objects.create(
                 evaluator=assign.evaluator,
                 employee=assign.employee,
                 status=assign.status,
-                # summary y evaluation_details se dejan como nulos
-                evaluation_cycle=assign.evaluation_cycle
+                evaluation_cycle=assign.evaluation_cycle,
+                summary=assign.summary  # Se copia el registro de Summary
             )
-        # Borrar todos los registros de Temp_EvaluationAssignment
         assignments.delete()
         messages.success(request, "Registros enviados a histórico correctamente.")
         return redirect('list_temp_assignments')
     
     return render(request, 'System/confirm_send_assignments.html', {})
+
 
 
 # Vistas para mostrar los registros históricos (Permanent_EvaluationAssignment)
