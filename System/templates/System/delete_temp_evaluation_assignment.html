@@ -1,0 +1,12 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Eliminar Asignación Temporal{% endblock %}
+{% block content %}
+    <h2>Eliminar Asignación de Evaluación (Temporal)</h2>
+    <p>¿Estás seguro que deseas eliminar la asignación para el empleado: <strong>{{ assignment.employee.first_name }} {{ assignment.employee.last_name }}</strong>?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Eliminar</button>
+        <a href="{% url 'list_temp_assignments' %}">Cancelar</a>
+    </form>
+{% endblock %}

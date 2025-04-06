@@ -1,0 +1,49 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Gestión de Asignaciones Temporales{% endblock %}
+{% block content %}
+    <h2>Asignación de Evaluaciones (Temporal)</h2>
+    <p><a href="{% url 'create_temp_assignment' %}">Crear nueva asignación</a></p>
+    <table border="1" cellspacing="0" cellpadding="5">
+        <thead>
+            <tr>
+                <th>Evaluator</th>
+                <th>Employee</th>
+                <th>Status</th>
+                <th>Evaluation Cycle</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assign in assignments %}
+                <tr>
+                    <td>{{ assign.evaluator.first_name }} {{ assign.evaluator.last_name }}</td>
+                    <td>{{ assign.employee.first_name }} {{ assign.employee.last_name }}</td>
+                    <td>{{ assign.status }}</td>
+                    <td>{{ assign.evaluation_cycle }}</td>
+                    <td>
+                        <a href="{% url 'update_temp_assignment' assign.id %}">Actualizar</a>
+                        <!-- Se puede incluir botón de eliminar si se requiere -->
+                        <a href="{% url 'delete_temp_assignment' assign.id %}">Eliminar</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">No hay asignaciones temporales.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <form action="{% url 'send_temp_assignments' %}" method="post" onsubmit="return confirm('¿Estás seguro de enviar los registros a histórico?');">
+        {% csrf_token %}
+        <button type="submit">Enviar registros a histórico</button>
+    </form>
+    {% if messages %}
+        {% for message in messages %}
+            <p style="color: {% if message.tags == 'error' %}red{% else %}green{% endif %};">
+                {{ message }}
+            </p>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

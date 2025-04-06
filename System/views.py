@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from functools import wraps
-from .models import UserAccount, Usuario, Position, TimeSheetScore, EvaluationCycle
+from django.contrib import messages
+from .models import *
 
 # Decorador personalizado para verificar que el usuario haya iniciado sesión
 def login_required(view_func):
@@ -219,3 +220,118 @@ def delete_evaluation_cycle(request, cycle_id):
         return redirect('list_evaluation_cycles')
     
     return render(request, 'System/delete_evaluation_cycle.html', {'cycle': cycle})
+
+# Lista de asignaciones temporales (mostrar solo los registros existentes)
+@login_required
+def list_temp_evaluation_assignments(request):
+    assignments = Temp_EvaluationAssignment.objects.all()
+    return render(request, 'System/manage_temp_evaluation_assignments.html', {'assignments': assignments})
+
+# Crear una nueva asignación de evaluación
+@login_required
+def create_temp_evaluation_assignment(request):
+    # Filtrar evaluadores según user_type ("Lider" o "Gerente")
+    evaluators = Usuario.objects.filter(user_type__in=["Lider", "Gerente"])
+    # Filtrar empleados que sean "Empleado" y que aún no tengan asignación
+    assigned_employee_ids = Temp_EvaluationAssignment.objects.values_list('employee_id', flat=True)
+    allowed_employee_roles = ["Empleado", "Lider"]
+    employees = Usuario.objects.filter(user_type__in=allowed_employee_roles).exclude(id__in=assigned_employee_ids)
+    
+    if request.method == 'POST':
+        evaluator_id = request.POST.get('evaluator')
+        employee_id = request.POST.get('employee')
+        # Se asigna automáticamente el status "Pendiente"
+        status = "Pendiente"
+        
+        if Temp_EvaluationAssignment.objects.filter(employee_id=employee_id).exists():
+            error = "Ya existe una asignación para este empleado."
+            return render(request, 'System/create_temp_evaluation_assignment.html', {
+                'evaluators': evaluators,
+                'employees': employees,
+                'error': error
+            })
+        
+        # Obtener el último EvaluationCycle para asignar evaluation_cycle
+        last_cycle = EvaluationCycle.objects.order_by('-id').first()
+        evaluation_cycle_value = last_cycle.name if last_cycle else ''
+        
+        Temp_EvaluationAssignment.objects.create(
+            evaluator_id=evaluator_id,
+            employee_id=employee_id,
+            status=status,
+            evaluation_cycle=evaluation_cycle_value
+        )
+        return redirect('list_temp_assignments')
+    
+    return render(request, 'System/create_temp_evaluation_assignment.html', {
+        'evaluators': evaluators,
+        'employees': employees
+    })
+
+
+
+# Actualizar una asignación de evaluación temporal
+@login_required
+def update_temp_evaluation_assignment(request, assignment_id):
+    try:
+        assignment = Temp_EvaluationAssignment.objects.get(id=assignment_id)
+    except Temp_EvaluationAssignment.DoesNotExist:
+        return redirect('list_temp_assignments')
+    
+    # Filtrar evaluadores según user_type ("Lider" o "Gerente")
+    evaluators = Usuario.objects.filter(user_type__in=["Lider", "Gerente"])
+    
+    if request.method == 'POST':
+        evaluator_id = request.POST.get('evaluator')
+        # No se actualiza el status, que permanece "Pendiente"
+        assignment.evaluator_id = evaluator_id
+        assignment.save()
+        return redirect('list_temp_assignments')
+    
+    return render(request, 'System/update_temp_evaluation_assignment.html', {
+        'assignment': assignment,
+        'evaluators': evaluators
+    })
+
+
+
+# Eliminar una asignación temporal (opcional, si se requiere)
+@login_required
+def delete_temp_evaluation_assignment(request, assignment_id):
+    try:
+        assignment = Temp_EvaluationAssignment.objects.get(id=assignment_id)
+    except Temp_EvaluationAssignment.DoesNotExist:
+        return redirect('list_temp_evaluation_assignments')
+    
+    if request.method == 'POST':
+        assignment.delete()
+        return redirect('list_temp_evaluation_assignments')
+    
+    return render(request, 'System/delete_temp_evaluation_assignment.html', {'assignment': assignment})
+
+# Enviar registros a histórico:
+@login_required
+def send_assignments_to_historic(request):
+    # Primero, verificar que todos los registros tengan status "Completado"
+    assignments = Temp_EvaluationAssignment.objects.all()
+    incomplete = assignments.exclude(status="Completado")
+    if incomplete.exists():
+        messages.error(request, "No todos los usuarios completaron sus evaluaciones.")
+        return redirect('list_temp_assignments')
+    
+    if request.method == 'POST':
+        # Copiar cada registro a Permanent_EvaluationAssignment
+        for assign in assignments:
+            Permanent_EvaluationAssignment.objects.create(
+                evaluator=assign.evaluator,
+                employee=assign.employee,
+                status=assign.status,
+                # summary y evaluation_details se dejan como nulos
+                evaluation_cycle=assign.evaluation_cycle
+            )
+        # Borrar todos los registros de Temp_EvaluationAssignment
+        assignments.delete()
+        messages.success(request, "Registros enviados a histórico correctamente.")
+        return redirect('list_temp_assignments')
+    
+    return render(request, 'System/confirm_send_assignments.html', {})
