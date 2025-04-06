@@ -28,11 +28,11 @@ class EvaluationDetails(models.Model):
     R_comments = models.TextField(blank=True, null=True)
     
     # Responsabilidades por liderazgo
-    L1 = models.IntegerField()
-    L2 = models.IntegerField()
-    L3 = models.IntegerField()
-    L4 = models.IntegerField()
-    L5 = models.IntegerField()
+    L1 = models.IntegerField(blank=True, null=True)
+    L2 = models.IntegerField(blank=True, null=True)
+    L3 = models.IntegerField(blank=True, null=True)
+    L4 = models.IntegerField(blank=True, null=True)
+    L5 = models.IntegerField(blank=True, null=True)
     L_comments = models.TextField(blank=True, null=True)
     
     # Habilidades
@@ -79,7 +79,7 @@ class Summary(models.Model):
     employee = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='employee_summaries')
     evaluator = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='evaluator_summaries')
     R = models.FloatField() # Ponderado Responsabilidades de la posición
-    L = models.FloatField() # Ponderado Responsabilidades por liderazgo
+    L = models.FloatField(blank=True, null=True) # Ponderado Responsabilidades por liderazgo
     H = models.FloatField() # Ponderado Habilidades
     E = models.FloatField() # Ponderado Enfoque
     C = models.FloatField() # Ponderado Competencia Técnica
@@ -90,6 +90,7 @@ class Summary(models.Model):
     evaluation_type = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     position = models.ForeignKey(Position, on_delete=models.PROTECT)
+    evaluation_details = models.ForeignKey(EvaluationDetails, on_delete=models.CASCADE, null=True, blank=True)
 
 class Temp_EvaluationAssignment(models.Model):
     evaluator = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='temp_evaluator_assignments')
@@ -97,7 +98,6 @@ class Temp_EvaluationAssignment(models.Model):
     status = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     summary = models.ForeignKey(Summary, on_delete=models.CASCADE, null=True, blank=True)
-    evaluation_details = models.ForeignKey(EvaluationDetails, on_delete=models.CASCADE, null=True, blank=True)
     evaluation_cycle = models.CharField(max_length=50)
 
 class Permanent_EvaluationAssignment(models.Model):
@@ -106,7 +106,6 @@ class Permanent_EvaluationAssignment(models.Model):
     status = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     summary = models.ForeignKey(Summary, on_delete=models.CASCADE, null=True, blank=True)
-    evaluation_details = models.ForeignKey(EvaluationDetails, on_delete=models.CASCADE, null=True, blank=True)
     evaluation_cycle = models.CharField(max_length=50)
 
 class UserAccount(models.Model):
