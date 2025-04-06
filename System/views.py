@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from functools import wraps
-from .models import UserAccount, Usuario, Position
+from .models import UserAccount, Usuario, Position, TimeSheetScore
 
 # Decorador personalizado para verificar que el usuario haya iniciado sesión
 def login_required(view_func):
@@ -64,6 +64,12 @@ def add_user(request):
             second_last_name=second_last_name if second_last_name != '' else None,
             user_type=user_type,
             position_id=position_id
+        )
+        
+        # Se crea automáticamente el registro en la tabla TimeSheetScore con score_ts=0
+        TimeSheetScore.objects.create(
+            usuario=usuario,
+            score_ts=0
         )
         
         # Se genera el username concatenando first_name, last_name y second_last_name (si existe), en minúsculas sin espacios
