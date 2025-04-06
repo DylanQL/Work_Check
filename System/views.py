@@ -130,13 +130,7 @@ def update_account(request, account_id):
         account.username = request.POST.get('username').strip()
         account.password = request.POST.get('password').strip()
         account.status = request.POST.get('status').strip()
-        usuario_id = request.POST.get('usuario')
-        try:
-            account.usuario = Usuario.objects.get(id=usuario_id)
-        except Usuario.DoesNotExist:
-            pass  # Se podría manejar un error específico si se requiere
         account.save()
         return redirect('list_accounts')
     
-    usuarios = Usuario.objects.all()
-    return render(request, 'System/update_account.html', {'account': account, 'usuarios': usuarios})
+    return render(request, 'System/update_account.html', {'account': account})
