@@ -1,0 +1,27 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Crear Asignación Temporal{% endblock %}
+{% block content %}
+    <h2>Crear Asignación de Evaluación (Temporal)</h2>
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <label>Evaluator:</label>
+        <select name="evaluator" required>
+            {% for eva in evaluators %}
+                <option value="{{ eva.id }}">{{ eva.first_name }} {{ eva.last_name }}</option>
+            {% endfor %}
+        </select><br>
+        <label>Employee:</label>
+        <select name="employee" required>
+            {% for emp in employees %}
+                <option value="{{ emp.id }}">{{ emp.first_name }} {{ emp.last_name }}</option>
+            {% endfor %}
+        </select><br>
+        <!-- Status se asigna automáticamente a "Pendiente" -->
+        <p>Status: <strong>Pendiente</strong></p>
+        <button type="submit">Crear Asignación</button>
+    </form>
+{% endblock %}

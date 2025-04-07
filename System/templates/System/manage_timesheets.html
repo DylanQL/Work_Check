@@ -1,0 +1,30 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Gestión de Timesheet Scores{% endblock %}
+{% block content %}
+    <h2>Gestión de Timesheet Scores</h2>
+    <table border="1" cellspacing="0" cellpadding="5">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Puntaje</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ts in timesheets %}
+                <tr>
+                    <td>{{ ts.usuario.first_name }} {{ ts.usuario.last_name }}</td>
+                    <td>{{ ts.score_ts }}</td>
+                    <td>
+                        <a href="{% url 'update_timesheet' ts.id %}">Actualizar</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">No hay registros de Timesheet.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

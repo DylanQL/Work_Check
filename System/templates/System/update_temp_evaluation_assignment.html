@@ -1,0 +1,23 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Actualizar Asignación Temporal{% endblock %}
+{% block content %}
+    <h2>Actualizar Asignación de Evaluación (Temporal)</h2>
+    <form method="post">
+        {% csrf_token %}
+        <label>Evaluator:</label>
+        <select name="evaluator" required>
+            {% for eva in evaluators %}
+                <option value="{{ eva.id }}" {% if eva.id == assignment.evaluator.id %}selected{% endif %}>
+                    {{ eva.first_name }} {{ eva.last_name }}
+                </option>
+            {% endfor %}
+        </select><br>
+        <!-- Status se muestra en modo solo lectura -->
+        <label>Status:</label>
+        <span>{{ assignment.status }}</span><br>
+        <label>Employee Asociado: <span>{{ assignment.employee.first_name }} {{ assignment.employee.last_name }}</span></label><br>
+        <label>Evaluation Cycle: <span>{{ assignment.evaluation_cycle }}</span></label><br>
+        <button type="submit">Actualizar Asignación</button>
+    </form>
+{% endblock %}

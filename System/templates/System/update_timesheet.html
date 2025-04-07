@@ -1,0 +1,16 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Actualizar Timesheet Score{% endblock %}
+{% block content %}
+    <h2>Actualizar Timesheet Score</h2>
+    <form method="post">
+        {% csrf_token %}
+        <label>Usuario Asociado: <span>{{ timesheet.usuario.first_name }} {{ timesheet.usuario.last_name }}</span></label><br>
+        <label>Puntaje:</label>
+        <input type="number" name="score_ts" value="{{ timesheet.score_ts }}" required><br>
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+        <button type="submit">Actualizar Puntaje</button>
+    </form>
+{% endblock %}

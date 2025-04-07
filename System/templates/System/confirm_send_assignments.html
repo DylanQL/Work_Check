@@ -1,0 +1,12 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Confirmar Envío a Histórico{% endblock %}
+{% block content %}
+    <h2>Confirmar Envío a Histórico</h2>
+    <p>¿Estás seguro de enviar todos los registros a histórico?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Enviar</button>
+        <a href="{% url 'list_temp_assignments' %}">Cancelar</a>
+    </form>
+{% endblock %}

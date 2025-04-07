@@ -1,0 +1,25 @@
+{% extends 'System/base.html' %}
+{% block title %}Agregar Usuario{% endblock %}
+{% block content %}
+    <h2>Agregar Usuario</h2>
+    <form method="post">
+        {% csrf_token %}
+        <label>Nombre:</label>
+        <input type="text" name="first_name" required><br>
+        <label>Segundo Nombre:</label>
+        <input type="text" name="middle_name"><br>
+        <label>Primer Apellido:</label>
+        <input type="text" name="last_name" required><br>
+        <label>Segundo Apellido:</label>
+        <input type="text" name="second_last_name"><br>
+        <label>Tipo de Usuario:</label>
+        <input type="text" name="user_type" required><br>
+        <label>Posición:</label>
+        <select name="position" required>
+            {% for pos in positions %}
+                <option value="{{ pos.id }}">{{ pos.position_name }}</option>
+            {% endfor %}
+        </select><br>
+        <button type="submit">Agregar Usuario</button>
+    </form>
+{% endblock %}

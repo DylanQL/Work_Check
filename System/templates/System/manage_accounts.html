@@ -1,0 +1,32 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Gestión de Cuentas{% endblock %}
+{% block content %}
+    <h2>Gestión de Cuentas (UserAccount)</h2>
+    <table border="1" cellspacing="0" cellpadding="5">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Status</th>
+                <th>Usuario Asociado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for account in accounts %}
+                <tr>
+                    <td>{{ account.username }}</td>
+                    <td>{{ account.status }}</td>
+                    <td>{{ account.usuario.first_name }} {{ account.usuario.last_name }}</td>
+                    <td>
+                        <a href="{% url 'update_account' account.id %}">Actualizar</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">No existen cuentas registradas.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

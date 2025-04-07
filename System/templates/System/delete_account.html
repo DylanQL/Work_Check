@@ -1,0 +1,12 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Eliminar Cuenta{% endblock %}
+{% block content %}
+    <h2>Eliminar Cuenta</h2>
+    <p>¿Estás seguro de eliminar la cuenta: <strong>{{ account.username }}</strong>?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Confirmar Eliminación</button>
+        <a href="{% url 'list_accounts' %}">Cancelar</a>
+    </form>
+{% endblock %}

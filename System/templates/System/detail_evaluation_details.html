@@ -1,0 +1,46 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Detalle de Evaluation Details{% endblock %}
+{% block content %}
+    <h2>Detalle de Evaluation Details (ID: {{ details.id }})</h2>
+    <p>R1: {{ details.R1 }}</p>
+    <p>R2: {{ details.R2 }}</p>
+    <p>R3: {{ details.R3 }}</p>
+    <p>R4: {{ details.R4 }}</p>
+    <p>R5: {{ details.R5 }}</p>
+    <p>R Comments: {{ details.R_comments }}</p>
+    <p>L1: {{ details.L1 }}</p>
+    <p>L2: {{ details.L2 }}</p>
+    <p>L3: {{ details.L3 }}</p>
+    <p>L4: {{ details.L4 }}</p>
+    <p>L5: {{ details.L5 }}</p>
+    <p>L Comments: {{ details.L_comments }}</p>
+    <p>H1: {{ details.H1 }}</p>
+    <p>H2: {{ details.H2 }}</p>
+    <p>H3: {{ details.H3 }}</p>
+    <p>H4: {{ details.H4 }}</p>
+    <p>H5: {{ details.H5 }}</p>
+    <p>H Comments: {{ details.H_comments }}</p>
+    <p>E1: {{ details.E1 }}</p>
+    <p>E2: {{ details.E2 }}</p>
+    <p>E3: {{ details.E3 }}</p>
+    <p>E4: {{ details.E4 }}</p>
+    <p>E Comments: {{ details.E_comments }}</p>
+    <p>C1: {{ details.C1 }}</p>
+    <p>C2: {{ details.C2 }}</p>
+    <p>C3: {{ details.C3 }}</p>
+    <p>C4: {{ details.C4 }}</p>
+    <p>C5: {{ details.C5 }}</p>
+    <p>C6: {{ details.C6 }}</p>
+    <p>C Comments: {{ details.C_comments }}</p>
+    <p>M1: {{ details.M1 }}</p>
+    <p>M2: {{ details.M2 }}</p>
+    <p>M Comments: {{ details.M_comments }}</p>
+    <p>V1: {{ details.V1 }}</p>
+    <p>V2: {{ details.V2 }}</p>
+    <p>V3: {{ details.V3 }}</p>
+    <p>V4: {{ details.V4 }}</p>
+    <p>V5: {{ details.V5 }}</p>
+    <p>V Comments: {{ details.V_comments }}</p>
+    <a href="{% url 'list_permanent_assignments' %}">Volver</a>
+{% endblock %}
