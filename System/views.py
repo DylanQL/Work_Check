@@ -314,24 +314,54 @@ def delete_temp_evaluation_assignment(request, assignment_id):
 # Enviar registros a histórico:
 @login_required
 def send_assignments_to_historic(request):
-    # Primero, verificar que todos los registros tengan status "Completado"
+    """
+    Envía los registros de Temp_EvaluationAssignment a Permanent_EvaluationAssignment.
+    
+    Requisitos:
+      - Todos los registros deben tener status "Completado".
+      - Cada registro debe tener asignado un Summary y un EvaluationDetails.
+      
+    Si se cumplen, se crea un registro en Permanent_EvaluationAssignment copiando:
+      evaluator, employee, status, evaluation_cycle, summary y evaluation_details.
+    Luego se eliminan los registros de Temp_EvaluationAssignment.
+    """
+    # Obtener todas las asignaciones temporales
     assignments = Temp_EvaluationAssignment.objects.all()
+    
+    # Verificar que todos tengan status "Completado"
     incomplete = assignments.exclude(status="Completado")
     if incomplete.exists():
         messages.error(request, "No todos los usuarios completaron sus evaluaciones.")
         return redirect('list_temp_assignments')
     
     if request.method == 'POST':
-        # Copiar cada registro a Permanent_EvaluationAssignment
+        # Iterar sobre cada asignación temporal
         for assign in assignments:
+            # Verificar que tenga un Summary asociado
+            if not assign.summary:
+                messages.error(
+                    request,
+                    f"La asignación para el empleado {assign.employee.first_name} {assign.employee.last_name} no tiene Summary asignado."
+                )
+                return redirect('list_temp_assignments')
+            # Verificar que tenga EvaluationDetails asociado
+            if not assign.evaluation_details:
+                messages.error(
+                    request,
+                    f"La asignación para el empleado {assign.employee.first_name} {assign.employee.last_name} no tiene Evaluation Details asignado."
+                )
+                return redirect('list_temp_assignments')
+            
+            # Crear registro en Permanent_EvaluationAssignment
             Permanent_EvaluationAssignment.objects.create(
                 evaluator=assign.evaluator,
                 employee=assign.employee,
                 status=assign.status,
-                # summary y evaluation_details se dejan como nulos
-                evaluation_cycle=assign.evaluation_cycle
+                evaluation_cycle=assign.evaluation_cycle,
+                summary=assign.summary,
+                evaluation_details=assign.evaluation_details  # Se copia el EvaluationDetails
             )
-        # Borrar todos los registros de Temp_EvaluationAssignment
+        # Eliminar todos los registros temporales
         assignments.delete()
         messages.success(request, "Registros enviados a histórico correctamente.")
         return redirect('list_temp_assignments')
