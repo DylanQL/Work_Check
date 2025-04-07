@@ -635,15 +635,18 @@ def evaluate_leaders(request):
 
                 final_score = R_weighted + L_weighted + H_weighted + E_weighted + C_weighted + M_weighted + V_weighted
 
-                # Performance Level (ejemplo)
-                if final_score >= 4.5:
-                    performance_level = "Sobresaliente"
-                elif final_score >= 3.5:
-                    performance_level = "Muy Bueno"
-                elif final_score >= 2.5:
-                    performance_level = "Bueno"
+
+                # Performance_level basado en final_score con los niveles
+                if final_score >= 4.50 and final_score <= 5.00:
+                    performance_level = "Nivel 5"
+                elif final_score >= 3.50 and final_score <= 4.49:
+                    performance_level = "Nivel 4"
+                elif final_score >= 2.75 and final_score <= 3.49:
+                    performance_level = "Nivel 3"
+                elif final_score >= 2.00 and final_score <= 2.74:
+                    performance_level = "Nivel 2"
                 else:
-                    performance_level = "Regular"
+                    performance_level = "Nivel 1"
 
                 # Buscar o crear Summary
                 if assignment.summary:
@@ -864,15 +867,18 @@ def evaluate_employees(request):
 
                 final_score = R_weighted + H_weighted + E_weighted + C_weighted + M_weighted + V_weighted
 
-                # Ejemplo de performance_level basado en final_score
-                if final_score >= 4.5:
-                    performance_level = "Sobresaliente"
-                elif final_score >= 3.5:
-                    performance_level = "Muy Bueno"
-                elif final_score >= 2.5:
-                    performance_level = "Bueno"
+                # Performance_level basado en final_score con los niveles
+                if final_score >= 4.50 and final_score <= 5.00:
+                    performance_level = "Nivel 5"
+                elif final_score >= 3.50 and final_score <= 4.49:
+                    performance_level = "Nivel 4"
+                elif final_score >= 2.75 and final_score <= 3.49:
+                    performance_level = "Nivel 3"
+                elif final_score >= 2.00 and final_score <= 2.74:
+                    performance_level = "Nivel 2"
                 else:
-                    performance_level = "Regular"
+                    performance_level = "Nivel 1"
+
 
                 # Crear o actualizar Summary
                 if assignment.summary:
