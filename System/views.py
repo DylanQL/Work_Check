@@ -480,7 +480,7 @@ def evaluate_leaders(request):
     if selected_employee_id:
         try:
             selected_employee_id = int(selected_employee_id)
-            selected_employee = Usuario.objects.get(id=selected_employee_id)
+            selected_employee = current_usuario.__class__.objects.get(id=selected_employee_id)
             # Obtener la asignación
             assignment_selected = assignment_by_employee.get(selected_employee_id)
             if assignment_selected and assignment_selected.status == "Completado":
@@ -978,3 +978,59 @@ def radar_chart_summary(request):
     }
     
     return render(request, 'System/radar_chart_summary.html', context)
+
+# Vista para mostrar gráfico de barras comparativo de evaluaciones
+@login_required
+def bar_chart_comparison(request):
+    # Obtener todas las posiciones para el filtro
+    positions = Position.objects.all()
+    
+    # Filtrar por posición si se proporcionó en la solicitud
+    position_id = request.GET.get('position_id')
+    if position_id:
+        employees = Usuario.objects.filter(position_id=position_id)
+    else:
+        employees = Usuario.objects.all()
+    
+    # Obtener los empleados seleccionados (pueden ser múltiples)
+    selected_employee_ids = request.GET.getlist('employee_ids')
+    comparison_data = []
+    
+    if selected_employee_ids:
+        for employee_id in selected_employee_ids:
+            try:
+                # Obtener el empleado
+                employee = Usuario.objects.get(id=employee_id)
+                
+                # Obtener la evaluación más reciente del empleado
+                latest_summary = Summary.objects.filter(employee_id=employee_id).order_by('-created_at').first()
+                
+                if latest_summary:
+                    # Preparar los datos para el gráfico
+                    employee_data = {
+                        'id': employee.id,
+                        'name': f"{employee.first_name} {employee.last_name}",
+                        'position': employee.position.position_name,
+                        'data': {
+                            'R': latest_summary.R,
+                            'L': latest_summary.L if latest_summary.L is not None else 0,
+                            'H': latest_summary.H,
+                            'E': latest_summary.E,
+                            'C': latest_summary.C,
+                            'M': latest_summary.M,
+                            'V': latest_summary.V
+                        }
+                    }
+                    comparison_data.append(employee_data)
+            except Usuario.DoesNotExist:
+                pass
+    
+    context = {
+        'positions': positions,
+        'employees': employees,
+        'comparison_data': comparison_data,
+        'selected_position_id': position_id,
+        'selected_employee_ids': selected_employee_ids
+    }
+    
+    return render(request, 'System/bar_chart_comparison.html', context)

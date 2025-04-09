@@ -1,0 +1,362 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Comparación de Evaluaciones{% endblock %}
+{% block content %}
+<h2>Comparación de Evaluaciones en Gráfico de Barras Horizontales</h2>
+
+<!-- Filtro por posición -->
+<form method="get" action="" id="position-filter-form">
+    <label for="position_id">Filtrar por posición:</label>
+    <select name="position_id" id="position_id" onchange="this.form.submit()">
+        <option value="">-- Todas las posiciones --</option>
+        {% for position in positions %}
+            <option value="{{ position.id }}" {% if selected_position_id == position.id|stringformat:"i" %}selected{% endif %}>
+                {{ position.position_name }}
+            </option>
+        {% endfor %}
+    </select>
+</form>
+
+<hr>
+
+<!-- Selector múltiple para elegir empleados -->
+<form method="get" action="" id="employee-filter-form">
+    {% if selected_position_id %}
+    <input type="hidden" name="position_id" value="{{ selected_position_id }}">
+    {% endif %}
+    <div class="employee-selection">
+        <label for="employee-select">Seleccionar empleados para comparar:</label>
+        <select id="employee-select" class="form-control">
+            <option value="">-- Seleccione un empleado para agregar --</option>
+            {% for employee in employees %}
+                <option value="{{ employee.id }}" data-name="{{ employee.first_name }} {{ employee.last_name }}">
+                    {{ employee.first_name }} {{ employee.last_name }}
+                </option>
+            {% endfor %}
+        </select>
+        <button type="button" id="add-employee-btn" class="btn btn-primary mt-2">Agregar a la comparación</button>
+    </div>
+    
+    <!-- Lista de empleados seleccionados -->
+    <div class="selected-employees mt-3">
+        <h4>Empleados seleccionados:</h4>
+        <ul id="selected-employees-list" class="list-group">
+            {% for employee_id in selected_employee_ids %}
+                <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ employee_id }}">
+                    {% for employee in employees %}
+                        {% if employee.id|stringformat:"i" == employee_id %}
+                            {{ employee.first_name }} {{ employee.last_name }}
+                        {% endif %}
+                    {% endfor %}
+                    <button type="button" class="btn btn-sm btn-danger remove-employee" data-id="{{ employee_id }}">Eliminar</button>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <!-- Botón para actualizar el gráfico -->
+    <button type="submit" id="update-chart-btn" class="btn btn-success mt-3">Actualizar gráfico</button>
+    
+    <!-- Campo oculto para los IDs de empleados seleccionados -->
+    <div id="employee-ids-container">
+        {% for employee_id in selected_employee_ids %}
+            <input type="hidden" name="employee_ids" value="{{ employee_id }}">
+        {% endfor %}
+    </div>
+</form>
+
+{% if comparison_data %}
+<div class="chart-container" style="position: relative; width:90%; margin: 20px auto;">
+    <h3>Comparación de Evaluaciones</h3>
+    <div id="horizontal-bars-container"></div>
+</div>
+{% else %}
+<div class="alert alert-info mt-3">
+    Seleccione al menos un empleado para visualizar el gráfico de comparación.
+</div>
+{% endif %}
+
+<!-- Incluir Chart.js desde CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Manejo de agregar y quitar empleados
+        const employeeSelect = document.getElementById('employee-select');
+        const addEmployeeBtn = document.getElementById('add-employee-btn');
+        const selectedEmployeesList = document.getElementById('selected-employees-list');
+        const employeeIdsContainer = document.getElementById('employee-ids-container');
+        
+        // Función para agregar un empleado a la comparación
+        addEmployeeBtn.addEventListener('click', function() {
+            const employeeId = employeeSelect.value;
+            const employeeName = employeeSelect.options[employeeSelect.selectedIndex].dataset.name;
+            
+            if (employeeId && !isEmployeeSelected(employeeId)) {
+                // Crear elemento de lista para el empleado seleccionado
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.dataset.id = employeeId;
+                li.innerHTML = `
+                    ${employeeName}
+                    <button type="button" class="btn btn-sm btn-danger remove-employee" data-id="${employeeId}">Eliminar</button>
+                `;
+                selectedEmployeesList.appendChild(li);
+                
+                // Agregar el input oculto con el ID del empleado
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'employee_ids';
+                input.value = employeeId;
+                employeeIdsContainer.appendChild(input);
+                
+                // Restablecer el select
+                employeeSelect.value = '';
+                
+                // Agregar el controlador de eventos para el botón de eliminar
+                li.querySelector('.remove-employee').addEventListener('click', function() {
+                    removeEmployee(employeeId);
+                });
+            }
+        });
+        
+        // Inicializar los botones de eliminar existentes
+        document.querySelectorAll('.remove-employee').forEach(button => {
+            button.addEventListener('click', function() {
+                removeEmployee(this.dataset.id);
+            });
+        });
+        
+        // Función para verificar si un empleado ya está seleccionado
+        function isEmployeeSelected(employeeId) {
+            return document.querySelector(`#selected-employees-list li[data-id="${employeeId}"]`) !== null;
+        }
+        
+        // Función para eliminar un empleado de la comparación
+        function removeEmployee(employeeId) {
+            // Eliminar el elemento de la lista
+            const listItem = document.querySelector(`#selected-employees-list li[data-id="${employeeId}"]`);
+            if (listItem) {
+                listItem.remove();
+            }
+            
+            // Eliminar el input oculto
+            const input = document.querySelector(`input[name="employee_ids"][value="${employeeId}"]`);
+            if (input) {
+                input.remove();
+            }
+        }
+        
+        {% if comparison_data %}
+        // Definir las categorías de evaluación
+        const categories = [
+            'Responsabilidades (R)', 
+            'Liderazgo (L)', 
+            'Habilidades (H)', 
+            'Enfoque (E)', 
+            'Competencia Técnica (C)', 
+            'Metas y Resultados (M)', 
+            'Valores Corporativos (V)'
+        ];
+        
+        // Función para generar colores para cada empleado
+        function getEmployeeColor(index) {
+            const colors = [
+                'rgb(54, 162, 235)',   // azul
+                'rgb(255, 99, 132)',   // rojo
+                'rgb(75, 192, 192)',   // verde-azulado
+                'rgb(255, 159, 64)',   // naranja
+                'rgb(153, 102, 255)',  // púrpura
+                'rgb(255, 205, 86)',   // amarillo
+                'rgb(201, 203, 207)',  // gris
+                'rgb(255, 99, 71)',    // tomate
+                'rgb(50, 205, 50)',    // lima
+                'rgb(0, 128, 128)'     // verde azulado
+            ];
+            
+            return index < colors.length ? colors[index] : `rgb(${Math.floor(Math.random() * 200)}, ${Math.floor(Math.random() * 200)}, ${Math.floor(Math.random() * 200)})`;
+        }
+        
+        // Crear un contenedor para cada empleado
+        const container = document.getElementById('horizontal-bars-container');
+        container.innerHTML = ''; // Limpiar el contenedor
+        
+        // Crear una leyenda para las categorías
+        const legendDiv = document.createElement('div');
+        legendDiv.className = 'categories-legend';
+        legendDiv.innerHTML = '<h4>Leyenda de Categorías</h4>';
+        
+        const legendList = document.createElement('ul');
+        legendList.className = 'legend-list';
+        
+        // Crear un item de leyenda para cada categoría
+        categories.forEach((category, index) => {
+            const legendItem = document.createElement('li');
+            legendItem.className = 'legend-item';
+            
+            // Colores distintos para cada categoría
+            const categoryColor = getEmployeeColor(index);
+            
+            legendItem.innerHTML = `
+                <span class="color-box" style="background-color: ${categoryColor}"></span>
+                <span class="legend-text">${category}</span>
+            `;
+            legendList.appendChild(legendItem);
+        });
+        
+        legendDiv.appendChild(legendList);
+        container.appendChild(legendDiv);
+        
+        // Crear un chart para cada empleado
+        {% for employee in comparison_data %}
+        // Crear un contenedor para este empleado
+        const employeeContainer{{ forloop.counter }} = document.createElement('div');
+        employeeContainer{{ forloop.counter }}.className = 'employee-chart-container';
+        employeeContainer{{ forloop.counter }}.innerHTML = `
+            <h4>{{ employee.name }} - {{ employee.position }}</h4>
+            <canvas id="employeeChart{{ forloop.counter }}"></canvas>
+        `;
+        container.appendChild(employeeContainer{{ forloop.counter }});
+        
+        // Obtener el contexto para el chart
+        const ctx{{ forloop.counter }} = document.getElementById('employeeChart{{ forloop.counter }}').getContext('2d');
+        
+        // Datos para este empleado
+        const data{{ forloop.counter }} = {
+            labels: categories,
+            datasets: [{
+                label: '{{ employee.name }}',
+                data: [
+                    {{ employee.data.R }},
+                    {{ employee.data.L }},
+                    {{ employee.data.H }},
+                    {{ employee.data.E }},
+                    {{ employee.data.C }},
+                    {{ employee.data.M }},
+                    {{ employee.data.V }}
+                ],
+                backgroundColor: categories.map((_, i) => getEmployeeColor(i)),
+                borderColor: categories.map((_, i) => getEmployeeColor(i)),
+                borderWidth: 1
+            }]
+        };
+        
+        // Crear chart horizontal para este empleado
+        new Chart(ctx{{ forloop.counter }}, {
+            type: 'bar', 
+            data: data{{ forloop.counter }},
+            options: {
+                indexAxis: 'y',  // Esto hace que las barras sean horizontales
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 5,
+                        ticks: {
+                            stepSize: 1
+                        },
+                        title: {
+                            display: true,
+                            text: 'Puntuación'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Categorías'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false  // Ocultar la leyenda de cada gráfico
+                    },
+                    title: {
+                        display: false
+                    }
+                }
+            }
+        });
+        {% endfor %}
+        {% endif %}
+    });
+</script>
+
+<style>
+    .chart-container {
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        margin-top: 20px;
+    }
+    
+    form {
+        margin-bottom: 20px;
+    }
+    
+    select {
+        padding: 5px;
+        margin-left: 10px;
+    }
+    
+    label {
+        font-weight: bold;
+    }
+    
+    .employee-selection {
+        margin-bottom: 15px;
+    }
+    
+    .selected-employees {
+        margin-top: 15px;
+    }
+    
+    .employee-chart-container {
+        margin-bottom: 30px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 20px;
+        height: 200px; /* Altura fija para cada gráfico de empleado */
+    }
+    
+    .employee-chart-container h4 {
+        margin-bottom: 10px;
+        color: #333;
+    }
+    
+    .categories-legend {
+        margin-bottom: 30px;
+        padding: 15px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    
+    .legend-list {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    
+    .color-box {
+        display: inline-block;
+        width: 15px;
+        height: 15px;
+        margin-right: 8px;
+        border-radius: 3px;
+    }
+    
+    .legend-text {
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}

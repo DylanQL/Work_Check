@@ -69,4 +69,7 @@ urlpatterns = [
 
     # Ruta para gráfico radar de resumen de evaluaciones
     path('radar_chart_summary/', views.radar_chart_summary, name='radar_chart_summary'),
+    
+    # Ruta para gráfico de barras de comparación de evaluaciones
+    path('bar_chart_comparison/', views.bar_chart_comparison, name='bar_chart_comparison'),
 ]
