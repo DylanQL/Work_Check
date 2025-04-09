@@ -567,7 +567,6 @@ def evaluate_leaders(request):
 
         final_comments = request.POST.get('final_comments', '')
 
-        # Botones
         button_clicked = request.POST.get('action')
 
         if button_clicked == "Limpiar formulario":
@@ -614,7 +613,8 @@ def evaluate_leaders(request):
                 E_avg = avg(E1, E2, E3, E4)
                 C_avg = avg(C1, C2, C3, C4, C5, C6)
                 M_avg = avg(M1, M2)
-                V_avg = avg(V1, V2, V3, V4, V5)
+                # V is a sum, not an average
+                V_sum = sum([int(v) for v in [V1, V2, V3, V4, V5]])
 
                 # Pesos
                 w_R = 0.20
@@ -631,7 +631,8 @@ def evaluate_leaders(request):
                 E_weighted = E_avg * w_E
                 C_weighted = C_avg * w_C
                 M_weighted = M_avg * w_M
-                V_weighted = V_avg * w_V
+                # Apply weighting to the sum of V, not to an average
+                V_weighted = V_sum * w_V
 
                 final_score = R_weighted + L_weighted + H_weighted + E_weighted + C_weighted + M_weighted + V_weighted
 
@@ -663,7 +664,7 @@ def evaluate_leaders(request):
                 summ.E = E_avg
                 summ.C = C_avg
                 summ.M = M_avg
-                summ.V = V_avg
+                summ.V = V_sum  # Store the sum, not the average
                 summ.final_score = final_score
                 summ.performance_level = performance_level
                 summ.evaluation_type = "Lideres"  # Se asume que es para líderes
@@ -849,7 +850,7 @@ def evaluate_employees(request):
                 E_avg = avg(E1, E2, E3, E4)
                 C_avg = avg(C1, C2, C3, C4, C5, C6)
                 M_avg = avg(M1, M2)
-                V_avg = avg(V1, V2, V3, V4, V5)
+                V_sum = sum([int(v) for v in [V1, V2, V3, V4, V5]])
 
                 # Ponderados para empleados
                 w_R = 0.40
@@ -864,7 +865,7 @@ def evaluate_employees(request):
                 E_weighted = E_avg * w_E
                 C_weighted = C_avg * w_C
                 M_weighted = M_avg * w_M
-                V_weighted = V_avg * w_V
+                V_weighted = V_sum * w_V
 
                 final_score = R_weighted + H_weighted + E_weighted + C_weighted + M_weighted + V_weighted
 
@@ -894,7 +895,7 @@ def evaluate_employees(request):
                 summ.E = E_avg
                 summ.C = C_avg
                 summ.M = M_avg
-                summ.V = V_avg
+                summ.V = V_sum
                 summ.final_score = final_score
                 summ.performance_level = performance_level
                 summ.evaluation_type = "Empleados"
