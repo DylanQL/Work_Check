@@ -67,4 +67,6 @@ urlpatterns = [
     # Ruta para evaluación de empleados
     path('evaluate_employees/', views.evaluate_employees, name='evaluate_employees'),
 
+    # Ruta para gráfico radar de resumen de evaluaciones
+    path('radar_chart_summary/', views.radar_chart_summary, name='radar_chart_summary'),
 ]

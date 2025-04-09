@@ -695,8 +695,8 @@ def evaluate_employees(request):
     cuyo user_type sea "Empleado". Si la asignación ya tiene status "Completado", se precargan los datos
     de EvaluationDetails para editar.
     
-    Al enviar el formulario se crean o actualizan los registros en EvaluationDetails y Summary, 
-    y se actualiza el registro de Temp_EvaluationAssignment con los IDs correspondientes y se marca como "Completado".
+    Al enviar el formulario se crean o actualizan los registros en 
+    EvaluationDetails y Summary, y se actualiza el registro de Temp_EvaluationAssignment con los IDs correspondientes y se marca como "Completado".
     
     Los ponderados para el cálculo son:
       - Responsabilidades de la posición (R): 0.40
@@ -737,6 +737,7 @@ def evaluate_employees(request):
             # O alternativamente: Usuario.objects.get(id=selected_employee_id)
             assignment_selected = assignment_by_employee.get(selected_employee_id)
             if assignment_selected and assignment_selected.status == "Completado":
+                # Cargar los datos de la EvaluationDetails existente
                 if assignment_selected.evaluation_details:
                     ed = assignment_selected.evaluation_details
                     status_already_completed = True
@@ -913,3 +914,67 @@ def evaluate_employees(request):
         'status_already_completed': status_already_completed,
     }
     return render(request, 'System/evaluate_employees.html', context)
+
+# Vista para mostrar gráfico radar de resumen de evaluaciones
+@login_required
+def radar_chart_summary(request):
+    # Obtener todas las posiciones para el filtro
+    positions = Position.objects.all()
+    
+    # Filtrar por posición si se proporcionó en la solicitud
+    position_id = request.GET.get('position_id')
+    if position_id:
+        employees = Usuario.objects.filter(position_id=position_id)
+    else:
+        employees = Usuario.objects.all()
+    
+    # Obtener el empleado seleccionado si existe
+    employee_id = request.GET.get('employee_id')
+    employee_data = None
+    
+    if employee_id:
+        try:
+            # Obtener todos los datos de resumen para el empleado seleccionado
+            summaries = Summary.objects.filter(employee_id=employee_id).order_by('created_at')
+            
+            if summaries.exists():
+                # Obtener información básica del empleado
+                employee = Usuario.objects.get(id=employee_id)
+                
+                # Preparar los datos para el gráfico radar
+                employee_data = {
+                    'name': f"{employee.first_name} {employee.last_name}",
+                    'position': employee.position.position_name,
+                    'summaries': []
+                }
+                
+                # Preparar los datos de cada evaluación para el gráfico
+                for summary in summaries:
+                    # Formatear la fecha de creación para la leyenda
+                    formatted_date = summary.created_at.strftime('%d/%m/%Y %H:%M')
+                    
+                    # Agregar los datos de esta evaluación
+                    employee_data['summaries'].append({
+                        'created_at': formatted_date,
+                        'data': {
+                            'R': summary.R,
+                            'L': summary.L if summary.L is not None else 0,
+                            'H': summary.H,
+                            'E': summary.E,
+                            'C': summary.C,
+                            'M': summary.M,
+                            'V': summary.V
+                        }
+                    })
+        except Usuario.DoesNotExist:
+            pass
+    
+    context = {
+        'positions': positions,
+        'employees': employees,
+        'employee_data': employee_data,
+        'selected_position_id': position_id,
+        'selected_employee_id': employee_id
+    }
+    
+    return render(request, 'System/radar_chart_summary.html', context)

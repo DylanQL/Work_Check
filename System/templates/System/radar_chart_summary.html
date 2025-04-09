@@ -1,0 +1,189 @@
+{% extends 'System/base.html' %}
+{% load static %}
+{% block title %}Gráfico Radar de Evaluaciones{% endblock %}
+{% block content %}
+<h2>Gráfico Radar de Resumen de Evaluaciones</h2>
+
+<!-- Filtro por posición -->
+<form method="get" action="" id="position-filter-form">
+    <label for="position_id">Filtrar por posición:</label>
+    <select name="position_id" id="position_id" onchange="this.form.submit()">
+        <option value="">-- Todas las posiciones --</option>
+        {% for position in positions %}
+            <option value="{{ position.id }}" {% if selected_position_id == position.id|stringformat:"i" %}selected{% endif %}>
+                {{ position.position_name }}
+            </option>
+        {% endfor %}
+    </select>
+</form>
+
+<hr>
+
+<!-- Selector para elegir al empleado -->
+<form method="get" action="" id="employee-filter-form">
+    {% if selected_position_id %}
+    <input type="hidden" name="position_id" value="{{ selected_position_id }}">
+    {% endif %}
+    <label for="employee_id">Seleccionar empleado:</label>
+    <select name="employee_id" id="employee_id" onchange="this.form.submit()">
+        <option value="">-- Seleccione un empleado --</option>
+        {% for employee in employees %}
+            <option value="{{ employee.id }}" {% if selected_employee_id == employee.id|stringformat:"i" %}selected{% endif %}>
+                {{ employee.first_name }} {{ employee.last_name }}
+            </option>
+        {% endfor %}
+    </select>
+</form>
+
+{% if employee_data %}
+<div class="chart-container" style="position: relative; height:60vh; width:80%; margin: 0 auto;">
+    <h3>Evaluaciones de {{ employee_data.name }} - {{ employee_data.position }}</h3>
+    <canvas id="radarChart"></canvas>
+</div>
+{% endif %}
+
+<!-- Incluir Chart.js desde CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% if employee_data %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Obtener el contexto del canvas
+        const ctx = document.getElementById('radarChart').getContext('2d');
+        
+        // Configurar las etiquetas del gráfico
+        const labels = [
+            'Responsabilidades (R)', 
+            'Liderazgo (L)', 
+            'Habilidades (H)', 
+            'Enfoque (E)', 
+            'Competencia Técnica (C)', 
+            'Metas y Resultados (M)', 
+            'Valores Corporativos (V)'
+        ];
+        
+        // Configurar los datasets para cada evaluación
+        const datasets = [];
+        
+        // Generar un color aleatorio pero visible para cada registro
+        function getRandomColor(index) {
+            // Lista de colores predefinidos para gráficos
+            const colors = [
+                'rgb(54, 162, 235)',   // azul
+                'rgb(255, 99, 132)',   // rojo
+                'rgb(75, 192, 192)',   // verde-azulado
+                'rgb(255, 159, 64)',   // naranja
+                'rgb(153, 102, 255)',  // púrpura
+                'rgb(255, 205, 86)',   // amarillo
+                'rgb(201, 203, 207)',  // gris
+                'rgb(255, 99, 71)',    // tomate
+                'rgb(50, 205, 50)',    // lima
+                'rgb(0, 128, 128)'     // verde azulado
+            ];
+            
+            // Usar un color de la lista o generar uno aleatorio si hay más evaluaciones que colores
+            if (index < colors.length) {
+                return colors[index];
+            } else {
+                return `rgb(${Math.floor(Math.random() * 200)}, ${Math.floor(Math.random() * 200)}, ${Math.floor(Math.random() * 200)})`;
+            }
+        }
+        
+        // Crear un dataset para cada evaluación
+        {% for summary in employee_data.summaries %}
+        datasets.push({
+            label: 'Evaluación {{ summary.created_at }}',
+            data: [
+                {{ summary.data.R }},
+                {{ summary.data.L }},
+                {{ summary.data.H }},
+                {{ summary.data.E }},
+                {{ summary.data.C }},
+                {{ summary.data.M }},
+                {{ summary.data.V }}
+            ],
+            backgroundColor: `${getRandomColor({{ forloop.counter0 }}).replace('rgb', 'rgba').replace(')', ', 0.2)')}`,
+            borderColor: getRandomColor({{ forloop.counter0 }}),
+            pointBackgroundColor: getRandomColor({{ forloop.counter0 }}),
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: getRandomColor({{ forloop.counter0 }})
+        });
+        {% endfor %}
+        
+        // Configurar los datos del gráfico radar
+        const chartData = {
+            labels: labels,
+            datasets: datasets
+        };
+        
+        // Configurar las opciones del gráfico
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: {
+                        display: true
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 5,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 12
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Histórico de Evaluaciones'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.formattedValue;
+                        }
+                    }
+                }
+            }
+        };
+        
+        // Crear el gráfico radar
+        new Chart(ctx, {
+            type: 'radar',
+            data: chartData,
+            options: chartOptions
+        });
+    });
+</script>
+{% endif %}
+
+<style>
+    .chart-container {
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        margin-top: 20px;
+    }
+    
+    form {
+        margin-bottom: 20px;
+    }
+    
+    select {
+        padding: 5px;
+        margin-left: 10px;
+    }
+    
+    label {
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
