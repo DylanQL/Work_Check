@@ -4,14 +4,14 @@
 {% block content %}
 <h2>Comparación de Evaluaciones en Gráfico de Barras Horizontales</h2>
 
-<!-- Filtro por posición -->
-<form method="get" action="" id="position-filter-form">
-    <label for="position_id">Filtrar por posición:</label>
-    <select name="position_id" id="position_id" onchange="this.form.submit()">
-        <option value="">-- Todas las posiciones --</option>
-        {% for position in positions %}
-            <option value="{{ position.id }}" {% if selected_position_id == position.id|stringformat:"i" %}selected{% endif %}>
-                {{ position.position_name }}
+<!-- Filtro por ciclo de evaluación -->
+<form method="get" action="" id="cycle-filter-form">
+    <label for="cycle_id">Filtrar por ciclo de evaluación:</label>
+    <select name="cycle_id" id="cycle_id" onchange="this.form.submit()">
+        <option value="">-- Todos los ciclos --</option>
+        {% for cycle in evaluation_cycles %}
+            <option value="{{ cycle }}" {% if selected_cycle_id == cycle %}selected{% endif %}>
+                {{ cycle }}
             </option>
         {% endfor %}
     </select>

@@ -919,15 +919,24 @@ def evaluate_employees(request):
 # Vista para mostrar gráfico radar de resumen de evaluaciones
 @login_required
 def radar_chart_summary(request):
-    # Obtener todas las posiciones para el filtro
-    positions = Position.objects.all()
+    # Obtener todos los ciclos de evaluación únicos para el filtro
+    evaluation_cycles = Permanent_EvaluationAssignment.objects.values_list('evaluation_cycle', flat=True).distinct()
     
-    # Filtrar por posición si se proporcionó en la solicitud
-    position_id = request.GET.get('position_id')
-    if position_id:
-        employees = Usuario.objects.filter(position_id=position_id)
+    # Filtrar por ciclo de evaluación si se proporcionó en la solicitud
+    evaluation_cycle = request.GET.get('evaluation_cycle')
+    
+    # Obtener los empleados según el filtro de ciclo de evaluación
+    if evaluation_cycle:
+        # Obtenemos los IDs de los empleados que tienen asignaciones en este ciclo
+        employee_ids = Permanent_EvaluationAssignment.objects.filter(
+            evaluation_cycle=evaluation_cycle
+        ).values_list('employee_id', flat=True).distinct()
+        
+        employees = Usuario.objects.filter(id__in=employee_ids)
     else:
-        employees = Usuario.objects.all()
+        # Si no hay filtro, obtenemos todos los empleados que tengan alguna asignación permanente
+        employee_ids = Permanent_EvaluationAssignment.objects.values_list('employee_id', flat=True).distinct()
+        employees = Usuario.objects.filter(id__in=employee_ids)
     
     # Obtener el empleado seleccionado si existe
     employee_id = request.GET.get('employee_id')
@@ -936,10 +945,16 @@ def radar_chart_summary(request):
     if employee_id:
         try:
             # Obtener únicamente las asignaciones permanentes para el empleado seleccionado
-            permanent_assignments = Permanent_EvaluationAssignment.objects.filter(
+            permanent_assignments_query = Permanent_EvaluationAssignment.objects.filter(
                 employee_id=employee_id,
                 summary__isnull=False
-            ).order_by('evaluation_cycle')
+            )
+            
+            # Si hay un ciclo seleccionado, filtramos también por ese ciclo
+            if evaluation_cycle:
+                permanent_assignments_query = permanent_assignments_query.filter(evaluation_cycle=evaluation_cycle)
+                
+            permanent_assignments = permanent_assignments_query.order_by('evaluation_cycle')
             
             if permanent_assignments.exists():
                 # Obtener información básica del empleado
@@ -976,10 +991,10 @@ def radar_chart_summary(request):
             pass
     
     context = {
-        'positions': positions,
+        'evaluation_cycles': evaluation_cycles,
         'employees': employees,
         'employee_data': employee_data,
-        'selected_position_id': position_id,
+        'selected_evaluation_cycle': evaluation_cycle,
         'selected_employee_id': employee_id
     }
     
@@ -988,14 +1003,21 @@ def radar_chart_summary(request):
 # Vista para mostrar gráfico de barras comparativo de evaluaciones
 @login_required
 def bar_chart_comparison(request):
-    # Obtener todas las posiciones para el filtro
-    positions = Position.objects.all()
+    # Obtener todos los ciclos de evaluación disponibles para el filtro
+    evaluation_cycles = Permanent_EvaluationAssignment.objects.values_list('evaluation_cycle', flat=True).distinct()
     
-    # Filtrar por posición si se proporcionó en la solicitud
-    position_id = request.GET.get('position_id')
-    if position_id:
-        employees = Usuario.objects.filter(position_id=position_id)
+    # Filtrar por ciclo de evaluación si se proporcionó en la solicitud
+    cycle_id = request.GET.get('cycle_id')
+    
+    # Obtener los empleados relevantes según el ciclo seleccionado
+    if cycle_id:
+        # Obtener las asignaciones del ciclo seleccionado
+        assignments = Permanent_EvaluationAssignment.objects.filter(evaluation_cycle=cycle_id, summary__isnull=False)
+        # Obtener los empleados de esas asignaciones
+        employee_ids = assignments.values_list('employee_id', flat=True).distinct()
+        employees = Usuario.objects.filter(id__in=employee_ids)
     else:
+        # Si no hay ciclo seleccionado, mostrar todos los empleados
         employees = Usuario.objects.all()
     
     # Obtener los empleados seleccionados (pueden ser múltiples)
@@ -1008,23 +1030,36 @@ def bar_chart_comparison(request):
                 # Obtener el empleado
                 employee = Usuario.objects.get(id=employee_id)
                 
-                # Obtener la evaluación más reciente del empleado
-                latest_summary = Summary.objects.filter(employee_id=employee_id).order_by('-created_at').first()
+                # Obtener la asignación del ciclo seleccionado para este empleado
+                if cycle_id:
+                    assignment = Permanent_EvaluationAssignment.objects.filter(
+                        employee_id=employee_id,
+                        evaluation_cycle=cycle_id,
+                        summary__isnull=False
+                    ).first()
+                else:
+                    # Si no hay ciclo seleccionado, usar la asignación más reciente
+                    assignment = Permanent_EvaluationAssignment.objects.filter(
+                        employee_id=employee_id,
+                        summary__isnull=False
+                    ).order_by('-created_at').first()
                 
-                if latest_summary:
-                    # Preparar los datos para el gráfico
+                if assignment and assignment.summary:
+                    # Preparar los datos para el gráfico usando el resumen de la asignación
+                    summary = assignment.summary
                     employee_data = {
                         'id': employee.id,
                         'name': f"{employee.first_name} {employee.last_name}",
                         'position': employee.position.position_name,
+                        'cycle': assignment.evaluation_cycle,
                         'data': {
-                            'R': latest_summary.R,
-                            'L': latest_summary.L if latest_summary.L is not None else 0,
-                            'H': latest_summary.H,
-                            'E': latest_summary.E,
-                            'C': latest_summary.C,
-                            'M': latest_summary.M,
-                            'V': latest_summary.V
+                            'R': summary.R,
+                            'L': summary.L if summary.L is not None else 0,
+                            'H': summary.H,
+                            'E': summary.E,
+                            'C': summary.C,
+                            'M': summary.M,
+                            'V': summary.V
                         }
                     }
                     comparison_data.append(employee_data)
@@ -1032,10 +1067,10 @@ def bar_chart_comparison(request):
                 pass
     
     context = {
-        'positions': positions,
+        'evaluation_cycles': evaluation_cycles,
         'employees': employees,
         'comparison_data': comparison_data,
-        'selected_position_id': position_id,
+        'selected_cycle_id': cycle_id,
         'selected_employee_ids': selected_employee_ids
     }
     
