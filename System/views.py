@@ -935,20 +935,13 @@ def radar_chart_summary(request):
     
     if employee_id:
         try:
-            # Obtener todas las asignaciones de evaluación para el empleado seleccionado que tengan un summary asociado
-            assignments = Temp_EvaluationAssignment.objects.filter(
-                employee_id=employee_id,
-                summary__isnull=False
-            ).order_by('evaluation_cycle')
-            
-            # También obtenemos las asignaciones permanentes
+            # Obtener únicamente las asignaciones permanentes para el empleado seleccionado
             permanent_assignments = Permanent_EvaluationAssignment.objects.filter(
                 employee_id=employee_id,
                 summary__isnull=False
             ).order_by('evaluation_cycle')
             
-            # Combinamos las asignaciones temporales y permanentes
-            if assignments.exists() or permanent_assignments.exists():
+            if permanent_assignments.exists():
                 # Obtener información básica del empleado
                 employee = Usuario.objects.get(id=employee_id)
                 
@@ -959,28 +952,7 @@ def radar_chart_summary(request):
                     'summaries': []
                 }
                 
-                # Procesamos primero las asignaciones temporales
-                for assignment in assignments:
-                    summary = assignment.summary
-                    if summary:
-                        # Usar el ciclo de evaluación como etiqueta
-                        cycle_label = assignment.evaluation_cycle
-                        
-                        # Agregar los datos de esta evaluación
-                        employee_data['summaries'].append({
-                            'created_at': cycle_label,  # Ahora usamos evaluation_cycle en lugar de la fecha
-                            'data': {
-                                'R': summary.R,
-                                'L': summary.L if summary.L is not None else 0,
-                                'H': summary.H,
-                                'E': summary.E,
-                                'C': summary.C,
-                                'M': summary.M,
-                                'V': summary.V
-                            }
-                        })
-                
-                # Procesamos las asignaciones permanentes
+                # Procesamos solamente las asignaciones permanentes
                 for assignment in permanent_assignments:
                     summary = assignment.summary
                     if summary:
@@ -989,7 +961,7 @@ def radar_chart_summary(request):
                         
                         # Agregar los datos de esta evaluación
                         employee_data['summaries'].append({
-                            'created_at': cycle_label,  # Ahora usamos evaluation_cycle en lugar de la fecha
+                            'created_at': cycle_label,  # Usamos evaluation_cycle en lugar de la fecha
                             'data': {
                                 'R': summary.R,
                                 'L': summary.L if summary.L is not None else 0,
