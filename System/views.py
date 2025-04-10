@@ -935,10 +935,20 @@ def radar_chart_summary(request):
     
     if employee_id:
         try:
-            # Obtener todos los datos de resumen para el empleado seleccionado
-            summaries = Summary.objects.filter(employee_id=employee_id).order_by('created_at')
+            # Obtener todas las asignaciones de evaluación para el empleado seleccionado que tengan un summary asociado
+            assignments = Temp_EvaluationAssignment.objects.filter(
+                employee_id=employee_id,
+                summary__isnull=False
+            ).order_by('evaluation_cycle')
             
-            if summaries.exists():
+            # También obtenemos las asignaciones permanentes
+            permanent_assignments = Permanent_EvaluationAssignment.objects.filter(
+                employee_id=employee_id,
+                summary__isnull=False
+            ).order_by('evaluation_cycle')
+            
+            # Combinamos las asignaciones temporales y permanentes
+            if assignments.exists() or permanent_assignments.exists():
                 # Obtener información básica del empleado
                 employee = Usuario.objects.get(id=employee_id)
                 
@@ -949,24 +959,47 @@ def radar_chart_summary(request):
                     'summaries': []
                 }
                 
-                # Preparar los datos de cada evaluación para el gráfico
-                for summary in summaries:
-                    # Formatear la fecha de creación para la leyenda
-                    formatted_date = summary.created_at.strftime('%d/%m/%Y %H:%M')
-                    
-                    # Agregar los datos de esta evaluación
-                    employee_data['summaries'].append({
-                        'created_at': formatted_date,
-                        'data': {
-                            'R': summary.R,
-                            'L': summary.L if summary.L is not None else 0,
-                            'H': summary.H,
-                            'E': summary.E,
-                            'C': summary.C,
-                            'M': summary.M,
-                            'V': summary.V
-                        }
-                    })
+                # Procesamos primero las asignaciones temporales
+                for assignment in assignments:
+                    summary = assignment.summary
+                    if summary:
+                        # Usar el ciclo de evaluación como etiqueta
+                        cycle_label = assignment.evaluation_cycle
+                        
+                        # Agregar los datos de esta evaluación
+                        employee_data['summaries'].append({
+                            'created_at': cycle_label,  # Ahora usamos evaluation_cycle en lugar de la fecha
+                            'data': {
+                                'R': summary.R,
+                                'L': summary.L if summary.L is not None else 0,
+                                'H': summary.H,
+                                'E': summary.E,
+                                'C': summary.C,
+                                'M': summary.M,
+                                'V': summary.V
+                            }
+                        })
+                
+                # Procesamos las asignaciones permanentes
+                for assignment in permanent_assignments:
+                    summary = assignment.summary
+                    if summary:
+                        # Usar el ciclo de evaluación como etiqueta
+                        cycle_label = assignment.evaluation_cycle
+                        
+                        # Agregar los datos de esta evaluación
+                        employee_data['summaries'].append({
+                            'created_at': cycle_label,  # Ahora usamos evaluation_cycle en lugar de la fecha
+                            'data': {
+                                'R': summary.R,
+                                'L': summary.L if summary.L is not None else 0,
+                                'H': summary.H,
+                                'E': summary.E,
+                                'C': summary.C,
+                                'M': summary.M,
+                                'V': summary.V
+                            }
+                        })
         except Usuario.DoesNotExist:
             pass
     
