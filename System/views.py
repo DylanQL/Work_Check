@@ -919,24 +919,44 @@ def evaluate_employees(request):
 # Vista para mostrar gráfico radar de resumen de evaluaciones
 @login_required
 def radar_chart_summary(request):
+    # Obtener todas las posiciones para el filtro
+    positions = Position.objects.all()
+    
     # Obtener todos los ciclos de evaluación únicos para el filtro
     evaluation_cycles = Permanent_EvaluationAssignment.objects.values_list('evaluation_cycle', flat=True).distinct()
+    
+    # Filtrar por posición si se proporcionó en la solicitud
+    position_id = request.GET.get('position_id')
     
     # Filtrar por ciclo de evaluación si se proporcionó en la solicitud
     evaluation_cycle = request.GET.get('evaluation_cycle')
     
-    # Obtener los empleados según el filtro de ciclo de evaluación
+    # Aplicar filtros
+    employee_query = Usuario.objects.all()
+    
+    # Aplicar filtro por posición si existe
+    if position_id:
+        employee_query = employee_query.filter(position_id=position_id)
+    
+    # Obtener los empleados según los filtros aplicados
     if evaluation_cycle:
         # Obtenemos los IDs de los empleados que tienen asignaciones en este ciclo
-        employee_ids = Permanent_EvaluationAssignment.objects.filter(
+        assignment_filter = Permanent_EvaluationAssignment.objects.filter(
             evaluation_cycle=evaluation_cycle
-        ).values_list('employee_id', flat=True).distinct()
+        )
+        employee_ids = assignment_filter.values_list('employee_id', flat=True).distinct()
         
-        employees = Usuario.objects.filter(id__in=employee_ids)
+        # Aplicamos el filtro adicional por empleados que tienen asignaciones en este ciclo
+        employee_query = employee_query.filter(id__in=employee_ids)
+        
+    # Si no se seleccionó ningún ciclo, al menos filtramos por empleados que tengan alguna asignación
     else:
-        # Si no hay filtro, obtenemos todos los empleados que tengan alguna asignación permanente
+        # Obtenemos IDs de empleados con cualquier asignación permanente
         employee_ids = Permanent_EvaluationAssignment.objects.values_list('employee_id', flat=True).distinct()
-        employees = Usuario.objects.filter(id__in=employee_ids)
+        employee_query = employee_query.filter(id__in=employee_ids)
+    
+    # Obtener la lista final de empleados aplicando todos los filtros
+    employees = employee_query
     
     # Obtener el empleado seleccionado si existe
     employee_id = request.GET.get('employee_id')
@@ -983,17 +1003,18 @@ def radar_chart_summary(request):
                                 'H': summary.H,
                                 'E': summary.E,
                                 'C': summary.C,
-                                'M': summary.M,
-                                'V': summary.V
+                                'M': summary.M,                                'V': summary.V
                             }
                         })
         except Usuario.DoesNotExist:
             pass
     
     context = {
+        'positions': positions,
         'evaluation_cycles': evaluation_cycles,
         'employees': employees,
         'employee_data': employee_data,
+        'selected_position_id': position_id,
         'selected_evaluation_cycle': evaluation_cycle,
         'selected_employee_id': employee_id
     }
