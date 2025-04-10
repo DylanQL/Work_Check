@@ -276,7 +276,7 @@
 {% endif %}
 
 <script>
-// Función para calcular el promedio de una categoría
+// Función para calcular el promedio de una categoría o suma para V
 function calcCategory(category) {
     let inputs = [];
     if (category === 'R') {
@@ -308,9 +308,17 @@ function calcCategory(category) {
     inputs.forEach(el => {
         sum += parseFloat(el.value) || 0;
     });
-    let totalCount = inputs.length;
-    let avg = sum / totalCount;
-    document.getElementById(category + "_avg").textContent = avg.toFixed(2);
+    
+    // Para V utilizamos la suma, para las demás categorías usamos el promedio
+    if (category === 'V') {
+        // Mostrar suma para V
+        document.getElementById(category + "_avg").textContent = sum.toFixed(2);
+    } else {
+        // Mostrar promedio para otras categorías
+        let totalCount = inputs.length;
+        let avg = sum / totalCount;
+        document.getElementById(category + "_avg").textContent = avg.toFixed(2);
+    }
     updateSummary();
 }
 
@@ -321,7 +329,7 @@ function updateSummary() {
     let Eavg = parseFloat(document.getElementById("E_avg").textContent) || 0;
     let Cavg = parseFloat(document.getElementById("C_avg").textContent) || 0;
     let Mavg = parseFloat(document.getElementById("M_avg").textContent) || 0;
-    let Vavg = parseFloat(document.getElementById("V_avg").textContent) || 0;
+    let Vsum = parseFloat(document.getElementById("V_avg").textContent) || 0;
     
     // Actualizar promedios en el resumen
     document.getElementById("R_avg2").textContent = Ravg.toFixed(2);
@@ -329,7 +337,7 @@ function updateSummary() {
     document.getElementById("E_avg2").textContent = Eavg.toFixed(2);
     document.getElementById("C_avg2").textContent = Cavg.toFixed(2);
     document.getElementById("M_avg2").textContent = Mavg.toFixed(2);
-    document.getElementById("V_avg2").textContent = Vavg.toFixed(2);
+    document.getElementById("V_avg2").textContent = Vsum.toFixed(2);
     
     // Pesos para evaluaciones de empleados
     let wR = 0.40, wH = 0.10, wE = 0.10, wC = 0.15, wM = 0.15, wV = 0.10;
@@ -339,7 +347,7 @@ function updateSummary() {
     let Ew = Eavg * wE;
     let Cw = Cavg * wC;
     let Mw = Mavg * wM;
-    let Vw = Vavg * wV;
+    let Vw = Vsum * wV;
     
     document.getElementById("R_weighted").textContent = Rw.toFixed(2);
     document.getElementById("H_weighted").textContent = Hw.toFixed(2);

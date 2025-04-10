@@ -315,11 +315,10 @@
 {% endif %}
 
 <script>
-// Función para calcular el promedio de una categoría
+// Función para calcular el promedio de una categoría o suma para V
 function calcCategory(category) {
-    let inputs = [];
-    if (category === 'R' || category === 'L') {
-        // Asumimos 5 inputs para R y L
+    let inputs = [];    if (category === 'R' || category === 'L' || category === 'H' || category === 'V') {
+        // Asumimos 5 inputs para R, L, H y V
         for(let i=1; i<=5; i++){
             inputs.push(document.getElementById(category+i));
         }
@@ -338,20 +337,22 @@ function calcCategory(category) {
         for(let i=1; i<=2; i++){
             inputs.push(document.getElementById(category+i));
         }
-    } else if (category === 'V') {
-        // 5 inputs para V
-        for(let i=1; i<=5; i++){
-            inputs.push(document.getElementById(category+i));
-        }
     }
     let sum = 0;
     inputs.forEach(el => {
         sum += parseFloat(el.value) || 0;
     });
-    let totalCount = inputs.length;
-    let avg = sum / totalCount;
-    // Mostrar promedio en el span correspondiente
-    document.getElementById(category + "_avg").textContent = avg.toFixed(2);
+    
+    // Para V utilizamos la suma, para las demás categorías usamos el promedio
+    if (category === 'V') {
+        // Mostrar suma para V
+        document.getElementById(category + "_avg").textContent = sum.toFixed(2);
+    } else {
+        // Mostrar promedio para otras categorías
+        let totalCount = inputs.length;
+        let avg = sum / totalCount;
+        document.getElementById(category + "_avg").textContent = avg.toFixed(2);
+    }
     updateSummary();
 }
 
@@ -363,7 +364,7 @@ function updateSummary() {
     let Eavg = parseFloat(document.getElementById("E_avg").textContent) || 0;
     let Cavg = parseFloat(document.getElementById("C_avg").textContent) || 0;
     let Mavg = parseFloat(document.getElementById("M_avg").textContent) || 0;
-    let Vavg = parseFloat(document.getElementById("V_avg").textContent) || 0;
+    let Vsum = parseFloat(document.getElementById("V_avg").textContent) || 0;
     
     // Actualizar promedios en el resumen
     document.getElementById("R_avg2").textContent = Ravg.toFixed(2);
@@ -372,7 +373,7 @@ function updateSummary() {
     document.getElementById("E_avg2").textContent = Eavg.toFixed(2);
     document.getElementById("C_avg2").textContent = Cavg.toFixed(2);
     document.getElementById("M_avg2").textContent = Mavg.toFixed(2);
-    document.getElementById("V_avg2").textContent = Vavg.toFixed(2);
+    document.getElementById("V_avg2").textContent = Vsum.toFixed(2);
     
     // Pesos asignados a cada categoría
     let wR = 0.20, wL = 0.20, wH = 0.10, wE = 0.10, wC = 0.15, wM = 0.15, wV = 0.10;
@@ -383,7 +384,7 @@ function updateSummary() {
     let Ew = Eavg * wE;
     let Cw = Cavg * wC;
     let Mw = Mavg * wM;
-    let Vw = Vavg * wV;
+    let Vw = Vsum * wV;
     
     document.getElementById("R_weighted").textContent = Rw.toFixed(2);
     document.getElementById("L_weighted").textContent = Lw.toFixed(2);
