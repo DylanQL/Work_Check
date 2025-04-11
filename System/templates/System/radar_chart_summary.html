@@ -2,45 +2,54 @@
 {% load static %}
 {% block title %}Gráfico Radar de Evaluaciones{% endblock %}
 {% block content %}
-<h2>Gráfico Radar de Resumen de Evaluaciones</h2>
-
-<!-- Filtro por posición -->
-<form method="get" action="" id="position-filter-form">
-    <label for="position_id">Filtrar por posición:</label>
-    <select name="position_id" id="position_id" onchange="this.form.submit()">
-        <option value="">-- Todas las posiciones --</option>
-        {% for position in positions %}
-            <option value="{{ position.id }}" {% if selected_position_id == position.id|stringformat:"i" %}selected{% endif %}>
-                {{ position.position_name }}
-            </option>
-        {% endfor %}
-    </select>
-</form>
-
-<hr>
-
-<!-- Selector para elegir al empleado -->
-<form method="get" action="" id="employee-filter-form">
-    {% if selected_position_id %}
-    <input type="hidden" name="position_id" value="{{ selected_position_id }}">
-    {% endif %}
-    <label for="employee_id">Seleccionar empleado:</label>
-    <select name="employee_id" id="employee_id" onchange="this.form.submit()">
-        <option value="">-- Seleccione un empleado --</option>
-        {% for employee in employees %}
-            <option value="{{ employee.id }}" {% if selected_employee_id == employee.id|stringformat:"i" %}selected{% endif %}>
-                {{ employee.first_name }} {{ employee.last_name }}
-            </option>
-        {% endfor %}
-    </select>
-</form>
-
-{% if employee_data %}
-<div class="chart-container" style="position: relative; height:60vh; width:80%; margin: 0 auto;">
-    <h3>Evaluaciones de {{ employee_data.name }} - {{ employee_data.position }}</h3>
-    <canvas id="radarChart"></canvas>
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Gráfico Radar de Evaluaciones</h3>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <form method="get" action="" id="position-filter-form">
+                        <div class="form-group">
+                            <label for="positionFilter" class="form-label">Filtrar por Posición:</label>
+                            <select name="position_id" id="positionFilter" class="form-select" onchange="this.form.submit()">
+                                <option value="">Todas las Posiciones</option>
+                                {% for position in positions %}
+                                    <option value="{{ position.id }}" {% if selected_position_id == position.id|stringformat:"i" %}selected{% endif %}>
+                                        {{ position.position_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-6">
+                    <form method="get" action="" id="employee-filter-form">
+                        {% if selected_position_id %}
+                        <input type="hidden" name="position_id" value="{{ selected_position_id }}">
+                        {% endif %}
+                        <div class="form-group">
+                            <label for="employeeFilter" class="form-label">Filtrar por Empleado:</label>
+                            <select name="employee_id" id="employeeFilter" class="form-select" onchange="this.form.submit()">
+                                <option value="">Todos los Empleados</option>
+                                {% for employee in employees %}
+                                    <option value="{{ employee.id }}" {% if selected_employee_id == employee.id|stringformat:"i" %}selected{% endif %}>
+                                        {{ employee.first_name }} {{ employee.last_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="chart-container" style="position: relative; height:60vh; width:100%">
+                <canvas id="radarChart"></canvas>
+            </div>
+        </div>
+    </div>
 </div>
-{% endif %}
 
 <!-- Incluir Chart.js desde CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -51,7 +60,7 @@
         // Obtener el contexto del canvas
         const ctx = document.getElementById('radarChart').getContext('2d');
         
-        // Configurar las etiquetas del gráfico
+        // Definir las etiquetas para el gráfico radar
         const labels = [
             'Responsabilidades (R)', 
             'Liderazgo (L)', 
@@ -62,26 +71,25 @@
             'Valores Corporativos (V)'
         ];
         
-        // Configurar los datasets para cada evaluación
+        // Array para almacenar los datasets
         const datasets = [];
         
-        // Generar un color aleatorio pero visible para cada registro
+        // Función para generar colores consistentes
         function getRandomColor(index) {
-            // Lista de colores predefinidos para gráficos
+            // Colores predefinidos para consistencia
             const colors = [
-                'rgb(54, 162, 235)',   // azul
-                'rgb(255, 99, 132)',   // rojo
-                'rgb(75, 192, 192)',   // verde-azulado
-                'rgb(255, 159, 64)',   // naranja
-                'rgb(153, 102, 255)',  // púrpura
-                'rgb(255, 205, 86)',   // amarillo
-                'rgb(201, 203, 207)',  // gris
-                'rgb(255, 99, 71)',    // tomate
-                'rgb(50, 205, 50)',    // lima
-                'rgb(0, 128, 128)'     // verde azulado
+                'rgb(54, 162, 235)',   // Azul
+                'rgb(255, 99, 132)',   // Rojo
+                'rgb(75, 192, 192)',   // Verde agua
+                'rgb(255, 159, 64)',   // Naranja
+                'rgb(153, 102, 255)',  // Púrpura
+                'rgb(255, 205, 86)',   // Amarillo
+                'rgb(201, 203, 207)',  // Gris
+                'rgb(0, 128, 128)',    // Verde azulado
+                'rgb(128, 0, 128)',    // Púrpura oscuro
+                'rgb(128, 128, 0)'     // Oliva
             ];
             
-            // Usar un color de la lista o generar uno aleatorio si hay más evaluaciones que colores
             if (index < colors.length) {
                 return colors[index];
             } else {
@@ -89,26 +97,30 @@
             }
         }
         
-        // Crear un dataset para cada evaluación
+        // Crear datasets para cada evaluación
         {% for summary in employee_data.summaries %}
-        datasets.push({
-            label: 'Evaluación {{ summary.created_at }}',
-            data: [
-                {{ summary.data.R }},
-                {{ summary.data.L }},
-                {{ summary.data.H }},
-                {{ summary.data.E }},
-                {{ summary.data.C }},
-                {{ summary.data.M }},
-                {{ summary.data.V }}
-            ],
-            backgroundColor: `${getRandomColor({{ forloop.counter0 }}).replace('rgb', 'rgba').replace(')', ', 0.2)')}`,
-            borderColor: getRandomColor({{ forloop.counter0 }}),
-            pointBackgroundColor: getRandomColor({{ forloop.counter0 }}),
-            pointBorderColor: '#fff',
-            pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: getRandomColor({{ forloop.counter0 }})
-        });
+        (function() {
+            const color = getRandomColor({{ forloop.counter0 }});
+            datasets.push({
+                label: 'Evaluación {{ summary.created_at }}',
+                data: [
+                    {{ summary.data.R }},
+                    {{ summary.data.L }},
+                    {{ summary.data.H }},
+                    {{ summary.data.E }},
+                    {{ summary.data.C }},
+                    {{ summary.data.M }},
+                    {{ summary.data.V }}
+                ],
+                backgroundColor: color.replace('rgb', 'rgba').replace(')', ', 0.2)'),
+                borderColor: color,
+                pointBackgroundColor: color,
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: color,
+                borderWidth: 2
+            });
+        })();
         {% endfor %}
         
         // Configurar los datos del gráfico radar
@@ -124,12 +136,17 @@
             scales: {
                 r: {
                     angleLines: {
-                        display: true
+                        display: true,
+                        color: 'rgba(0, 0, 0, 0.1)'
                     },
                     suggestedMin: 0,
                     suggestedMax: 5,
                     ticks: {
-                        stepSize: 1
+                        stepSize: 1,
+                        backdropColor: 'rgba(255, 255, 255, 0.8)'
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
                     }
                 }
             },
@@ -137,14 +154,34 @@
                 legend: {
                     position: 'right',
                     labels: {
-                        boxWidth: 12
+                        boxWidth: 12,
+                        font: {
+                            size: 12
+                        },
+                        padding: 15
                     }
                 },
                 title: {
                     display: true,
-                    text: 'Histórico de Evaluaciones'
+                    text: 'Histórico de Evaluaciones',
+                    font: {
+                        size: 16,
+                        weight: 'bold'
+                    },
+                    padding: {
+                        top: 10,
+                        bottom: 20
+                    }
                 },
                 tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    titleFont: {
+                        size: 14
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    padding: 10,
                     callbacks: {
                         label: function(context) {
                             return context.dataset.label + ': ' + context.formattedValue;
@@ -155,35 +192,102 @@
         };
         
         // Crear el gráfico radar
-        new Chart(ctx, {
+        const radarChart = new Chart(ctx, {
             type: 'radar',
             data: chartData,
             options: chartOptions
         });
+        
+        // Funcionalidad para los filtros
+        document.getElementById('positionFilter').addEventListener('change', function() {
+            // Implementar filtrado por posición
+            const positionId = this.value;
+            // Aquí se implementaría la lógica para filtrar por posición
+            // Esto requeriría una llamada AJAX al servidor para obtener los datos filtrados
+        });
+        
+        document.getElementById('employeeFilter').addEventListener('change', function() {
+            // Implementar filtrado por empleado
+            const employeeId = this.value;
+            // Aquí se implementaría la lógica para filtrar por empleado
+            // Esto requeriría una llamada AJAX al servidor para obtener los datos filtrados
+        });
     });
 </script>
+{% else %}
+<div class="alert alert-info mt-4">
+    <p>No hay datos de evaluación disponibles para mostrar en el gráfico radar.</p>
+</div>
 {% endif %}
 
 <style>
     .chart-container {
+        background-color: #fff;
+        border-radius: 8px;
         padding: 20px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        background-color: #f9f9f9;
-        margin-top: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
     }
     
-    form {
-        margin-bottom: 20px;
+    .card {
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 30px;
     }
     
-    select {
-        padding: 5px;
-        margin-left: 10px;
+    .card-header {
+        border-bottom: none;
+        padding: 15px 20px;
     }
     
-    label {
-        font-weight: bold;
+    .card-body {
+        padding: 25px;
+    }
+    
+    .form-select {
+        border-radius: 6px;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        background-color: #f8f9fa;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    
+    .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+    
+    .alert {
+        border-radius: 8px;
+        padding: 15px 20px;
+    }
+    
+    /* Estilos para la leyenda del gráfico */
+    canvas {
+        max-height: 500px;
+    }
+    
+    /* Estilos responsivos */
+    @media (max-width: 768px) {
+        .chart-container {
+            height: 50vh !important;
+        }
+    }
+    
+    /* Animaciones para el gráfico */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .chart-container {
+        animation: fadeIn 0.8s ease-in-out;
     }
 </style>
 {% endblock %}
