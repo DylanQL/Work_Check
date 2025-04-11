@@ -742,7 +742,7 @@
         <div class="row mb-4">
             <div class="col-12">
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button type="submit" name="action" value="Enviar formulario" class="btn btn-primary">
+                    <button type="submit" name="action" value="Enviar formulario" class="btn btn-primary" onclick="return validateForm()">
                         <i class="fas fa-paper-plane me-2"></i>Enviar formulario
                     </button>
                     <button type="button" id="clearFormButton" class="btn btn-secondary">
@@ -759,45 +759,73 @@ document.addEventListener('DOMContentLoaded', function() {
     const clearFormButton = document.getElementById('clearFormButton');
     if (clearFormButton) {
         clearFormButton.addEventListener('click', function() {
-            // Obtener todos los inputs del formulario
-            const form = this.closest('form');
-            const inputs = form.querySelectorAll('input[type="number"], textarea');
-            const selects = form.querySelectorAll('select');
-            
-            // Limpiar cada input y textarea
-            inputs.forEach(function(input) {
-                input.value = '';
-            });
-            
-            // Limpiar cada select (volver a la opción vacía)
-            selects.forEach(function(select) {
-                select.selectedIndex = 0;
-            });
-            
-            // Actualizar los cálculos
-            calcCategory('R');
-            calcCategory('L');
-            calcCategory('H');
-            calcCategory('E');
-            calcCategory('C');
-            calcCategory('M');
-            calcCategory('V');
-            updateSummary();
+            if (confirm('¿Está seguro de que desea limpiar el formulario? Todos los datos ingresados se perderán.')) {
+                // Resetear todos los select a valor vacío
+                document.querySelectorAll('select').forEach(select => {
+                    select.value = '';
+                });
+                
+                // Resetear todos los textarea
+                document.querySelectorAll('textarea').forEach(textarea => {
+                    textarea.value = '';
+                });
+                
+                // Recalcular todas las categorías
+                ['R', 'L', 'H', 'E', 'C', 'M', 'V'].forEach(category => {
+                    calcCategory(category);
+                });
+                
+                // Actualizar el resumen
+                updateSummary();
+            }
         });
     }
     
-    // Inicializar cálculos cuando la página carga
-    setTimeout(function() {
-        calcCategory('R');
-        calcCategory('L');
-        calcCategory('H');
-        calcCategory('E');
-        calcCategory('C');
-        calcCategory('M');
-        calcCategory('V');
-        updateSummary();
-    }, 500); // Pequeño retraso para asegurarse de que todos los elementos están cargados
+    // Inicializar cálculos
+    ['R', 'L', 'H', 'E', 'C', 'M', 'V'].forEach(category => {
+        calcCategory(category);
+    });
+    updateSummary();
 });
+
+// Función para validar el formulario antes de enviar
+function validateForm() {
+    // Obtener todos los selects del formulario (excepto el selector de empleado)
+    const selects = document.querySelectorAll('form select:not(#employee_select)');
+    let allFieldsSelected = true;
+    let firstEmptySelect = null;
+    
+    // Verificar que todos los selects tengan un valor seleccionado
+    selects.forEach(select => {
+        if (select.value === '') {
+            allFieldsSelected = false;
+            // Guardar referencia al primer select vacío para hacer scroll hasta él
+            if (!firstEmptySelect) {
+                firstEmptySelect = select;
+                // Resaltar el select vacío
+                select.classList.add('is-invalid');
+                // Agregar evento para quitar la clase cuando se seleccione un valor
+                select.addEventListener('change', function() {
+                    if (this.value !== '') {
+                        this.classList.remove('is-invalid');
+                    }
+                }, { once: true });
+            }
+        }
+    });
+    
+    if (!allFieldsSelected) {
+        // Mostrar alerta
+        alert('Por favor, complete todos los campos de evaluación antes de enviar el formulario.');
+        // Hacer scroll hasta el primer campo vacío
+        if (firstEmptySelect) {
+            firstEmptySelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return false;
+    }
+    
+    return true;
+}
 
 // Función para calcular el promedio de una categoría o suma para V
 function calcCategory(category) {
