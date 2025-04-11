@@ -2,617 +2,712 @@
 {% load static %}
 {% block title %}Evaluar Empleados{% endblock %}
 {% block content %}
-<h2>Evaluación Semestral de Desempeño y Desarrollo Profesional (Empleados)</h2>
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex align-items-center">
+                <h2 class="mb-0"><i class="fas fa-user-tie me-2"></i>Evaluación Semestral de Desempeño y Desarrollo Profesional (Empleados)</h2>
+            </div>
+            <hr class="mt-3">
+        </div>
+    </div>
 
-<!-- Selector para elegir al empleado asignado -->
-<form method="get" action="">
-    <label>Seleccionar usuario a evaluar:</label>
-    <select name="employee_id" onchange="this.form.submit()">
-        <option value="">-- Seleccione --</option>
-        {% for emp in assigned_employees %}
-            <option value="{{ emp.id }}" {% if selected_employee and emp.id == selected_employee.id %}selected{% endif %}>
-                {{ emp.first_name }} {{ emp.last_name }}
-            </option>
-        {% endfor %}
-    </select>
-</form>
+    <!-- Selector para elegir al empleado asignado -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0"><i class="fas fa-users me-2"></i>Seleccionar Empleado</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="">
+                        <div class="mb-3">
+                            <label for="employee_select" class="form-label">Seleccionar usuario a evaluar:</label>
+                            <select id="employee_select" name="employee_id" class="form-select" onchange="this.form.submit()">
+                                <option value="">-- Seleccione --</option>
+                                {% for emp in assigned_employees %}
+                                    <option value="{{ emp.id }}" {% if selected_employee and emp.id == selected_employee.id %}selected{% endif %}>
+                                        {{ emp.first_name }} {{ emp.last_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-{% if selected_employee %}
-    <hr>
-    <p><strong>Posición del usuario a evaluar:</strong> {{ selected_employee.position.position_name }}</p>
-    <hr>
+    {% if selected_employee %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-info-circle me-2 fs-4"></i>
+                    <div>
+                        <strong>Posición del usuario a evaluar:</strong> {{ selected_employee.position.position_name }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Formulario de evaluación -->
     <form method="post">
         {% csrf_token %}
-        <!-- Campo hidden para identificar al empleado evaluado -->
         <input type="hidden" name="employee_id" value="{{ selected_employee.id }}">
-
+        
         <!-- Sección: Responsabilidades de la posición (R) -->
-        <h3>Responsabilidades de la posición</h3>
-        <table border="1" cellspacing="0" cellpadding="5">
-            <tr>
-                <th>Responsabilidad</th>
-                <th>Puntaje (1-5)</th>
-                <th>Comentarios</th>
-                <th>Promedio</th>
-            </tr>
-            <tr>
-                <th>Desarrolla nuevas aplicaciones, y/o adapta sistemas o aplicaciones existentes con eficiencia y efectividad</th>
-                <td>
-                    <select name="R1" id="R1" onchange="calcCategory('R')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.R1 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.R1 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.R1 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.R1 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.R1 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-                <td rowspan="5"><textarea name="R_comments">{{ evaluation_details_data.R_comments }}</textarea></td>
-                <td rowspan="5"><span id="R_avg">0</span></td>
-            </tr>
-            <tr>
-                <th>Está atento a las necesidades de los clientes durante el proceso de desarrollo o mejora de aplicaciones</th>
-                <td>
-                    <select name="R2" id="R2" onchange="calcCategory('R')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.R2 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.R2 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.R2 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.R2 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.R2 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th>Trabaja con responsabilidad para cumplir a tiempo y de manera efectiva los objetivos del proyecto</th>
-                <td>
-                    <select name="R3" id="R3" onchange="calcCategory('R')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.R3 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.R3 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.R3 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.R3 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.R3 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th>Documenta claramente y oportunamente los proyectos</th>
-                <td>
-                    <select name="R4" id="R4" onchange="calcCategory('R')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.R4 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.R4 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.R4 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.R4 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.R4 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th>Documenta claramente y oportunamente el time sheet</th>
-                <td><input type="number" name="R5" id="R5" value="{{ evaluation_details_data.R5|default_if_none:'' }}" readonly oninput="calcCategory('R')" min="1" max="5"></td>
-            </tr>
-        </table>
-
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-tasks me-2"></i>Responsabilidades de la posición</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="50%">Responsabilidad</th>
+                                <th width="15%" class="text-center">Puntaje (1-5)</th>
+                                <th width="20%">Comentarios</th>
+                                <th width="15%" class="text-center">Promedio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Desarrolla nuevas aplicaciones, y/o adapta sistemas o aplicaciones existentes con eficiencia y efectividad</th>
+                                <td class="text-center">
+                                    <select name="R1" id="R1" class="form-select form-select-sm" onchange="calcCategory('R')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.R1 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.R1 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.R1 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.R1 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.R1 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                                <td rowspan="5">
+                                    <textarea name="R_comments" class="form-control" rows="8">{{ evaluation_details_data.R_comments }}</textarea>
+                                </td>
+                                <td rowspan="5" class="text-center align-middle">
+                                    <span id="R_avg" class="badge bg-primary fs-5">0</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Está atento a las necesidades de los clientes durante el proceso de desarrollo o mejora de aplicaciones</th>
+                                <td class="text-center">
+                                    <select name="R2" id="R2" class="form-select form-select-sm" onchange="calcCategory('R')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.R2 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.R2 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.R2 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.R2 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.R2 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Trabaja con responsabilidad para cumplir a tiempo y de manera efectiva los objetivos del proyecto</th>
+                                <td class="text-center">
+                                    <select name="R3" id="R3" class="form-select form-select-sm" onchange="calcCategory('R')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.R3 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.R3 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.R3 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.R3 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.R3 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Documenta claramente y oportunamente los proyectos</th>
+                                <td class="text-center">
+                                    <select name="R4" id="R4" class="form-select form-select-sm" onchange="calcCategory('R')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.R4 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.R4 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.R4 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.R4 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.R4 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Documenta claramente y oportunamente el time sheet</th>
+                                <td class="text-center">
+                                    <input type="number" name="R5" id="R5" class="form-control form-control-sm" value="{{ evaluation_details_data.R5|default_if_none:'' }}" readonly oninput="calcCategory('R')" min="1" max="5">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
         <!-- Sección: Habilidades (H) -->
-        <h3>Habilidades</h3>
-        <table border="1" cellspacing="0" cellpadding="5">
-            <tr>
-                <th>Habilidad</th>
-                <th>Puntaje (1-5)</th>
-                <th>Comentarios</th>
-                <th>Promedio</th>
-            </tr>
-            <tr>
-                <th>Planifica y organiza el trabajo de manera efectiva</th>
-                <td>
-                    <select name="H1" id="H1" onchange="calcCategory('H')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.H1 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.H1 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.H1 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.H1 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.H1 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-                <td rowspan="5"><textarea name="H_comments">{{ evaluation_details_data.H_comments }}</textarea></td>
-                <td rowspan="5"><span id="H_avg">0</span></td>
-            </tr>
-            <tr>
-                <th>Muestra habilidades efectivas para resolver problemas</th>
-                <td>
-                    <select name="H2" id="H2" onchange="calcCategory('H')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.H2 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.H2 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.H2 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.H2 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.H2 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th>Muestra habilidad para comunicarse oral y por escrito efectivamente</th>
-                <td>
-                    <select name="H3" id="H3" onchange="calcCategory('H')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.H3 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.H3 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.H3 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.H3 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.H3 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th>Muestra habilidad para comunicar información técnica de manera sencilla a personas no técnicas</th>
-                <td>
-                    <select name="H4" id="H4" onchange="calcCategory('H')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.H4 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.H4 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.H4 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.H4 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.H4 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th>Muestra habilidad para resolver conflictos adecuadamente</th>
-                <td>
-                    <select name="H5" id="H5" onchange="calcCategory('H')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.H5 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.H5 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.H5 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.H5 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.H5 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-            </tr>
-        </table>
-
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-brain me-2"></i>Habilidades</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="50%">Habilidad</th>
+                                <th width="15%" class="text-center">Puntaje (1-5)</th>
+                                <th width="20%">Comentarios</th>
+                                <th width="15%" class="text-center">Promedio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Planifica y organiza el trabajo de manera efectiva</th>
+                                <td class="text-center">
+                                    <select name="H1" id="H1" class="form-select form-select-sm" onchange="calcCategory('H')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.H1 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.H1 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.H1 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.H1 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.H1 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                                <td rowspan="5">
+                                    <textarea name="H_comments" class="form-control" rows="8">{{ evaluation_details_data.H_comments }}</textarea>
+                                </td>
+                                <td rowspan="5" class="text-center align-middle">
+                                    <span id="H_avg" class="badge bg-primary fs-5">0</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Muestra habilidades efectivas para resolver problemas</th>
+                                <td class="text-center">
+                                    <select name="H2" id="H2" class="form-select form-select-sm" onchange="calcCategory('H')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.H2 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.H2 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.H2 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.H2 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.H2 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Muestra habilidad para comunicarse oral y por escrito efectivamente</th>
+                                <td class="text-center">
+                                    <select name="H3" id="H3" class="form-select form-select-sm" onchange="calcCategory('H')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.H3 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.H3 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.H3 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.H3 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.H3 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Muestra habilidad para comunicar información técnica de manera sencilla a personas no técnicas</th>
+                                <td class="text-center">
+                                    <select name="H4" id="H4" class="form-select form-select-sm" onchange="calcCategory('H')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.H4 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.H4 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.H4 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.H4 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.H4 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Muestra habilidad para resolver conflictos adecuadamente</th>
+                                <td class="text-center">
+                                    <select name="H5" id="H5" class="form-select form-select-sm" onchange="calcCategory('H')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.H5 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.H5 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.H5 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.H5 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.H5 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
         <!-- Sección: Enfoque (E) -->
-        <h3>Enfoque</h3>
-        <table border="1" cellspacing="0" cellpadding="5">
-            <tr>
-                <th>Enfoque</th>
-                <th>Puntaje (1-5)</th>
-                <th>Comentarios</th>
-                <th>Promedio</th>
-            </tr>
-            <tr>
-                <th>Ejerce buen juicio en el desarrollo de sus responsabilidades</th>
-                <td>
-                    <select name="E1" id="E1" onchange="calcCategory('E')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.E1 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.E1 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.E1 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.E1 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.E1 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-                <td rowspan="4"><textarea name="E_comments">{{ evaluation_details_data.E_comments }}</textarea></td>
-                <td rowspan="4"><span id="E_avg">0</span></td>
-            </tr>
-            <tr>
-                <th>Busca cumplir sus responsabilidades con excelencia</th>
-                <td>
-                    <select name="E2" id="E2" onchange="calcCategory('E')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.E2 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.E2 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.E2 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.E2 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.E2 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th>Demuestra adaptabilidad</th>
-                <td>
-                    <select name="E3" id="E3" onchange="calcCategory('E')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.E3 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.E3 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.E3 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.E3 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.E3 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th>Coopera bien con los demás miembros del equipo</th>
-                <td>
-                    <select name="E4" id="E4" onchange="calcCategory('E')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.E4 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.E4 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.E4 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.E4 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.E4 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-            </tr>
-        </table>
-
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-bullseye me-2"></i>Enfoque</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="50%">Enfoque</th>
+                                <th width="15%" class="text-center">Puntaje (1-5)</th>
+                                <th width="20%">Comentarios</th>
+                                <th width="15%" class="text-center">Promedio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Ejerce buen juicio en el desarrollo de sus responsabilidades</th>
+                                <td class="text-center">
+                                    <select name="E1" id="E1" class="form-select form-select-sm" onchange="calcCategory('E')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.E1 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.E1 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.E1 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.E1 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.E1 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                                <td rowspan="4">
+                                    <textarea name="E_comments" class="form-control" rows="6">{{ evaluation_details_data.E_comments }}</textarea>
+                                </td>
+                                <td rowspan="4" class="text-center align-middle">
+                                    <span id="E_avg" class="badge bg-primary fs-5">0</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Busca cumplir sus responsabilidades con excelencia</th>
+                                <td class="text-center">
+                                    <select name="E2" id="E2" class="form-select form-select-sm" onchange="calcCategory('E')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.E2 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.E2 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.E2 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.E2 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.E2 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Demuestra adaptabilidad</th>
+                                <td class="text-center">
+                                    <select name="E3" id="E3" class="form-select form-select-sm" onchange="calcCategory('E')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.E3 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.E3 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.E3 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.E3 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.E3 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Coopera bien con los demás miembros del equipo</th>
+                                <td class="text-center">
+                                    <select name="E4" id="E4" class="form-select form-select-sm" onchange="calcCategory('E')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.E4 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.E4 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.E4 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.E4 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.E4 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
         <!-- Sección: Competencia Técnica (C) -->
-        <h3>Competencia Técnica</h3>
-        <table border="1" cellspacing="0" cellpadding="5">
-            <tr>
-                <th>Competencia</th>
-                <th>Puntaje (1-5)</th>
-                <th>Comentarios</th>
-                <th>Promedio</th>
-            </tr>
-            <tr>
-                <th>Experto en el manejo de herramientas y tecnologías para alcanzar los estándares y objetivos de su posición</th>
-                <td>
-                    <select name="C1" id="C1" onchange="calcCategory('C')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.C1 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.C1 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.C1 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.C1 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.C1 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-                <td rowspan="6"><textarea name="C_comments">{{ evaluation_details_data.C_comments }}</textarea></td>
-                <td rowspan="6"><span id="C_avg">0</span></td>
-            </tr>
-            <tr>
-                <th>Capacidad para aprender y aplicar nuevas herramientas y tecnologías</th>
-                <td>
-                    <select name="C2" id="C2" onchange="calcCategory('C')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.C2 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.C2 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.C2 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.C2 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.C2 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th>Capacidad de trabajar sin la necesidad de una supervisión constante, administrando su tiempo eficientemente</th>
-                <td>
-                    <select name="C3" id="C3" onchange="calcCategory('C')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.C3 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.C3 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.C3 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.C3 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.C3 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th>Maneja eficazmente la presión y pide ayuda cuando es necesario</th>
-                <td>
-                    <select name="C4" id="C4" onchange="calcCategory('C')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.C4 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.C4 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.C4 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.C4 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.C4 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th>Investiga, recopila y analiza información hábilmente</th>
-                <td>
-                    <select name="C5" id="C5" onchange="calcCategory('C')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.C5 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.C5 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.C5 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.C5 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.C5 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th>Capaz de identificar y medir el impacto de las decisiones tomadas</th>
-                <td>
-                    <select name="C6" id="C6" onchange="calcCategory('C')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.C6 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.C6 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.C6 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.C6 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.C6 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-            </tr>
-        </table>
-
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-cogs me-2"></i>Competencia Técnica</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="50%">Competencia</th>
+                                <th width="15%" class="text-center">Puntaje (1-5)</th>
+                                <th width="20%">Comentarios</th>
+                                <th width="15%" class="text-center">Promedio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Experto en el manejo de herramientas y tecnologías para alcanzar los estándares y objetivos de su posición</th>
+                                <td class="text-center">
+                                    <select name="C1" id="C1" class="form-select form-select-sm" onchange="calcCategory('C')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.C1 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.C1 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.C1 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.C1 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.C1 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                                <td rowspan="6">
+                                    <textarea name="C_comments" class="form-control" rows="10">{{ evaluation_details_data.C_comments }}</textarea>
+                                </td>
+                                <td rowspan="6" class="text-center align-middle">
+                                    <span id="C_avg" class="badge bg-primary fs-5">0</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Capacidad para aprender y aplicar nuevas herramientas y tecnologías</th>
+                                <td class="text-center">
+                                    <select name="C2" id="C2" class="form-select form-select-sm" onchange="calcCategory('C')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.C2 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.C2 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.C2 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.C2 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.C2 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Capacidad de trabajar sin la necesidad de una supervisión constante, administrando su tiempo eficientemente</th>
+                                <td class="text-center">
+                                    <select name="C3" id="C3" class="form-select form-select-sm" onchange="calcCategory('C')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.C3 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.C3 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.C3 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.C3 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.C3 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Maneja eficazmente la presión y pide ayuda cuando es necesario</th>
+                                <td class="text-center">
+                                    <select name="C4" id="C4" class="form-select form-select-sm" onchange="calcCategory('C')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.C4 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.C4 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.C4 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.C4 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.C4 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Investiga, recopila y analiza información hábilmente</th>
+                                <td class="text-center">
+                                    <select name="C5" id="C5" class="form-select form-select-sm" onchange="calcCategory('C')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.C5 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.C5 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.C5 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.C5 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.C5 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Capaz de identificar y medir el impacto de las decisiones tomadas</th>
+                                <td class="text-center">
+                                    <select name="C6" id="C6" class="form-select form-select-sm" onchange="calcCategory('C')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.C6 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.C6 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.C6 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.C6 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.C6 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
         <!-- Sección: Metas y Resultados (M) -->
-        <h3>Metas y Resultados</h3>
-        <table border="1" cellspacing="0" cellpadding="5">
-            <tr>
-                <th>Meta</th>
-                <th>Puntaje (1-5)</th>
-                <th>Comentarios</th>
-                <th>Promedio</th>
-            </tr>
-            <tr>
-                <th>Colabora con el cumplimiento de las metas del equipo</th>
-                <td>
-                    <select name="M1" id="M1" onchange="calcCategory('M')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.M1 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.M1 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.M1 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.M1 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.M1 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-                <td rowspan="2"><textarea name="M_comments">{{ evaluation_details_data.M_comments }}</textarea></td>
-                <td rowspan="2"><span id="M_avg">0</span></td>
-            </tr>
-            <tr>
-                <th>Colabora con lograr los resultados que el cliente busca</th>
-                <td>
-                    <select name="M2" id="M2" onchange="calcCategory('M')">
-                        <option value=""></option>
-                        <option value="1" {% if evaluation_details_data.M2 == 1 %}selected{% endif %}>1</option>
-                        <option value="2" {% if evaluation_details_data.M2 == 2 %}selected{% endif %}>2</option>
-                        <option value="3" {% if evaluation_details_data.M2 == 3 %}selected{% endif %}>3</option>
-                        <option value="4" {% if evaluation_details_data.M2 == 4 %}selected{% endif %}>4</option>
-                        <option value="5" {% if evaluation_details_data.M2 == 5 %}selected{% endif %}>5</option>
-                    </select>
-                </td>
-            </tr>
-        </table>
-
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-flag-checkered me-2"></i>Metas y Resultados</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="50%">Meta</th>
+                                <th width="15%" class="text-center">Puntaje (1-5)</th>
+                                <th width="20%">Comentarios</th>
+                                <th width="15%" class="text-center">Promedio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Colabora con el cumplimiento de las metas del equipo</th>
+                                <td class="text-center">
+                                    <select name="M1" id="M1" class="form-select form-select-sm" onchange="calcCategory('M')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.M1 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.M1 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.M1 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.M1 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.M1 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                                <td rowspan="2">
+                                    <textarea name="M_comments" class="form-control" rows="4">{{ evaluation_details_data.M_comments }}</textarea>
+                                </td>
+                                <td rowspan="2" class="text-center align-middle">
+                                    <span id="M_avg" class="badge bg-primary fs-5">0</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Colabora con lograr los resultados que el cliente busca</th>
+                                <td class="text-center">
+                                    <select name="M2" id="M2" class="form-select form-select-sm" onchange="calcCategory('M')">
+                                        <option value=""></option>
+                                        <option value="1" {% if evaluation_details_data.M2 == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if evaluation_details_data.M2 == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if evaluation_details_data.M2 == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if evaluation_details_data.M2 == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if evaluation_details_data.M2 == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
         <!-- Sección: Valores Corporativos (V) -->
-        <h3>Valores Corporativos</h3>
-        <table border="1" cellspacing="0" cellpadding="5">
-            <tr>
-                <th>Valor</th>
-                <th>Puntaje (0-1)</th>
-                <th>Comentarios</th>
-                <th>Suma</th>
-            </tr>
-            <tr>
-                <th>Trabaja con honestidad e integridad</th>
-                <td>
-                    <select name="V1" id="V1" onchange="calcCategory('V')">
-                        <option value=""></option>
-                        <option value="0" {% if evaluation_details_data.V1 == 0 %}selected{% endif %}>0</option>
-                        <option value="1" {% if evaluation_details_data.V1 == 1 %}selected{% endif %}>1</option>
-                    </select>
-                </td>
-                <td rowspan="5"><textarea name="V_comments">{{ evaluation_details_data.V_comments }}</textarea></td>
-                <td rowspan="5"><span id="V_avg">0</span></td>
-            </tr>
-            <tr>
-                <th>Actúa con ética profesional en todo lo que hace</th>
-                <td>
-                    <select name="V2" id="V2" onchange="calcCategory('V')">
-                        <option value=""></option>
-                        <option value="0" {% if evaluation_details_data.V2 == 0 %}selected{% endif %}>0</option>
-                        <option value="1" {% if evaluation_details_data.V2 == 1 %}selected{% endif %}>1</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th>Pone sus habilidades y conocimientos al servicio del equipo</th>
-                <td>
-                    <select name="V3" id="V3" onchange="calcCategory('V')">
-                        <option value=""></option>
-                        <option value="0" {% if evaluation_details_data.V3 == 0 %}selected{% endif %}>0</option>
-                        <option value="1" {% if evaluation_details_data.V3 == 1 %}selected{% endif %}>1</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th>Prioriza las necesidades e intereses del equipo</th>
-                <td>
-                    <select name="V4" id="V4" onchange="calcCategory('V')">
-                        <option value=""></option>
-                        <option value="0" {% if evaluation_details_data.V4 == 0 %}selected{% endif %}>0</option>
-                        <option value="1" {% if evaluation_details_data.V4 == 1 %}selected{% endif %}>1</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th>Busca la mejora continua</th>
-                <td>
-                    <select name="V5" id="V5" onchange="calcCategory('V')">
-                        <option value=""></option>
-                        <option value="0" {% if evaluation_details_data.V5 == 0 %}selected{% endif %}>0</option>
-                        <option value="1" {% if evaluation_details_data.V5 == 1 %}selected{% endif %}>1</option>
-                    </select>
-                </td>
-            </tr>
-        </table>
-
-        <!-- Comentarios finales -->
-        <h3>Comentarios Finales</h3>
-        <textarea name="final_comments" rows="4" cols="50">{{ evaluation_details_data.final_comments }}</textarea>
-
-        <hr>
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-heart me-2"></i>Valores Corporativos</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="50%">Valor</th>
+                                <th width="15%" class="text-center">Puntaje (0-1)</th>
+                                <th width="20%">Comentarios</th>
+                                <th width="15%" class="text-center">Suma</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Trabaja con honestidad e integridad</th>
+                                <td class="text-center">
+                                    <select name="V1" id="V1" class="form-select form-select-sm" onchange="calcCategory('V')">
+                                        <option value=""></option>
+                                        <option value="0" {% if evaluation_details_data.V1 == 0 %}selected{% endif %}>0</option>
+                                        <option value="1" {% if evaluation_details_data.V1 == 1 %}selected{% endif %}>1</option>
+                                    </select>
+                                </td>
+                                <td rowspan="5">
+                                    <textarea name="V_comments" class="form-control" rows="8">{{ evaluation_details_data.V_comments }}</textarea>
+                                </td>
+                                <td rowspan="5" class="text-center align-middle">
+                                    <span id="V_avg" class="badge bg-primary fs-5">0</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Actúa con ética profesional en todo lo que hace</th>
+                                <td class="text-center">
+                                    <select name="V2" id="V2" class="form-select form-select-sm" onchange="calcCategory('V')">
+                                        <option value=""></option>
+                                        <option value="0" {% if evaluation_details_data.V2 == 0 %}selected{% endif %}>0</option>
+                                        <option value="1" {% if evaluation_details_data.V2 == 1 %}selected{% endif %}>1</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Pone sus habilidades y conocimientos al servicio del equipo</th>
+                                <td class="text-center">
+                                    <select name="V3" id="V3" class="form-select form-select-sm" onchange="calcCategory('V')">
+                                        <option value=""></option>
+                                        <option value="0" {% if evaluation_details_data.V3 == 0 %}selected{% endif %}>0</option>
+                                        <option value="1" {% if evaluation_details_data.V3 == 1 %}selected{% endif %}>1</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Prioriza las necesidades e intereses del equipo</th>
+                                <td class="text-center">
+                                    <select name="V4" id="V4" class="form-select form-select-sm" onchange="calcCategory('V')">
+                                        <option value=""></option>
+                                        <option value="0" {% if evaluation_details_data.V4 == 0 %}selected{% endif %}>0</option>
+                                        <option value="1" {% if evaluation_details_data.V4 == 1 %}selected{% endif %}>1</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Busca la mejora continua</th>
+                                <td class="text-center">
+                                    <select name="V5" id="V5" class="form-select form-select-sm" onchange="calcCategory('V')">
+                                        <option value=""></option>
+                                        <option value="0" {% if evaluation_details_data.V5 == 0 %}selected{% endif %}>0</option>
+                                        <option value="1" {% if evaluation_details_data.V5 == 1 %}selected{% endif %}>1</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Comentarios Finales -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-comment me-2"></i>Comentarios Finales</h5>
+            </div>
+            <div class="card-body">
+                <textarea name="final_comments" class="form-control" rows="4">{{ evaluation_details_data.final_comments }}</textarea>
+            </div>
+        </div>
+        
         <!-- Resumen de desempeño -->
-        <h3>RESUMEN DE DESEMPEÑO</h3>
-        <table border="1" cellspacing="0" cellpadding="5">
-            <tr>
-                <th>Área de Evaluación</th>
-                <th>Score (Promedio)</th>
-                <th>Weight</th>
-                <th>Weighted Score</th>
-            </tr>
-            <tr>
-                <td>Responsabilidades de la posición (R)</td>
-                <td><span id="R_avg2">0</span></td>
-                <td>0.40</td>
-                <td><span id="R_weighted">0</span></td>
-            </tr>
-            <tr>
-                <td>Habilidades (H)</td>
-                <td><span id="H_avg2">0</span></td>
-                <td>0.10</td>
-                <td><span id="H_weighted">0</span></td>
-            </tr>
-            <tr>
-                <td>Enfoque (E)</td>
-                <td><span id="E_avg2">0</span></td>
-                <td>0.10</td>
-                <td><span id="E_weighted">0</span></td>
-            </tr>
-            <tr>
-                <td>Competencia Técnica (C)</td>
-                <td><span id="C_avg2">0</span></td>
-                <td>0.15</td>
-                <td><span id="C_weighted">0</span></td>
-            </tr>
-            <tr>
-                <td>Metas y Resultados (M)</td>
-                <td><span id="M_avg2">0</span></td>
-                <td>0.15</td>
-                <td><span id="M_weighted">0</span></td>
-            </tr>
-            <tr>
-                <td>Valores Corporativos (V)</td>
-                <td><span id="V_avg2">0</span></td>
-                <td>0.10</td>
-                <td><span id="V_weighted">0</span></td>
-            </tr>
-            <tr>
-                <th colspan="3">Total</th>
-                <th><span id="final_score">0</span> (<span id="performance_level">Nivel 1</span>)</th>
-            </tr>
-        </table>
-
-        <br>
-        <button type="submit" name="action" value="Enviar formulario">Enviar formulario</button>
-        <button type="button" id="clearFormButton">Limpiar formulario</button>
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-bar me-2"></i>RESUMEN DE DESEMPEÑO</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Área de Evaluación</th>
+                                <th>Score (Promedio)</th>
+                                <th>Weight</th>
+                                <th>Weighted Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Responsabilidades de la posición (R)</td>
+                                <td class="text-center"><span id="R_avg2" class="badge bg-secondary">0</span></td>
+                                <td class="text-center"><span class="badge bg-info">0.40</span></td>
+                                <td class="text-center"><span id="R_weighted" class="badge bg-dark">0</span></td>
+                            </tr>
+                            <tr>
+                                <td>Habilidades (H)</td>
+                                <td class="text-center"><span id="H_avg2" class="badge bg-secondary">0</span></td>
+                                <td class="text-center"><span class="badge bg-info">0.10</span></td>
+                                <td class="text-center"><span id="H_weighted" class="badge bg-dark">0</span></td>
+                            </tr>
+                            <tr>
+                                <td>Enfoque (E)</td>
+                                <td class="text-center"><span id="E_avg2" class="badge bg-secondary">0</span></td>
+                                <td class="text-center"><span class="badge bg-info">0.10</span></td>
+                                <td class="text-center"><span id="E_weighted" class="badge bg-dark">0</span></td>
+                            </tr>
+                            <tr>
+                                <td>Competencia Técnica (C)</td>
+                                <td class="text-center"><span id="C_avg2" class="badge bg-secondary">0</span></td>
+                                <td class="text-center"><span class="badge bg-info">0.15</span></td>
+                                <td class="text-center"><span id="C_weighted" class="badge bg-dark">0</span></td>
+                            </tr>
+                            <tr>
+                                <td>Metas y Resultados (M)</td>
+                                <td class="text-center"><span id="M_avg2" class="badge bg-secondary">0</span></td>
+                                <td class="text-center"><span class="badge bg-info">0.15</span></td>
+                                <td class="text-center"><span id="M_weighted" class="badge bg-dark">0</span></td>
+                            </tr>
+                            <tr>
+                                <td>Valores Corporativos (V)</td>
+                                <td class="text-center"><span id="V_avg2" class="badge bg-secondary">0</span></td>
+                                <td class="text-center"><span class="badge bg-info">0.10</span></td>
+                                <td class="text-center"><span id="V_weighted" class="badge bg-dark">0</span></td>
+                            </tr>
+                            <tr class="table-active fw-bold">
+                                <th colspan="3" class="text-end">Total:</th>
+                                <th class="text-center">
+                                    <span id="final_score" class="badge bg-primary fs-5">0</span>
+                                    <div class="mt-2">
+                                        <span id="performance_level" class="badge bg-secondary">Nivel 1</span>
+                                    </div>
+                                </th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Botones de envío y limpieza -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" name="action" value="Enviar formulario" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>Enviar formulario
+                    </button>
+                    <button type="button" id="clearFormButton" class="btn btn-secondary">
+                        <i class="fas fa-eraser me-2"></i>Limpiar formulario
+                    </button>
+                </div>
+            </div>
+        </div>
     </form>
-{% endif %}
+    {% endif %}
+</div>
 
+<!-- Scripts para cálculos y funcionalidad -->
 <script>
-// Función para limpiar el formulario
 document.addEventListener('DOMContentLoaded', function() {
     const clearFormButton = document.getElementById('clearFormButton');
     if (clearFormButton) {
         clearFormButton.addEventListener('click', function() {
-            // Obtener todos los inputs del formulario
+            // Limpiar inputs, textarea y selects dentro del formulario
             const form = this.closest('form');
             const inputs = form.querySelectorAll('input[type="number"], textarea');
             const selects = form.querySelectorAll('select');
-            
-            // Limpiar cada input y textarea
-            inputs.forEach(function(input) {
-                input.value = '';
-            });
-            
-            // Limpiar cada select (volver a la opción vacía)
-            selects.forEach(function(select) {
-                select.selectedIndex = 0;
-            });
-            
+            inputs.forEach(input => input.value = '');
+            selects.forEach(select => select.selectedIndex = 0);
             // Actualizar los cálculos
-            calcCategory('R');
-            calcCategory('H');
-            calcCategory('E');
-            calcCategory('C');
-            calcCategory('M');
-            calcCategory('V');
+            calcCategory('R'); calcCategory('H'); calcCategory('E');
+            calcCategory('C'); calcCategory('M'); calcCategory('V');
             updateSummary();
         });
     }
-    
-    // Inicializar cálculos cuando la página carga
+    // Inicializar los cálculos al cargar la página
     setTimeout(function() {
-        calcCategory('R');
-        calcCategory('H');
-        calcCategory('E');
-        calcCategory('C');
-        calcCategory('M');
-        calcCategory('V');
+        calcCategory('R'); calcCategory('H'); calcCategory('E');
+        calcCategory('C'); calcCategory('M'); calcCategory('V');
         updateSummary();
-    }, 500); // Pequeño retraso para asegurarse de que todos los elementos están cargados
+    }, 500);
 });
 
-// Función para calcular el promedio de una categoría o suma para V
 function calcCategory(category) {
     let inputs = [];
-    if (category === 'R') {
-        for(let i = 1; i <= 5; i++){
-            const input = document.getElementById(category + i);
-            if (input) inputs.push(input);
-        }
-    } else if (category === 'H') {
-        for(let i = 1; i <= 5; i++){
-            const input = document.getElementById(category + i);
-            if (input) inputs.push(input);
-        }
-    } else if (category === 'E') {
-        for(let i = 1; i <= 4; i++){
-            const input = document.getElementById(category + i);
-            if (input) inputs.push(input);
-        }
-    } else if (category === 'C') {
-        for(let i = 1; i <= 6; i++){
-            const input = document.getElementById(category + i);
-            if (input) inputs.push(input);
-        }
-    } else if (category === 'M') {
-        for(let i = 1; i <= 2; i++){
-            const input = document.getElementById(category + i);
-            if (input) inputs.push(input);
-        }
-    } else if (category === 'V') {
-        for(let i = 1; i <= 5; i++){
-            const input = document.getElementById(category + i);
-            if (input) inputs.push(input);
-        }
+    const limits = { 'R': 5, 'H': 5, 'E': 4, 'C': 6, 'M': 2, 'V': 5 };
+    for(let i = 1; i <= limits[category]; i++){
+        const input = document.getElementById(category + i);
+        if(input) inputs.push(input);
     }
-    
-    // Si no hay inputs válidos, salir
     if (inputs.length === 0) return;
-    
-    let sum = 0;
-    let validInputs = 0;
-    
+    let sum = 0, validInputs = 0;
     inputs.forEach(el => {
         const val = parseFloat(el.value);
-        if (!isNaN(val)) {
-            sum += val;
-            validInputs++;
-        }
+        if (!isNaN(val)) { sum += val; validInputs++; }
     });
-    
     const avgElement = document.getElementById(category + "_avg");
     if (!avgElement) return;
-    
-    // Para V utilizamos la suma, para las demás categorías usamos el promedio
+    // Para V se muestra la suma, para las demás se calcula el promedio
     if (category === 'V') {
-        // Mostrar suma para V
         avgElement.textContent = sum.toFixed(2);
-        // Asegurarse de que tenga la clase score-badge
-        if (!avgElement.classList.contains('score-badge')) {
-            avgElement.className = 'score-badge';
-        }
     } else {
-        // Mostrar promedio para otras categorías
         let avg = validInputs > 0 ? sum / validInputs : 0;
         avgElement.textContent = avg.toFixed(2);
-        // Asegurarse de que tenga la clase score-badge
-        if (!avgElement.classList.contains('score-badge')) {
-            avgElement.className = 'score-badge';
-        }
     }
     updateSummary();
 }
 
 function updateSummary() {
-    // Obtener los promedios de cada categoría
-    const elements = {
+    const mapElements = {
         "R_avg": "R_avg2",
         "H_avg": "H_avg2",
         "E_avg": "E_avg2",
@@ -620,27 +715,17 @@ function updateSummary() {
         "M_avg": "M_avg2",
         "V_avg": "V_avg2"
     };
-    
-    const values = {};
-    
-    // Obtener valores y actualizar elementos del resumen
-    Object.entries(elements).forEach(([sourceId, targetId]) => {
-        const sourceElement = document.getElementById(sourceId);
-        const targetElement = document.getElementById(targetId);
-        
-        if (sourceElement && targetElement) {
+    let values = {};
+    Object.entries(mapElements).forEach(([source, target]) => {
+        const sourceElement = document.getElementById(source);
+        const targetElement = document.getElementById(target);
+        if(sourceElement && targetElement) {
             const value = parseFloat(sourceElement.textContent) || 0;
-            values[sourceId.charAt(0)] = value;
+            values[source.charAt(0)] = value;
             targetElement.textContent = value.toFixed(2);
-            
-            // Asegurarse de que tenga la clase score-badge
-            if (!targetElement.classList.contains('score-badge')) {
-                targetElement.className = 'score-badge';
-            }
         }
     });
-    
-    // Pesos para evaluaciones de empleados
+    // Pesos para empleados
     const weights = {
         "R": 0.40,
         "H": 0.10,
@@ -649,63 +734,66 @@ function updateSummary() {
         "M": 0.15,
         "V": 0.10
     };
-    
     let total = 0;
-    
-    // Calcular y mostrar valores ponderados
     Object.entries(weights).forEach(([category, weight]) => {
         const value = values[category] || 0;
         const weighted = value * weight;
         total += weighted;
-        
         const weightedElement = document.getElementById(category + "_weighted");
-        if (weightedElement) {
-            weightedElement.textContent = weighted.toFixed(2);
-            
-            // Asegurarse de que tenga la clase score-badge
-            if (!weightedElement.classList.contains('score-badge')) {
-                weightedElement.className = 'score-badge';
-            }
-        }
+        if (weightedElement) weightedElement.textContent = weighted.toFixed(2);
     });
-    
-    // Actualizar puntaje final
     const finalScoreElement = document.getElementById("final_score");
-    if (finalScoreElement) {
-        finalScoreElement.textContent = total.toFixed(2);
-        
-        // Asegurarse de que tenga la clase score-badge
-        if (!finalScoreElement.classList.contains('score-badge')) {
-            finalScoreElement.className = 'score-badge';
-        }
-    }
-    
-    // Determinar el nivel de desempeño basado en el puntaje final
-    let performance_level = "";
-    let levelClass = "";
-    
-    if (total >= 4.50 && total <= 5.00) {
-        performance_level = "Nivel 5";
-        levelClass = "level-5";
-    } else if (total >= 3.50 && total <= 4.49) {
-        performance_level = "Nivel 4";
-        levelClass = "level-4";
-    } else if (total >= 2.75 && total <= 3.49) {
-        performance_level = "Nivel 3";
-        levelClass = "level-3";
-    } else if (total >= 2.00 && total <= 2.74) {
-        performance_level = "Nivel 2";
-        levelClass = "level-2";
-    } else {
-        performance_level = "Nivel 1";
-        levelClass = "level-1";
-    }
-    
+    if (finalScoreElement) finalScoreElement.textContent = total.toFixed(2);
+    let performance_level = "", levelClass = "";
+    if (total >= 4.50 && total <= 5.00) { performance_level = "Nivel 5"; levelClass = "level-5"; }
+    else if (total >= 3.50 && total <= 4.49) { performance_level = "Nivel 4"; levelClass = "level-4"; }
+    else if (total >= 2.75 && total <= 3.49) { performance_level = "Nivel 3"; levelClass = "level-3"; }
+    else if (total >= 2.00 && total <= 2.74) { performance_level = "Nivel 2"; levelClass = "level-2"; }
+    else { performance_level = "Nivel 1"; levelClass = "level-1"; }
     const performanceLevelElement = document.getElementById("performance_level");
     if (performanceLevelElement) {
         performanceLevelElement.textContent = performance_level;
-        performanceLevelElement.className = "performance-level " + levelClass;
+        performanceLevelElement.className = "badge bg-secondary " + levelClass;
     }
 }
 </script>
+
+<!-- Bloque de estilos copiado de evaluate_leaders.html -->
+<style>
+    .card {
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 30px;
+        border: none;
+    }
+    .card-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 15px 20px;
+    }
+    .badge {
+        font-weight: 500;
+        padding: 0.5em 0.8em;
+    }
+    .table thead {
+        background-color: #f8f9fa;
+    }
+    .table tbody tr:hover {
+        background-color: rgba(31, 58, 95, 0.05);
+    }
+    .bg-primary {
+        background-color: #1f3a5f !important;
+    }
+    textarea.form-control {
+        min-height: 100px;
+    }
+    @media (max-width: 767.98px) {
+        .table-responsive {
+            font-size: 0.85rem;
+        }
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.4em 0.6em;
+        }
+    }
+</style>
 {% endblock %}
