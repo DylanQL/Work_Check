@@ -303,11 +303,11 @@ def delete_temp_evaluation_assignment(request, assignment_id):
     try:
         assignment = Temp_EvaluationAssignment.objects.get(id=assignment_id)
     except Temp_EvaluationAssignment.DoesNotExist:
-        return redirect('list_temp_evaluation_assignments')
+        return redirect('list_temp_assignments')
     
     if request.method == 'POST':
         assignment.delete()
-        return redirect('list_temp_evaluation_assignments')
+        return redirect('list_temp_assignments')
     
     return render(request, 'System/delete_temp_evaluation_assignment.html', {'assignment': assignment})
 
