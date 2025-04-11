@@ -38,21 +38,57 @@
             </tr>
             <tr>
                 <th>R1</th>
-                <td><input type="number" name="R1" id="R1" value="{{ evaluation_details_data.R1|default_if_none:'' }}" oninput="calcCategory('R')" min="1" max="5"></td>
+                <td>
+                    <select name="R1" id="R1" onchange="calcCategory('R')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.R1 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.R1 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.R1 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.R1 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.R1 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
                 <td rowspan="5"><textarea name="R_comments">{{ evaluation_details_data.R_comments }}</textarea></td>
                 <td rowspan="5"><span id="R_avg">0</span></td>
             </tr>
             <tr>
                 <th>R2</th>
-                <td><input type="number" name="R2" id="R2" value="{{ evaluation_details_data.R2|default_if_none:'' }}" oninput="calcCategory('R')" min="1" max="5"></td>
+                <td>
+                    <select name="R2" id="R2" onchange="calcCategory('R')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.R2 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.R2 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.R2 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.R2 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.R2 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <th>R3</th>
-                <td><input type="number" name="R3" id="R3" value="{{ evaluation_details_data.R3|default_if_none:'' }}" oninput="calcCategory('R')" min="1" max="5"></td>
+                <td>
+                    <select name="R3" id="R3" onchange="calcCategory('R')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.R3 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.R3 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.R3 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.R3 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.R3 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <th>R4</th>
-                <td><input type="number" name="R4" id="R4" value="{{ evaluation_details_data.R4|default_if_none:'' }}" oninput="calcCategory('R')" min="1" max="5"></td>
+                <td>
+                    <select name="R4" id="R4" onchange="calcCategory('R')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.R4 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.R4 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.R4 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.R4 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.R4 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <th>R5</th>
@@ -71,25 +107,70 @@
             </tr>
             <tr>
                 <th>H1</th>
-                <td><input type="number" name="H1" id="H1" value="{{ evaluation_details_data.H1|default_if_none:'' }}" oninput="calcCategory('H')" min="1" max="5"></td>
+                <td>
+                    <select name="H1" id="H1" onchange="calcCategory('H')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.H1 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.H1 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.H1 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.H1 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.H1 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
                 <td rowspan="5"><textarea name="H_comments">{{ evaluation_details_data.H_comments }}</textarea></td>
                 <td rowspan="5"><span id="H_avg">0</span></td>
             </tr>
             <tr>
                 <th>H2</th>
-                <td><input type="number" name="H2" id="H2" value="{{ evaluation_details_data.H2|default_if_none:'' }}" oninput="calcCategory('H')" min="1" max="5"></td>
+                <td>
+                    <select name="H2" id="H2" onchange="calcCategory('H')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.H2 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.H2 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.H2 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.H2 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.H2 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <th>H3</th>
-                <td><input type="number" name="H3" id="H3" value="{{ evaluation_details_data.H3|default_if_none:'' }}" oninput="calcCategory('H')" min="1" max="5"></td>
+                <td>
+                    <select name="H3" id="H3" onchange="calcCategory('H')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.H3 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.H3 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.H3 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.H3 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.H3 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <th>H4</th>
-                <td><input type="number" name="H4" id="H4" value="{{ evaluation_details_data.H4|default_if_none:'' }}" oninput="calcCategory('H')" min="1" max="5"></td>
+                <td>
+                    <select name="H4" id="H4" onchange="calcCategory('H')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.H4 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.H4 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.H4 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.H4 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.H4 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <th>H5</th>
-                <td><input type="number" name="H5" id="H5" value="{{ evaluation_details_data.H5|default_if_none:'' }}" oninput="calcCategory('H')" min="1" max="5"></td>
+                <td>
+                    <select name="H5" id="H5" onchange="calcCategory('H')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.H5 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.H5 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.H5 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.H5 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.H5 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
             </tr>
         </table>
 
@@ -104,21 +185,57 @@
             </tr>
             <tr>
                 <th>E1</th>
-                <td><input type="number" name="E1" id="E1" value="{{ evaluation_details_data.E1|default_if_none:'' }}" oninput="calcCategory('E')" min="1" max="5"></td>
+                <td>
+                    <select name="E1" id="E1" onchange="calcCategory('E')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.E1 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.E1 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.E1 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.E1 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.E1 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
                 <td rowspan="4"><textarea name="E_comments">{{ evaluation_details_data.E_comments }}</textarea></td>
                 <td rowspan="4"><span id="E_avg">0</span></td>
             </tr>
             <tr>
                 <th>E2</th>
-                <td><input type="number" name="E2" id="E2" value="{{ evaluation_details_data.E2|default_if_none:'' }}" oninput="calcCategory('E')" min="1" max="5"></td>
+                <td>
+                    <select name="E2" id="E2" onchange="calcCategory('E')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.E2 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.E2 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.E2 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.E2 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.E2 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <th>E3</th>
-                <td><input type="number" name="E3" id="E3" value="{{ evaluation_details_data.E3|default_if_none:'' }}" oninput="calcCategory('E')" min="1" max="5"></td>
+                <td>
+                    <select name="E3" id="E3" onchange="calcCategory('E')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.E3 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.E3 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.E3 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.E3 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.E3 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <th>E4</th>
-                <td><input type="number" name="E4" id="E4" value="{{ evaluation_details_data.E4|default_if_none:'' }}" oninput="calcCategory('E')" min="1" max="5"></td>
+                <td>
+                    <select name="E4" id="E4" onchange="calcCategory('E')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.E4 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.E4 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.E4 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.E4 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.E4 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
             </tr>
         </table>
 
@@ -133,29 +250,83 @@
             </tr>
             <tr>
                 <th>C1</th>
-                <td><input type="number" name="C1" id="C1" value="{{ evaluation_details_data.C1|default_if_none:'' }}" oninput="calcCategory('C')" min="1" max="5"></td>
+                <td>
+                    <select name="C1" id="C1" onchange="calcCategory('C')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.C1 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.C1 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.C1 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.C1 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.C1 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
                 <td rowspan="6"><textarea name="C_comments">{{ evaluation_details_data.C_comments }}</textarea></td>
                 <td rowspan="6"><span id="C_avg">0</span></td>
             </tr>
             <tr>
                 <th>C2</th>
-                <td><input type="number" name="C2" id="C2" value="{{ evaluation_details_data.C2|default_if_none:'' }}" oninput="calcCategory('C')" min="1" max="5"></td>
+                <td>
+                    <select name="C2" id="C2" onchange="calcCategory('C')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.C2 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.C2 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.C2 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.C2 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.C2 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <th>C3</th>
-                <td><input type="number" name="C3" id="C3" value="{{ evaluation_details_data.C3|default_if_none:'' }}" oninput="calcCategory('C')" min="1" max="5"></td>
+                <td>
+                    <select name="C3" id="C3" onchange="calcCategory('C')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.C3 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.C3 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.C3 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.C3 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.C3 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <th>C4</th>
-                <td><input type="number" name="C4" id="C4" value="{{ evaluation_details_data.C4|default_if_none:'' }}" oninput="calcCategory('C')" min="1" max="5"></td>
+                <td>
+                    <select name="C4" id="C4" onchange="calcCategory('C')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.C4 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.C4 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.C4 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.C4 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.C4 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <th>C5</th>
-                <td><input type="number" name="C5" id="C5" value="{{ evaluation_details_data.C5|default_if_none:'' }}" oninput="calcCategory('C')" min="1" max="5"></td>
+                <td>
+                    <select name="C5" id="C5" onchange="calcCategory('C')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.C5 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.C5 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.C5 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.C5 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.C5 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <th>C6</th>
-                <td><input type="number" name="C6" id="C6" value="{{ evaluation_details_data.C6|default_if_none:'' }}" oninput="calcCategory('C')" min="1" max="5"></td>
+                <td>
+                    <select name="C6" id="C6" onchange="calcCategory('C')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.C6 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.C6 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.C6 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.C6 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.C6 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
             </tr>
         </table>
 
@@ -170,13 +341,31 @@
             </tr>
             <tr>
                 <th>M1</th>
-                <td><input type="number" name="M1" id="M1" value="{{ evaluation_details_data.M1|default_if_none:'' }}" oninput="calcCategory('M')" min="1" max="5"></td>
+                <td>
+                    <select name="M1" id="M1" onchange="calcCategory('M')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.M1 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.M1 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.M1 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.M1 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.M1 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
                 <td rowspan="2"><textarea name="M_comments">{{ evaluation_details_data.M_comments }}</textarea></td>
                 <td rowspan="2"><span id="M_avg">0</span></td>
             </tr>
             <tr>
                 <th>M2</th>
-                <td><input type="number" name="M2" id="M2" value="{{ evaluation_details_data.M2|default_if_none:'' }}" oninput="calcCategory('M')" min="1" max="5"></td>
+                <td>
+                    <select name="M2" id="M2" onchange="calcCategory('M')">
+                        <option value=""></option>
+                        <option value="1" {% if evaluation_details_data.M2 == 1 %}selected{% endif %}>1</option>
+                        <option value="2" {% if evaluation_details_data.M2 == 2 %}selected{% endif %}>2</option>
+                        <option value="3" {% if evaluation_details_data.M2 == 3 %}selected{% endif %}>3</option>
+                        <option value="4" {% if evaluation_details_data.M2 == 4 %}selected{% endif %}>4</option>
+                        <option value="5" {% if evaluation_details_data.M2 == 5 %}selected{% endif %}>5</option>
+                    </select>
+                </td>
             </tr>
         </table>
 
@@ -191,25 +380,55 @@
             </tr>
             <tr>
                 <th>V1</th>
-                <td><input type="number" name="V1" id="V1" value="{{ evaluation_details_data.V1|default_if_none:'' }}" oninput="calcCategory('V')" min="0" max="1"></td>
+                <td>
+                    <select name="V1" id="V1" onchange="calcCategory('V')">
+                        <option value=""></option>
+                        <option value="0" {% if evaluation_details_data.V1 == 0 %}selected{% endif %}>0</option>
+                        <option value="1" {% if evaluation_details_data.V1 == 1 %}selected{% endif %}>1</option>
+                    </select>
+                </td>
                 <td rowspan="5"><textarea name="V_comments">{{ evaluation_details_data.V_comments }}</textarea></td>
                 <td rowspan="5"><span id="V_avg">0</span></td>
             </tr>
             <tr>
                 <th>V2</th>
-                <td><input type="number" name="V2" id="V2" value="{{ evaluation_details_data.V2|default_if_none:'' }}" oninput="calcCategory('V')" min="0" max="1"></td>
+                <td>
+                    <select name="V2" id="V2" onchange="calcCategory('V')">
+                        <option value=""></option>
+                        <option value="0" {% if evaluation_details_data.V2 == 0 %}selected{% endif %}>0</option>
+                        <option value="1" {% if evaluation_details_data.V2 == 1 %}selected{% endif %}>1</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <th>V3</th>
-                <td><input type="number" name="V3" id="V3" value="{{ evaluation_details_data.V3|default_if_none:'' }}" oninput="calcCategory('V')" min="0" max="1"></td>
+                <td>
+                    <select name="V3" id="V3" onchange="calcCategory('V')">
+                        <option value=""></option>
+                        <option value="0" {% if evaluation_details_data.V3 == 0 %}selected{% endif %}>0</option>
+                        <option value="1" {% if evaluation_details_data.V3 == 1 %}selected{% endif %}>1</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <th>V4</th>
-                <td><input type="number" name="V4" id="V4" value="{{ evaluation_details_data.V4|default_if_none:'' }}" oninput="calcCategory('V')" min="0" max="1"></td>
+                <td>
+                    <select name="V4" id="V4" onchange="calcCategory('V')">
+                        <option value=""></option>
+                        <option value="0" {% if evaluation_details_data.V4 == 0 %}selected{% endif %}>0</option>
+                        <option value="1" {% if evaluation_details_data.V4 == 1 %}selected{% endif %}>1</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <th>V5</th>
-                <td><input type="number" name="V5" id="V5" value="{{ evaluation_details_data.V5|default_if_none:'' }}" oninput="calcCategory('V')" min="0" max="1"></td>
+                <td>
+                    <select name="V5" id="V5" onchange="calcCategory('V')">
+                        <option value=""></option>
+                        <option value="0" {% if evaluation_details_data.V5 == 0 %}selected{% endif %}>0</option>
+                        <option value="1" {% if evaluation_details_data.V5 == 1 %}selected{% endif %}>1</option>
+                    </select>
+                </td>
             </tr>
         </table>
 
@@ -284,10 +503,16 @@ document.addEventListener('DOMContentLoaded', function() {
             // Obtener todos los inputs del formulario
             const form = this.closest('form');
             const inputs = form.querySelectorAll('input[type="number"], textarea');
+            const selects = form.querySelectorAll('select');
             
-            // Limpiar cada input
+            // Limpiar cada input y textarea
             inputs.forEach(function(input) {
                 input.value = '';
+            });
+            
+            // Limpiar cada select (volver a la opción vacía)
+            selects.forEach(function(select) {
+                select.selectedIndex = 0;
             });
             
             // Actualizar los cálculos
