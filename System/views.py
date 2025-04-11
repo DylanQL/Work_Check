@@ -14,6 +14,33 @@ def login_required(view_func):
         return view_func(request, *args, **kwargs)
     return wrapped_view
 
+# Decorador parametrizado que acepta varios roles permitidos
+def roles_required(*allowed_roles):
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrapped_view(request, *args, **kwargs):
+            # Verificar si el usuario ha iniciado sesión
+            if not request.session.get('user_id'):
+                return redirect('login')
+
+            user_id = request.session.get('user_id')
+            try:
+                user_account = UserAccount.objects.get(id=user_id)
+                usuario = user_account.usuario
+                # Si el tipo de usuario no está en la lista de roles permitidos, denegar acceso
+                if usuario.user_type not in allowed_roles:
+                    messages.error(request, 
+                        f"Acceso denegado. Solo los usuarios con los roles {', '.join(allowed_roles)} pueden acceder a esta página."
+                    )
+                    return redirect('login')
+            except UserAccount.DoesNotExist:
+                return redirect('login')
+
+            return view_func(request, *args, **kwargs)
+        return wrapped_view
+    return decorator
+
+
 # Vista de Login
 def login_view(request):
     if request.method == 'POST':
