@@ -2,49 +2,243 @@
 {% load static %}
 {% block title %}Evaluaciones de Líderes{% endblock %}
 {% block content %}
-    <h2>Evaluaciones de Líderes</h2>
-    <table border="1" cellspacing="0" cellpadding="5">
-        <thead>
-            <tr>
-                <th>Evaluation Cycle</th>
-                <th>Employee</th>
-                <th>Evaluator</th>
-                <th>R</th>
-                <th>L</th>
-                <th>H</th>
-                <th>E</th>
-                <th>C</th>
-                <th>M</th>
-                <th>V</th>
-                <th>Final Score</th>
-                <th>Performance Level</th>
-                <th>Position</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for assignment in assignments %}
-                {% if assignment.summary %}
-                    <tr>
-                        <td>{{ assignment.evaluation_cycle }}</td>
-                        <td>{{ assignment.summary.employee.first_name }} {{ assignment.summary.employee.last_name }}</td>
-                        <td>{{ assignment.summary.evaluator.first_name }} {{ assignment.summary.evaluator.last_name }}</td>
-                        <td>{{ assignment.summary.R }}</td>
-                        <td>{{ assignment.summary.L }}</td>
-                        <td>{{ assignment.summary.H }}</td>
-                        <td>{{ assignment.summary.E }}</td>
-                        <td>{{ assignment.summary.C }}</td>
-                        <td>{{ assignment.summary.M }}</td>
-                        <td>{{ assignment.summary.V }}</td>
-                        <td>{{ assignment.summary.final_score }}</td>
-                        <td>{{ assignment.summary.performance_level }}</td>
-                        <td>{{ assignment.summary.position.position_name }}</td>
-                    </tr>
-                {% endif %}
-            {% empty %}
-                <tr>
-                    <td colspan="13">No hay evaluaciones de líderes.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex align-items-center">
+                <h2 class="mb-0"><i class="fas fa-user-tie me-2"></i>Evaluaciones de Líderes</h2>
+            </div>
+            <hr class="mt-3">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0"><i class="fas fa-clipboard-list me-2"></i>Resultados de Evaluaciones</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col">Ciclo</th>
+                                    <th scope="col">Empleado</th>
+                                    <th scope="col">Evaluador</th>
+                                    <th scope="col" class="text-center">R</th>
+                                    <th scope="col" class="text-center">L</th>
+                                    <th scope="col" class="text-center">H</th>
+                                    <th scope="col" class="text-center">E</th>
+                                    <th scope="col" class="text-center">C</th>
+                                    <th scope="col" class="text-center">M</th>
+                                    <th scope="col" class="text-center">V</th>
+                                    <th scope="col" class="text-center">Final</th>
+                                    <th scope="col">Desempeño</th>
+                                    <th scope="col">Posición</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for assignment in assignments %}
+                                    {% if assignment.summary %}
+                                        <tr>
+                                            <td>
+                                                <i class="fas fa-calendar-alt me-1 text-muted"></i>
+                                                {{ assignment.evaluation_cycle }}
+                                            </td>
+                                            <td>
+                                                <i class="fas fa-user me-1 text-muted"></i>
+                                                {{ assignment.summary.employee.first_name }} {{ assignment.summary.employee.last_name }}
+                                            </td>
+                                            <td>
+                                                <i class="fas fa-user-tie me-1 text-muted"></i>
+                                                {{ assignment.summary.evaluator.first_name }} {{ assignment.summary.evaluator.last_name }}
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge {% if assignment.summary.R >= 4 %}bg-success{% elif assignment.summary.R >= 3 %}bg-info{% elif assignment.summary.R >= 2 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                    {{ assignment.summary.R }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge {% if assignment.summary.L >= 4 %}bg-success{% elif assignment.summary.L >= 3 %}bg-info{% elif assignment.summary.L >= 2 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                    {{ assignment.summary.L }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge {% if assignment.summary.H >= 4 %}bg-success{% elif assignment.summary.H >= 3 %}bg-info{% elif assignment.summary.H >= 2 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                    {{ assignment.summary.H }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge {% if assignment.summary.E >= 4 %}bg-success{% elif assignment.summary.E >= 3 %}bg-info{% elif assignment.summary.E >= 2 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                    {{ assignment.summary.E }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge {% if assignment.summary.C >= 4 %}bg-success{% elif assignment.summary.C >= 3 %}bg-info{% elif assignment.summary.C >= 2 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                    {{ assignment.summary.C }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge {% if assignment.summary.M >= 4 %}bg-success{% elif assignment.summary.M >= 3 %}bg-info{% elif assignment.summary.M >= 2 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                    {{ assignment.summary.M }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge {% if assignment.summary.V >= 4 %}bg-success{% elif assignment.summary.V >= 3 %}bg-info{% elif assignment.summary.V >= 2 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                    {{ assignment.summary.V }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-primary fw-bold">
+                                                    {{ assignment.summary.final_score }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge 
+                                                    {% if assignment.summary.performance_level == 'Excelente' %}
+                                                        bg-success
+                                                    {% elif assignment.summary.performance_level == 'Bueno' %}
+                                                        bg-info
+                                                    {% elif assignment.summary.performance_level == 'Regular' %}
+                                                        bg-warning
+                                                    {% else %}
+                                                        bg-danger
+                                                    {% endif %}">
+                                                    {{ assignment.summary.performance_level }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <i class="fas fa-briefcase me-1 text-muted"></i>
+                                                {{ assignment.summary.position.position_name }}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="13" class="text-center py-4">
+                                            <div class="alert alert-info mb-0">
+                                                <i class="fas fa-info-circle me-2"></i>No hay evaluaciones de líderes.
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0"><i class="fas fa-info-circle me-2"></i>Leyenda de Puntajes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="border-bottom pb-2 mb-3">Categorías de Evaluación</h6>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><strong>R</strong>: Resultados</span>
+                                    <span class="badge bg-secondary">Peso: 20%</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><strong>L</strong>: Liderazgo</span>
+                                    <span class="badge bg-secondary">Peso: 20%</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><strong>H</strong>: Habilidades</span>
+                                    <span class="badge bg-secondary">Peso: 10%</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><strong>E</strong>: Experiencia</span>
+                                    <span class="badge bg-secondary">Peso: 10%</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><strong>C</strong>: Competencias</span>
+                                    <span class="badge bg-secondary">Peso: 15%</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><strong>M</strong>: Métricas</span>
+                                    <span class="badge bg-secondary">Peso: 15%</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><strong>V</strong>: Valores</span>
+                                    <span class="badge bg-secondary">Peso: 10%</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="border-bottom pb-2 mb-3">Niveles de Desempeño</h6>
+                            <div class="mb-2">
+                                <span class="badge bg-success me-2">4.0 - 5.0</span>
+                                <span>Excelente</span>
+                            </div>
+                            <div class="mb-2">
+                                <span class="badge bg-info me-2">3.0 - 3.9</span>
+                                <span>Bueno</span>
+                            </div>
+                            <div class="mb-2">
+                                <span class="badge bg-warning me-2">2.0 - 2.9</span>
+                                <span>Regular</span>
+                            </div>
+                            <div class="mb-2">
+                                <span class="badge bg-danger me-2">0.0 - 1.9</span>
+                                <span>Deficiente</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Estilos específicos para la tabla de evaluaciones de líderes */
+    .table thead {
+        background-color: #1f3a5f;
+    }
+    
+    .table tbody tr:hover {
+        background-color: rgba(31, 58, 95, 0.05);
+    }
+    
+    .card {
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 30px;
+        border: none;
+    }
+    
+    .card-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 15px 20px;
+    }
+    
+    .badge {
+        font-weight: 500;
+        padding: 0.5em 0.8em;
+    }
+    
+    .bg-primary {
+        background-color: #1f3a5f !important;
+    }
+    
+    /* Estilos para mejorar la visualización en dispositivos móviles */
+    @media (max-width: 767.98px) {
+        .table-responsive {
+            font-size: 0.85rem;
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.4em 0.6em;
+        }
+    }
+</style>
 {% endblock %}
