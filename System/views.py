@@ -512,6 +512,19 @@ def evaluate_leaders(request):
         except (ValueError, Usuario.DoesNotExist):
             selected_employee = None
 
+    # Obtener el TimeSheetScore del usuario seleccionado
+    try:
+        timesheet_score = TimeSheetScore.objects.get(usuario=selected_employee)
+        score_ts_value = timesheet_score.score_ts
+    except TimeSheetScore.DoesNotExist:
+        score_ts_value = 0
+
+    # Si no hay detalles de evaluación, inicializar con valores por defecto
+    if not evaluation_details_data:
+        evaluation_details_data = {
+            'R5': score_ts_value
+        }
+
     # 3. Procesamiento del formulario en POST
     if request.method == 'POST':
         # Se asume que el usuario a evaluar viene en un campo hidden
@@ -745,6 +758,7 @@ def evaluate_employees(request):
                 if assignment_selected.evaluation_details:
                     ed = assignment_selected.evaluation_details
                     status_already_completed = True
+                    # Convertir el objeto a diccionario para precargar en el formulario
                     evaluation_details_data = {
                         'R1': ed.R1, 'R2': ed.R2, 'R3': ed.R3, 'R4': ed.R4, 'R5': ed.R5,
                         'R_comments': ed.R_comments,
@@ -762,6 +776,19 @@ def evaluate_employees(request):
                     }
         except (ValueError, Exception):
             selected_employee = None
+
+    # Obtener el TimeSheetScore del usuario seleccionado
+    try:
+        timesheet_score = TimeSheetScore.objects.get(usuario=selected_employee)
+        score_ts_value = timesheet_score.score_ts
+    except TimeSheetScore.DoesNotExist:
+        score_ts_value = 0
+
+    # Si no hay detalles de evaluación, inicializar con valores por defecto
+    if not evaluation_details_data:
+        evaluation_details_data = {
+            'R5': score_ts_value
+        }
 
     # Procesar el envío del formulario
     if request.method == 'POST':
