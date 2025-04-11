@@ -265,7 +265,7 @@
             </tr>
             <tr>
                 <th colspan="3">Total</th>
-                <th><span id="final_score">0</span></th>
+                <th><span id="final_score">0</span> (<span id="performance_level">Nivel 1</span>)</th>
             </tr>
         </table>
 
@@ -358,6 +358,22 @@ function updateSummary() {
     
     let total = Rw + Hw + Ew + Cw + Mw + Vw;
     document.getElementById("final_score").textContent = total.toFixed(2);
+    
+    // Determinar el nivel de desempeño basado en el puntaje final
+    let performance_level = "";
+    if (total >= 4.50 && total <= 5.00) {
+        performance_level = "Nivel 5";
+    } else if (total >= 3.50 && total <= 4.49) {
+        performance_level = "Nivel 4";
+    } else if (total >= 2.75 && total <= 3.49) {
+        performance_level = "Nivel 3";
+    } else if (total >= 2.00 && total <= 2.74) {
+        performance_level = "Nivel 2";
+    } else {
+        performance_level = "Nivel 1";
+    }
+    
+    document.getElementById("performance_level").textContent = performance_level;
 }
 </script>
 {% endblock %}
