@@ -1,0 +1,249 @@
+/* Paleta de colores basada en el logo de Sapiens Consulting */
+:root {
+    --color-dark: #1a1a1f;       /* Fondo oscuro */
+    --color-light-blue: #a3c1e6;  /* Azul claro del logo */
+    --color-blue: #1e3a5f;        /* Azul oscuro del logo */
+    --color-teal: #00a7b5;        /* Turquesa de los acentos */
+    --color-white: #ffffff;       /* Blanco */
+    --color-error: #ff5252;       /* Rojo para errores */
+    --color-gray: #e0e0e0;        /* Gris claro */
+}
+
+/* Estilos generales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Fondo general con imagen de montañas */
+.login-body {
+    background-image: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-XZFyQH7AeqMikIMIkYLPZbU2CfbSeH.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    position: relative;
+}
+
+/* Contenedor del login con efecto de vidrio esmerilado */
+.login-container {
+    background-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 2.5rem;
+    border-radius: 1rem;
+    width: 100%;
+    max-width: 420px;
+    box-sizing: border-box;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Logo */
+.login-logo {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.login-logo img {
+    width: 160px;
+    height: auto;
+    max-width: 100%;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+}
+
+/* Título */
+.login-title {
+    text-align: center;
+    color: var(--color-white);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.login-title-icon {
+    color: var(--color-teal);
+}
+
+/* Error */
+.login-error {
+    color: var(--color-error);
+    text-align: center;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background-color: rgba(255, 82, 82, 0.2);
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 82, 82, 0.3);
+}
+
+/* Formulario */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.login-form label {
+    font-weight: 500;
+    color: var(--color-white);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.login-form label i {
+    color: var(--color-teal);
+}
+
+.login-form input {
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: all 0.3s;
+    background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    color: var(--color-white);
+}
+
+.login-form input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: var(--color-teal);
+    box-shadow: 0 0 0 3px rgba(0, 167, 181, 0.2);
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Contenedor de contraseña con botón de mostrar/ocultar */
+.password-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+}
+
+.password-container input {
+    width: 100%;
+    padding-right: 40px; /* Space for the toggle button */
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--color-white);
+    cursor: pointer;
+    padding: 5px;
+    z-index: 2;
+}
+
+.toggle-password:hover {
+    color: var(--color-teal);
+}
+
+/* Botón */
+.login-form button[type="submit"] {
+    background-color: rgba(30, 58, 95, 0.8);
+    color: white;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.login-form button[type="submit"]:hover {
+    background-color: rgba(0, 167, 181, 0.8);
+    transform: translateY(-2px);
+}
+
+.login-form button[type="submit"]:active {
+    transform: translateY(0);
+}
+
+/* Footer */
+.login-footer {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--color-white);
+    opacity: 0.8;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .login-container {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .login-logo img {
+        width: 120px;
+    }
+}
+
+/* Soporte para navegadores que no soportan backdrop-filter */
+@supports not (backdrop-filter: blur(12px)) {
+    .login-container {
+        background-color: rgba(255, 255, 255, 0.85);
+    }
+    
+    .login-form input {
+        background-color: rgba(255, 255, 255, 0.7);
+        color: var(--color-dark);
+    }
+    
+    .login-form input::placeholder {
+        color: rgba(0, 0, 0, 0.5);
+    }
+    
+    .login-form label, .login-title, .login-footer {
+        color: var(--color-dark);
+        text-shadow: none;
+    }
+    
+    .toggle-password {
+        color: var(--color-dark);
+    }
+}
