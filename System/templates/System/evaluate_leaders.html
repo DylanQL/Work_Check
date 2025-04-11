@@ -310,11 +310,37 @@
 
         <br>
         <button type="submit" name="action" value="Enviar formulario">Enviar formulario</button>
-        <button type="submit" name="action" value="Limpiar formulario">Limpiar formulario</button>
+        <button type="button" id="clearFormButton">Limpiar formulario</button>
     </form>
 {% endif %}
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const clearFormButton = document.getElementById('clearFormButton');
+    if (clearFormButton) {
+        clearFormButton.addEventListener('click', function() {
+            // Obtener todos los inputs del formulario
+            const form = this.closest('form');
+            const inputs = form.querySelectorAll('input[type="number"], textarea');
+            
+            // Limpiar cada input
+            inputs.forEach(function(input) {
+                input.value = '';
+            });
+            
+            // Actualizar los cálculos
+            calcCategory('R');
+            calcCategory('L');
+            calcCategory('H');
+            calcCategory('E');
+            calcCategory('C');
+            calcCategory('M');
+            calcCategory('V');
+            updateSummary();
+        });
+    }
+});
+
 // Función para calcular el promedio de una categoría o suma para V
 function calcCategory(category) {
     let inputs = [];    if (category === 'R' || category === 'L' || category === 'H' || category === 'V') {
