@@ -6,11 +6,13 @@
     <form method="post">
         {% csrf_token %}
         <label>Username:</label>
-        <input type="text" name="username" value="{{ account.username }}" required><br>
-        <label>Password:</label>
+        <input type="text" name="username" value="{{ account.username }}" required><br>        <label>Password:</label>
         <input type="text" name="password" value="{{ account.password }}" required><br>
         <label>Status:</label>
-        <input type="text" name="status" value="{{ account.status }}" required><br>
+        <select name="status" required>
+            <option value="Activado" {% if account.status == "Activado" %}selected{% endif %}>Activado</option>
+            <option value="Desactivado" {% if account.status == "Desactivado" %}selected{% endif %}>Desactivado</option>
+        </select><br>
         <label>Usuario Asociado: <span>{{ account.usuario.first_name }} {{ account.usuario.last_name }}</span></label><br>
         <button type="submit">Actualizar Cuenta</button>
     </form>
