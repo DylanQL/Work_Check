@@ -1,39 +1,255 @@
+/* Estilos generales */
 body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-}
-
-nav {
-    background-color: #eee;
-    padding: 10px;
-}
-
-nav ul {
-    list-style: none;
+    font-family: 'Roboto', Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
+    margin: 0;
     padding: 0;
 }
 
-nav ul li {
-    display: inline;
-    margin-right: 10px;
+/* Header con logo */
+.header-main {
+    background-color: #1a3b5c;
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.welcome-container {
-    background-color: #f5f5f5;
+.logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sapiens-logo {
+    height: 50px;
+    width: auto;
+    max-width: 100%;
+}
+
+.logo-text {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+/* Navbar estilo Sapiens */
+.bg-sapiens {
+    background-color: #1f3a5f;
+}
+
+.navbar {
+    padding: 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-nav {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.85);
+    padding: 12px 5px;
+    transition: all 0.3s;
+    font-size: 0.8rem;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-dark .navbar-nav .nav-link i {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+/* Contenedor principal */
+.container {
+    flex: 1;
+}
+
+/* Tarjetas y elementos de contenido */
+.card {
+    border: none;
     border-radius: 8px;
-    padding: 20px;
-    margin-top: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+    margin-bottom: 20px;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-weight: 600;
+}
+
+/* Botones personalizados */
+.btn {
+    border-radius: 5px;
+    padding: 0.5rem 1.25rem;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: #1f3a5f;
+    border-color: #1f3a5f;
+}
+
+.btn-primary:hover {
+    background-color: #152a47;
+    border-color: #152a47;
+}
+
+.btn-outline-primary {
+    color: #1f3a5f;
+    border-color: #1f3a5f;
+}
+
+.btn-outline-primary:hover {
+    background-color: #1f3a5f;
+    color: white;
+}
+
+/* Footer */
+.footer {
+    margin-top: auto;
+    padding: 1.5rem 0;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Tablas */
+.table {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+}
+
+/* Formularios */
+.form-control, .form-select {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    padding: 0.5rem 0.75rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(31, 58, 95, 0.25);
+}
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+/* Alertas y mensajes */
+.alert {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Iconos */
+.icon-large {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Animaciones */
+.fade-in {
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Estilos para la página de bienvenida */
+.welcome-container {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 2.5rem;
+    margin-top: 2rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     text-align: center;
+    transition: transform 0.3s;
+}
+
+.welcome-container:hover {
+    transform: translateY(-5px);
 }
 
 .welcome-container h2 {
-    color: #2c3e50;
-    margin-bottom: 15px;
+    color: #1f3a5f;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
 }
 
 .welcome-container p {
     color: #34495e;
-    font-size: 16px;
-    line-height: 1.5;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+/* Estilos responsivos */
+@media (max-width: 992px) {
+    .navbar-nav {
+        flex-wrap: wrap;
+    }
+    
+    .nav-item {
+        flex: 0 0 20%;
+        max-width: 20%;
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-item {
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+    
+    .logo-text {
+        font-size: 1.25rem;
+    }
+    
+    .welcome-container {
+        padding: 1.5rem;
+    }
+    
+    .welcome-container h2 {
+        font-size: 1.5rem;
+    }
+    
+    .welcome-container p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .nav-item {
+        flex: 0 0 33.333%;
+        max-width: 33.333%;
+    }
 }
