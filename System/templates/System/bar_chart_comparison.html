@@ -2,79 +2,119 @@
 {% load static %}
 {% block title %}Comparación de Evaluaciones{% endblock %}
 {% block content %}
-<h2>Comparación de Evaluaciones en Gráfico de Barras Horizontales</h2>
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Comparación de Evaluaciones</h3>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <form method="get" action="" id="cycle-filter-form">
+                        <div class="form-group">
+                            <label for="cycle_id" class="form-label">Filtrar por ciclo de evaluación:</label>
+                            <select name="cycle_id" id="cycle_id" class="form-select" onchange="this.form.submit()">
+                                <option value="">Todos los ciclos</option>
+                                {% for cycle in evaluation_cycles %}
+                                    <option value="{{ cycle }}" {% if selected_cycle_id == cycle %}selected{% endif %}>
+                                        {{ cycle }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
-<!-- Filtro por ciclo de evaluación -->
-<form method="get" action="" id="cycle-filter-form">
-    <label for="cycle_id">Filtrar por ciclo de evaluación:</label>
-    <select name="cycle_id" id="cycle_id" onchange="this.form.submit()">
-        <option value="">-- Todos los ciclos --</option>
-        {% for cycle in evaluation_cycles %}
-            <option value="{{ cycle }}" {% if selected_cycle_id == cycle %}selected{% endif %}>
-                {{ cycle }}
-            </option>
-        {% endfor %}
-    </select>
-</form>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="card-title mb-0">Seleccionar empleados para comparar</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="get" action="" id="employee-filter-form">
+                                {% if selected_position_id %}
+                                <input type="hidden" name="position_id" value="{{ selected_position_id }}">
+                                {% endif %}
+                                {% if selected_cycle_id %}
+                                <input type="hidden" name="cycle_id" value="{{ selected_cycle_id }}">
+                                {% endif %}
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group">
+                                            <select id="employee-select" class="form-select">
+                                                <option value="">-- Seleccione un empleado para agregar --</option>
+                                                {% for employee in employees %}
+                                                    <option value="{{ employee.id }}" data-name="{{ employee.first_name }} {{ employee.last_name }}">
+                                                        {{ employee.first_name }} {{ employee.last_name }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button type="button" id="add-employee-btn" class="btn btn-primary w-100">
+                                            <i class="fas fa-plus-circle me-2"></i>Agregar a la comparación
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Lista de empleados seleccionados -->
+                                <div class="selected-employees mt-4">
+                                    <h5 class="mb-3">Empleados seleccionados:</h5>
+                                    <div class="card">
+                                        <ul id="selected-employees-list" class="list-group list-group-flush">
+                                            {% for employee_id in selected_employee_ids %}
+                                                <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ employee_id }}">
+                                                    {% for employee in employees %}
+                                                        {% if employee.id|stringformat:"i" == employee_id %}
+                                                            <span><i class="fas fa-user me-2"></i>{{ employee.first_name }} {{ employee.last_name }}</span>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    <button type="button" class="btn btn-sm btn-outline-danger remove-employee" data-id="{{ employee_id }}">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </li>
+                                            {% endfor %}
+                                            {% if not selected_employee_ids %}
+                                                <li class="list-group-item text-muted">No hay empleados seleccionados</li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <!-- Botón para actualizar el gráfico -->
+                                <div class="d-grid gap-2 col-md-6 mx-auto mt-4">
+                                    <button type="submit" id="update-chart-btn" class="btn btn-success">
+                                        <i class="fas fa-sync-alt me-2"></i>Actualizar gráfico
+                                    </button>
+                                </div>
+                                
+                                <!-- Campo oculto para los IDs de empleados seleccionados -->
+                                <div id="employee-ids-container">
+                                    {% for employee_id in selected_employee_ids %}
+                                        <input type="hidden" name="employee_ids" value="{{ employee_id }}">
+                                    {% endfor %}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<hr>
-
-<!-- Selector múltiple para elegir empleados -->
-<form method="get" action="" id="employee-filter-form">
-    {% if selected_position_id %}
-    <input type="hidden" name="position_id" value="{{ selected_position_id }}">
-    {% endif %}
-    <div class="employee-selection">
-        <label for="employee-select">Seleccionar empleados para comparar:</label>
-        <select id="employee-select" class="form-control">
-            <option value="">-- Seleccione un empleado para agregar --</option>
-            {% for employee in employees %}
-                <option value="{{ employee.id }}" data-name="{{ employee.first_name }} {{ employee.last_name }}">
-                    {{ employee.first_name }} {{ employee.last_name }}
-                </option>
-            {% endfor %}
-        </select>
-        <button type="button" id="add-employee-btn" class="btn btn-primary mt-2">Agregar a la comparación</button>
+            {% if comparison_data %}
+            <div class="chart-container">
+                <div id="horizontal-bars-container"></div>
+            </div>
+            {% else %}
+            <div class="alert alert-info mt-3">
+                <i class="fas fa-info-circle me-2"></i>Seleccione al menos un empleado para visualizar el gráfico de comparación.
+            </div>
+            {% endif %}
+        </div>
     </div>
-    
-    <!-- Lista de empleados seleccionados -->
-    <div class="selected-employees mt-3">
-        <h4>Empleados seleccionados:</h4>
-        <ul id="selected-employees-list" class="list-group">
-            {% for employee_id in selected_employee_ids %}
-                <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ employee_id }}">
-                    {% for employee in employees %}
-                        {% if employee.id|stringformat:"i" == employee_id %}
-                            {{ employee.first_name }} {{ employee.last_name }}
-                        {% endif %}
-                    {% endfor %}
-                    <button type="button" class="btn btn-sm btn-danger remove-employee" data-id="{{ employee_id }}">Eliminar</button>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-    
-    <!-- Botón para actualizar el gráfico -->
-    <button type="submit" id="update-chart-btn" class="btn btn-success mt-3">Actualizar gráfico</button>
-    
-    <!-- Campo oculto para los IDs de empleados seleccionados -->
-    <div id="employee-ids-container">
-        {% for employee_id in selected_employee_ids %}
-            <input type="hidden" name="employee_ids" value="{{ employee_id }}">
-        {% endfor %}
-    </div>
-</form>
-
-{% if comparison_data %}
-<div class="chart-container" style="position: relative; width:90%; margin: 20px auto;">
-    <h3>Comparación de Evaluaciones</h3>
-    <div id="horizontal-bars-container"></div>
 </div>
-{% else %}
-<div class="alert alert-info mt-3">
-    Seleccione al menos un empleado para visualizar el gráfico de comparación.
-</div>
-{% endif %}
 
 <!-- Incluir Chart.js desde CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -98,8 +138,10 @@
                 li.className = 'list-group-item d-flex justify-content-between align-items-center';
                 li.dataset.id = employeeId;
                 li.innerHTML = `
-                    ${employeeName}
-                    <button type="button" class="btn btn-sm btn-danger remove-employee" data-id="${employeeId}">Eliminar</button>
+                    <span><i class="fas fa-user me-2"></i>${employeeName}</span>
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-employee" data-id="${employeeId}">
+                        <i class="fas fa-times"></i>
+                    </button>
                 `;
                 selectedEmployeesList.appendChild(li);
                 
@@ -112,6 +154,12 @@
                 
                 // Restablecer el select
                 employeeSelect.value = '';
+                
+                // Eliminar el mensaje de "No hay empleados seleccionados" si existe
+                const emptyMessage = selectedEmployeesList.querySelector('.text-muted');
+                if (emptyMessage) {
+                    emptyMessage.remove();
+                }
                 
                 // Agregar el controlador de eventos para el botón de eliminar
                 li.querySelector('.remove-employee').addEventListener('click', function() {
@@ -145,6 +193,14 @@
             if (input) {
                 input.remove();
             }
+            
+            // Si no quedan empleados, mostrar mensaje
+            if (selectedEmployeesList.children.length === 0) {
+                const emptyMessage = document.createElement('li');
+                emptyMessage.className = 'list-group-item text-muted';
+                emptyMessage.textContent = 'No hay empleados seleccionados';
+                selectedEmployeesList.appendChild(emptyMessage);
+            }
         }
         
         {% if comparison_data %}
@@ -162,16 +218,16 @@
         // Función para generar colores para cada empleado
         function getEmployeeColor(index) {
             const colors = [
-                'rgb(54, 162, 235)',   // azul
-                'rgb(255, 99, 132)',   // rojo
-                'rgb(75, 192, 192)',   // verde-azulado
-                'rgb(255, 159, 64)',   // naranja
-                'rgb(153, 102, 255)',  // púrpura
-                'rgb(255, 205, 86)',   // amarillo
-                'rgb(201, 203, 207)',  // gris
-                'rgb(255, 99, 71)',    // tomate
-                'rgb(50, 205, 50)',    // lima
-                'rgb(0, 128, 128)'     // verde azulado
+                'rgb(54, 162, 235)',   // Azul
+                'rgb(255, 99, 132)',   // Rojo
+                'rgb(75, 192, 192)',   // Verde agua
+                'rgb(255, 159, 64)',   // Naranja
+                'rgb(153, 102, 255)',  // Púrpura
+                'rgb(255, 205, 86)',   // Amarillo
+                'rgb(201, 203, 207)',  // Gris
+                'rgb(0, 128, 128)',    // Verde azulado
+                'rgb(128, 0, 128)',    // Púrpura oscuro
+                'rgb(128, 128, 0)'     // Oliva
             ];
             
             return index < colors.length ? colors[index] : `rgb(${Math.floor(Math.random() * 200)}, ${Math.floor(Math.random() * 200)}, ${Math.floor(Math.random() * 200)})`;
@@ -183,8 +239,15 @@
         
         // Crear una leyenda para las categorías
         const legendDiv = document.createElement('div');
-        legendDiv.className = 'categories-legend';
-        legendDiv.innerHTML = '<h4>Leyenda de Categorías</h4>';
+        legendDiv.className = 'categories-legend card mb-4';
+        
+        const legendHeader = document.createElement('div');
+        legendHeader.className = 'card-header bg-light';
+        legendHeader.innerHTML = '<h5 class="mb-0">Leyenda de Categorías</h5>';
+        legendDiv.appendChild(legendHeader);
+        
+        const legendBody = document.createElement('div');
+        legendBody.className = 'card-body';
         
         const legendList = document.createElement('ul');
         legendList.className = 'legend-list';
@@ -204,18 +267,26 @@
             legendList.appendChild(legendItem);
         });
         
-        legendDiv.appendChild(legendList);
+        legendBody.appendChild(legendList);
+        legendDiv.appendChild(legendBody);
         container.appendChild(legendDiv);
         
         // Crear un chart para cada empleado
         {% for employee in comparison_data %}
         // Crear un contenedor para este empleado
         const employeeContainer{{ forloop.counter }} = document.createElement('div');
-        employeeContainer{{ forloop.counter }}.className = 'employee-chart-container';
-        employeeContainer{{ forloop.counter }}.innerHTML = `
-            <h4>{{ employee.name }} - {{ employee.position }}</h4>
-            <canvas id="employeeChart{{ forloop.counter }}"></canvas>
-        `;
+        employeeContainer{{ forloop.counter }}.className = 'employee-chart-container card mb-4';
+        
+        const employeeHeader{{ forloop.counter }} = document.createElement('div');
+        employeeHeader{{ forloop.counter }}.className = 'card-header bg-light';
+        employeeHeader{{ forloop.counter }}.innerHTML = `<h5 class="mb-0">{{ employee.name }} - {{ employee.position }}</h5>`;
+        employeeContainer{{ forloop.counter }}.appendChild(employeeHeader{{ forloop.counter }});
+        
+        const employeeBody{{ forloop.counter }} = document.createElement('div');
+        employeeBody{{ forloop.counter }}.className = 'card-body';
+        employeeBody{{ forloop.counter }}.innerHTML = `<canvas id="employeeChart{{ forloop.counter }}"></canvas>`;
+        employeeContainer{{ forloop.counter }}.appendChild(employeeBody{{ forloop.counter }});
+        
         container.appendChild(employeeContainer{{ forloop.counter }});
         
         // Obtener el contexto para el chart
@@ -235,7 +306,10 @@
                     {{ employee.data.M }},
                     {{ employee.data.V }}
                 ],
-                backgroundColor: categories.map((_, i) => getEmployeeColor(i)),
+                backgroundColor: categories.map((_, i) => {
+                    const color = getEmployeeColor(i);
+                    return color.replace('rgb', 'rgba').replace(')', ', 0.7)');
+                }),
                 borderColor: categories.map((_, i) => getEmployeeColor(i)),
                 borderWidth: 1
             }]
@@ -258,13 +332,25 @@
                         },
                         title: {
                             display: true,
-                            text: 'Puntuación'
+                            text: 'Puntuación',
+                            font: {
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
                         }
                     },
                     y: {
                         title: {
                             display: true,
-                            text: 'Categorías'
+                            text: 'Categorías',
+                            font: {
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            display: false
                         }
                     }
                 },
@@ -274,6 +360,16 @@
                     },
                     title: {
                         display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        titleFont: {
+                            size: 14
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        padding: 10
                     }
                 }
             }
@@ -285,52 +381,64 @@
 
 <style>
     .chart-container {
+        background-color: #fff;
+        border-radius: 8px;
         padding: 20px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        background-color: #f9f9f9;
-        margin-top: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
     }
     
-    form {
-        margin-bottom: 20px;
+    .card {
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     }
     
-    select {
-        padding: 5px;
-        margin-left: 10px;
+    .card-header {
+        border-bottom: none;
+        padding: 15px 20px;
     }
     
-    label {
-        font-weight: bold;
+    .card-body {
+        padding: 25px;
     }
     
-    .employee-selection {
-        margin-bottom: 15px;
+    .form-select {
+        border-radius: 6px;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        background-color: #f8f9fa;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     }
     
-    .selected-employees {
-        margin-top: 15px;
+    .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+    
+    .alert {
+        border-radius: 8px;
+        padding: 15px 20px;
     }
     
     .employee-chart-container {
         margin-bottom: 30px;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 20px;
-        height: 200px; /* Altura fija para cada gráfico de empleado */
+        height: 300px; /* Altura fija para cada gráfico de empleado */
     }
     
-    .employee-chart-container h4 {
-        margin-bottom: 10px;
-        color: #333;
+    .employee-chart-container .card-body {
+        height: 250px;
     }
     
     .categories-legend {
         margin-bottom: 30px;
-        padding: 15px;
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 5px;
     }
     
     .legend-list {
@@ -339,12 +447,17 @@
         display: flex;
         flex-wrap: wrap;
         gap: 15px;
+        margin: 0;
     }
     
     .legend-item {
         display: flex;
         align-items: center;
         margin-bottom: 8px;
+        padding: 5px 10px;
+        background-color: #f8f9fa;
+        border-radius: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
     
     .color-box {
@@ -357,6 +470,47 @@
     
     .legend-text {
         font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .list-group-item {
+        border-left: none;
+        border-right: none;
+        padding: 12px 20px;
+    }
+    
+    .list-group-item:first-child {
+        border-top: none;
+    }
+    
+    .list-group-item:last-child {
+        border-bottom: none;
+    }
+    
+    /* Animaciones para el gráfico */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .chart-container {
+        animation: fadeIn 0.8s ease-in-out;
+    }
+    
+    /* Estilos responsivos */
+    @media (max-width: 768px) {
+        .legend-list {
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .employee-chart-container {
+            height: 350px;
+        }
+        
+        .employee-chart-container .card-body {
+            height: 300px;
+        }
     }
 </style>
 {% endblock %}
