@@ -525,6 +525,17 @@ document.addEventListener('DOMContentLoaded', function() {
             updateSummary();
         });
     }
+    
+    // Inicializar cálculos cuando la página carga
+    setTimeout(function() {
+        calcCategory('R');
+        calcCategory('H');
+        calcCategory('E');
+        calcCategory('C');
+        calcCategory('M');
+        calcCategory('V');
+        updateSummary();
+    }, 500); // Pequeño retraso para asegurarse de que todos los elementos están cargados
 });
 
 // Función para calcular el promedio de una categoría o suma para V
@@ -532,99 +543,169 @@ function calcCategory(category) {
     let inputs = [];
     if (category === 'R') {
         for(let i = 1; i <= 5; i++){
-            inputs.push(document.getElementById(category + i));
+            const input = document.getElementById(category + i);
+            if (input) inputs.push(input);
         }
     } else if (category === 'H') {
         for(let i = 1; i <= 5; i++){
-            inputs.push(document.getElementById(category + i));
+            const input = document.getElementById(category + i);
+            if (input) inputs.push(input);
         }
     } else if (category === 'E') {
         for(let i = 1; i <= 4; i++){
-            inputs.push(document.getElementById(category + i));
+            const input = document.getElementById(category + i);
+            if (input) inputs.push(input);
         }
     } else if (category === 'C') {
         for(let i = 1; i <= 6; i++){
-            inputs.push(document.getElementById(category + i));
+            const input = document.getElementById(category + i);
+            if (input) inputs.push(input);
         }
     } else if (category === 'M') {
         for(let i = 1; i <= 2; i++){
-            inputs.push(document.getElementById(category + i));
+            const input = document.getElementById(category + i);
+            if (input) inputs.push(input);
         }
     } else if (category === 'V') {
         for(let i = 1; i <= 5; i++){
-            inputs.push(document.getElementById(category + i));
+            const input = document.getElementById(category + i);
+            if (input) inputs.push(input);
         }
     }
+    
+    // Si no hay inputs válidos, salir
+    if (inputs.length === 0) return;
+    
     let sum = 0;
+    let validInputs = 0;
+    
     inputs.forEach(el => {
-        sum += parseFloat(el.value) || 0;
+        const val = parseFloat(el.value);
+        if (!isNaN(val)) {
+            sum += val;
+            validInputs++;
+        }
     });
+    
+    const avgElement = document.getElementById(category + "_avg");
+    if (!avgElement) return;
     
     // Para V utilizamos la suma, para las demás categorías usamos el promedio
     if (category === 'V') {
         // Mostrar suma para V
-        document.getElementById(category + "_avg").textContent = sum.toFixed(2);
+        avgElement.textContent = sum.toFixed(2);
+        // Asegurarse de que tenga la clase score-badge
+        if (!avgElement.classList.contains('score-badge')) {
+            avgElement.className = 'score-badge';
+        }
     } else {
         // Mostrar promedio para otras categorías
-        let totalCount = inputs.length;
-        let avg = sum / totalCount;
-        document.getElementById(category + "_avg").textContent = avg.toFixed(2);
+        let avg = validInputs > 0 ? sum / validInputs : 0;
+        avgElement.textContent = avg.toFixed(2);
+        // Asegurarse de que tenga la clase score-badge
+        if (!avgElement.classList.contains('score-badge')) {
+            avgElement.className = 'score-badge';
+        }
     }
     updateSummary();
 }
 
 function updateSummary() {
     // Obtener los promedios de cada categoría
-    let Ravg = parseFloat(document.getElementById("R_avg").textContent) || 0;
-    let Havg = parseFloat(document.getElementById("H_avg").textContent) || 0;
-    let Eavg = parseFloat(document.getElementById("E_avg").textContent) || 0;
-    let Cavg = parseFloat(document.getElementById("C_avg").textContent) || 0;
-    let Mavg = parseFloat(document.getElementById("M_avg").textContent) || 0;
-    let Vsum = parseFloat(document.getElementById("V_avg").textContent) || 0;
+    const elements = {
+        "R_avg": "R_avg2",
+        "H_avg": "H_avg2",
+        "E_avg": "E_avg2",
+        "C_avg": "C_avg2",
+        "M_avg": "M_avg2",
+        "V_avg": "V_avg2"
+    };
     
-    // Actualizar promedios en el resumen
-    document.getElementById("R_avg2").textContent = Ravg.toFixed(2);
-    document.getElementById("H_avg2").textContent = Havg.toFixed(2);
-    document.getElementById("E_avg2").textContent = Eavg.toFixed(2);
-    document.getElementById("C_avg2").textContent = Cavg.toFixed(2);
-    document.getElementById("M_avg2").textContent = Mavg.toFixed(2);
-    document.getElementById("V_avg2").textContent = Vsum.toFixed(2);
+    const values = {};
+    
+    // Obtener valores y actualizar elementos del resumen
+    Object.entries(elements).forEach(([sourceId, targetId]) => {
+        const sourceElement = document.getElementById(sourceId);
+        const targetElement = document.getElementById(targetId);
+        
+        if (sourceElement && targetElement) {
+            const value = parseFloat(sourceElement.textContent) || 0;
+            values[sourceId.charAt(0)] = value;
+            targetElement.textContent = value.toFixed(2);
+            
+            // Asegurarse de que tenga la clase score-badge
+            if (!targetElement.classList.contains('score-badge')) {
+                targetElement.className = 'score-badge';
+            }
+        }
+    });
     
     // Pesos para evaluaciones de empleados
-    let wR = 0.40, wH = 0.10, wE = 0.10, wC = 0.15, wM = 0.15, wV = 0.10;
+    const weights = {
+        "R": 0.40,
+        "H": 0.10,
+        "E": 0.10,
+        "C": 0.15,
+        "M": 0.15,
+        "V": 0.10
+    };
     
-    let Rw = Ravg * wR;
-    let Hw = Havg * wH;
-    let Ew = Eavg * wE;
-    let Cw = Cavg * wC;
-    let Mw = Mavg * wM;
-    let Vw = Vsum * wV;
+    let total = 0;
     
-    document.getElementById("R_weighted").textContent = Rw.toFixed(2);
-    document.getElementById("H_weighted").textContent = Hw.toFixed(2);
-    document.getElementById("E_weighted").textContent = Ew.toFixed(2);
-    document.getElementById("C_weighted").textContent = Cw.toFixed(2);
-    document.getElementById("M_weighted").textContent = Mw.toFixed(2);
-    document.getElementById("V_weighted").textContent = Vw.toFixed(2);
+    // Calcular y mostrar valores ponderados
+    Object.entries(weights).forEach(([category, weight]) => {
+        const value = values[category] || 0;
+        const weighted = value * weight;
+        total += weighted;
+        
+        const weightedElement = document.getElementById(category + "_weighted");
+        if (weightedElement) {
+            weightedElement.textContent = weighted.toFixed(2);
+            
+            // Asegurarse de que tenga la clase score-badge
+            if (!weightedElement.classList.contains('score-badge')) {
+                weightedElement.className = 'score-badge';
+            }
+        }
+    });
     
-    let total = Rw + Hw + Ew + Cw + Mw + Vw;
-    document.getElementById("final_score").textContent = total.toFixed(2);
+    // Actualizar puntaje final
+    const finalScoreElement = document.getElementById("final_score");
+    if (finalScoreElement) {
+        finalScoreElement.textContent = total.toFixed(2);
+        
+        // Asegurarse de que tenga la clase score-badge
+        if (!finalScoreElement.classList.contains('score-badge')) {
+            finalScoreElement.className = 'score-badge';
+        }
+    }
     
     // Determinar el nivel de desempeño basado en el puntaje final
     let performance_level = "";
+    let levelClass = "";
+    
     if (total >= 4.50 && total <= 5.00) {
         performance_level = "Nivel 5";
+        levelClass = "level-5";
     } else if (total >= 3.50 && total <= 4.49) {
         performance_level = "Nivel 4";
+        levelClass = "level-4";
     } else if (total >= 2.75 && total <= 3.49) {
         performance_level = "Nivel 3";
+        levelClass = "level-3";
     } else if (total >= 2.00 && total <= 2.74) {
         performance_level = "Nivel 2";
+        levelClass = "level-2";
     } else {
         performance_level = "Nivel 1";
+        levelClass = "level-1";
     }
     
-    document.getElementById("performance_level").textContent = performance_level;
+    const performanceLevelElement = document.getElementById("performance_level");
+    if (performanceLevelElement) {
+        performanceLevelElement.textContent = performance_level;
+        performanceLevelElement.className = "performance-level " + levelClass;
+    }
 }
 </script>
 {% endblock %}
