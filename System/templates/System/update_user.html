@@ -11,9 +11,13 @@
         <label>Primer Apellido:</label>
         <input type="text" name="last_name" value="{{ usuario.last_name }}" required><br>
         <label>Segundo Apellido:</label>
-        <input type="text" name="second_last_name" value="{{ usuario.second_last_name }}"><br>
-        <label>Tipo de Usuario:</label>
-        <input type="text" name="user_type" value="{{ usuario.user_type }}" required><br>
+        <input type="text" name="second_last_name" value="{{ usuario.second_last_name }}"><br>        <label>Tipo de Usuario:</label>
+        <select name="user_type" required>
+            <option value="Empleado" {% if usuario.user_type == "Empleado" %}selected{% endif %}>Empleado</option>
+            <option value="Lider" {% if usuario.user_type == "Lider" %}selected{% endif %}>Lider</option>
+            <option value="Gerente" {% if usuario.user_type == "Gerente" %}selected{% endif %}>Gerente</option>
+            <option value="Administrador" {% if usuario.user_type == "Administrador" %}selected{% endif %}>Administrador</option>
+        </select><br>
         <label>Posición:</label>
         <select name="position" required>
             {% for pos in positions %}

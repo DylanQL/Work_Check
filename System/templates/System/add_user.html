@@ -11,9 +11,13 @@
         <label>Primer Apellido:</label>
         <input type="text" name="last_name" required><br>
         <label>Segundo Apellido:</label>
-        <input type="text" name="second_last_name"><br>
-        <label>Tipo de Usuario:</label>
-        <input type="text" name="user_type" required><br>
+        <input type="text" name="second_last_name"><br>        <label>Tipo de Usuario:</label>
+        <select name="user_type" required>
+            <option value="Empleado">Empleado</option>
+            <option value="Lider">Lider</option>
+            <option value="Gerente">Gerente</option>
+            <option value="Administrador">Administrador</option>
+        </select><br>
         <label>Posición:</label>
         <select name="position" required>
             {% for pos in positions %}
