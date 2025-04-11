@@ -2,6 +2,9 @@
 {% load static %}
 {% block title %}Inicio{% endblock %}
 {% block content %}
-    <h2>Bienvenido a Work Check</h2>
-    <p>Selecciona una opción del menú.</p>
+    <div class="welcome-container">
+        <h2>Bienvenido a Work Check, {{ usuario.first_name }} {{ usuario.last_name }}</h2>
+        <p>¡Hola! Esperamos que tengas un excelente día.</p>
+        <p>Selecciona una opción del menú para comenzar.</p>
+    </div>
 {% endblock %}

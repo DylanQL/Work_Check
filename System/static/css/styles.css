@@ -17,3 +17,23 @@ nav ul li {
     display: inline;
     margin-right: 10px;
 }
+
+.welcome-container {
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.welcome-container h2 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.welcome-container p {
+    color: #34495e;
+    font-size: 16px;
+    line-height: 1.5;
+}
