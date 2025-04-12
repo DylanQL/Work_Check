@@ -72,14 +72,14 @@ def home(request):
     return render(request, 'System/home.html', {'usuario': usuario})
 
 # Nueva vista para gestionar usuarios (lista de usuarios)
-@login_required
+@roles_required("Administrador")
 def manage_users(request):
     usuarios = Usuario.objects.all()
     return render(request, 'System/manage_users.html', {'usuarios': usuarios})
 
 
 # Vista para agregar usuarios
-@login_required
+@roles_required("Administrador")
 def add_user(request):
     if request.method == 'POST':
         first_name = request.POST.get('first_name').strip()
@@ -123,7 +123,7 @@ def add_user(request):
     return render(request, 'System/add_user.html', {'positions': positions})
 
 # Vista para actualizar usuarios
-@login_required
+@roles_required("Administrador")
 def update_user(request, user_id):
     try:
         usuario = Usuario.objects.get(id=user_id)
@@ -152,13 +152,13 @@ def update_user(request, user_id):
 
 
 # Vista para listar las cuentas (gestión de UserAccount)
-@login_required
+@roles_required("Administrador")
 def list_accounts(request):
     accounts = UserAccount.objects.all()
     return render(request, 'System/manage_accounts.html', {'accounts': accounts})
 
 # Vista para actualizar una cuenta existente
-@login_required
+@roles_required("Administrador")
 def update_account(request, account_id):
     try:
         account = UserAccount.objects.get(id=account_id)
@@ -175,13 +175,13 @@ def update_account(request, account_id):
     return render(request, 'System/update_account.html', {'account': account})
 
 # Vista para listar los Timesheet Scores
-@login_required
+@roles_required("Administrador")
 def list_timesheets(request):
     timesheets = TimeSheetScore.objects.all()
     return render(request, 'System/manage_timesheets.html', {'timesheets': timesheets})
 
 # Vista para actualizar un Timesheet Score
-@login_required
+@roles_required("Administrador")
 def update_timesheet(request, timesheet_id):
     try:
         timesheet = TimeSheetScore.objects.get(id=timesheet_id)
@@ -201,13 +201,13 @@ def update_timesheet(request, timesheet_id):
     return render(request, 'System/update_timesheet.html', {'timesheet': timesheet})
 
 # Vista para listar los ciclos de evaluación
-@login_required
+@roles_required("Administrador")
 def list_evaluation_cycles(request):
     cycles = EvaluationCycle.objects.all()
     return render(request, 'System/manage_evaluation_cycles.html', {'cycles': cycles})
 
 # Vista para crear un nuevo ciclo de evaluación
-@login_required
+@roles_required("Administrador")
 def create_evaluation_cycle(request):
     if request.method == 'POST':
         name = request.POST.get('name').strip()
@@ -220,7 +220,7 @@ def create_evaluation_cycle(request):
     return render(request, 'System/create_evaluation_cycle.html')
 
 # Vista para actualizar un ciclo de evaluación existente
-@login_required
+@roles_required("Administrador")
 def update_evaluation_cycle(request, cycle_id):
     try:
         cycle = EvaluationCycle.objects.get(id=cycle_id)
@@ -240,7 +240,7 @@ def update_evaluation_cycle(request, cycle_id):
     return render(request, 'System/update_evaluation_cycle.html', {'cycle': cycle})
 
 # Vista para eliminar un ciclo de evaluación
-@login_required
+@roles_required("Administrador")
 def delete_evaluation_cycle(request, cycle_id):
     try:
         cycle = EvaluationCycle.objects.get(id=cycle_id)
@@ -254,13 +254,13 @@ def delete_evaluation_cycle(request, cycle_id):
     return render(request, 'System/delete_evaluation_cycle.html', {'cycle': cycle})
 
 # Lista de asignaciones temporales (mostrar solo los registros existentes)
-@login_required
+@roles_required("Administrador")
 def list_temp_evaluation_assignments(request):
     assignments = Temp_EvaluationAssignment.objects.all()
     return render(request, 'System/manage_temp_evaluation_assignments.html', {'assignments': assignments})
 
 # Crear una nueva asignación de evaluación
-@login_required
+@roles_required("Administrador")
 def create_temp_evaluation_assignment(request):
     # Filtrar evaluadores según user_type ("Lider" o "Gerente")
     evaluators = Usuario.objects.filter(user_type__in=["Lider", "Gerente"])
@@ -303,7 +303,7 @@ def create_temp_evaluation_assignment(request):
 
 
 # Actualizar una asignación de evaluación temporal
-@login_required
+@roles_required("Administrador")
 def update_temp_evaluation_assignment(request, assignment_id):
     try:
         assignment = Temp_EvaluationAssignment.objects.get(id=assignment_id)
@@ -328,7 +328,7 @@ def update_temp_evaluation_assignment(request, assignment_id):
 
 
 # Eliminar una asignación temporal (opcional, si se requiere)
-@login_required
+@roles_required("Administrador")
 def delete_temp_evaluation_assignment(request, assignment_id):
     try:
         assignment = Temp_EvaluationAssignment.objects.get(id=assignment_id)
@@ -342,7 +342,7 @@ def delete_temp_evaluation_assignment(request, assignment_id):
     return render(request, 'System/delete_temp_evaluation_assignment.html', {'assignment': assignment})
 
 # Enviar registros a histórico:
-@login_required
+@roles_required("Administrador")
 def send_assignments_to_historic(request):
     """
     Envía los registros de Temp_EvaluationAssignment a Permanent_EvaluationAssignment.
@@ -402,7 +402,7 @@ def send_assignments_to_historic(request):
 # Vistas para mostrar los registros históricos (Permanent_EvaluationAssignment)
 # y para mostrar el detalle de los registros de Summary y EvaluationDetails.
 
-@login_required
+@roles_required("Administrador")
 def list_permanent_assignments(request):
     """
     Lista todos los registros históricos de evaluaciones permanentes.
@@ -412,7 +412,7 @@ def list_permanent_assignments(request):
     assignments = Permanent_EvaluationAssignment.objects.all()
     return render(request, 'System/manage_permanent_assignments.html', {'assignments': assignments})
 
-@login_required
+@roles_required("Administrador")
 def detail_summary(request, summary_id):
     """
     Muestra el detalle de un registro Summary.
@@ -424,7 +424,7 @@ def detail_summary(request, summary_id):
         return redirect('list_permanent_assignments')
     return render(request, 'System/detail_summary.html', {'summary': summary})
 
-@login_required
+@roles_required("Administrador")
 def detail_evaluation_details(request, evaluation_details_id):
     """
     Muestra el detalle de un registro EvaluationDetails.
@@ -437,7 +437,7 @@ def detail_evaluation_details(request, evaluation_details_id):
     return render(request, 'System/detail_evaluation_details.html', {'details': details})
 
 
-@login_required
+@roles_required("Administrador")
 def leaders_evaluations(request):
     """
     Muestra las evaluaciones de líderes.
@@ -451,7 +451,7 @@ def leaders_evaluations(request):
     assignments = Permanent_EvaluationAssignment.objects.filter(summary__evaluation_type="Lideres")
     return render(request, 'System/leaders_evaluations.html', {'assignments': assignments})
 
-@login_required
+@roles_required("Administrador")
 def employees_evaluations(request):
     """
     Muestra las evaluaciones de empleados.
@@ -467,7 +467,7 @@ def employees_evaluations(request):
     return render(request, 'System/employees_evaluations.html', {'assignments': assignments})
 
 
-@login_required
+@roles_required("Gerente")
 def evaluate_leaders(request):
     """
     Muestra y procesa un formulario para evaluar a líderes.
@@ -730,7 +730,7 @@ def evaluate_leaders(request):
     }
     return render(request, 'System/evaluate_leaders.html', context)
 
-@login_required
+@roles_required("Lider")
 def evaluate_employees(request):
     """
     Vista para evaluar a empleados.
@@ -974,7 +974,7 @@ def evaluate_employees(request):
     return render(request, 'System/evaluate_employees.html', context)
 
 # Vista para mostrar gráfico radar de resumen de evaluaciones
-@login_required
+@roles_required("Administrador", "Gerente", "Lider")
 def radar_chart_summary(request):
     # Obtener todas las posiciones para el filtro
     positions = Position.objects.all()
@@ -1079,7 +1079,7 @@ def radar_chart_summary(request):
     return render(request, 'System/radar_chart_summary.html', context)
 
 # Vista para mostrar gráfico de barras comparativo de evaluaciones
-@login_required
+@roles_required("Administrador", "Gerente", "Lider")
 def bar_chart_comparison(request):
     # Obtener todos los ciclos de evaluación disponibles para el filtro
     evaluation_cycles = Permanent_EvaluationAssignment.objects.values_list('evaluation_cycle', flat=True).distinct()
