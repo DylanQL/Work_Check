@@ -51,7 +51,9 @@ def login_view(request):
             if user_account.status != "Activo":
                 error = "La cuenta no está activa."
                 return render(request, 'System/login.html', {'error': error})
+            # Guardar el ID y el tipo de usuario en la sesión
             request.session['user_id'] = user_account.id
+            request.session['user_type'] = user_account.usuario.user_type
             return redirect('home')
         except UserAccount.DoesNotExist:
             error = "Credenciales inválidas."

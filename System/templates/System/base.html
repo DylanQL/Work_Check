@@ -38,6 +38,8 @@
                         <span>Inicio</span>
                     </a>
                 </li>
+
+                {% if request.session.user_type == "Administrador" %}
                 <li class="nav-item text-center">
                     <a class="nav-link d-flex flex-column align-items-center" href="{% url 'manage_users' %}">
                         <i class="fas fa-users"></i>
@@ -86,18 +88,27 @@
                         <span>Eval. Empleados</span>
                     </a>
                 </li>
+                {% endif %}
+
+                {% if request.session.user_type == "Gerente" %}
                 <li class="nav-item text-center">
                     <a class="nav-link d-flex flex-column align-items-center" href="{% url 'evaluate_leaders' %}">
                         <i class="fas fa-file-signature"></i>
                         <span>Form. Líderes</span>
                     </a>
                 </li>
+                {% endif %}
+
+                {% if request.session.user_type == "Lider" %}
                 <li class="nav-item text-center">
                     <a class="nav-link d-flex flex-column align-items-center" href="{% url 'evaluate_employees' %}">
                         <i class="fas fa-file-alt"></i>
                         <span>Form. Empleados</span>
                     </a>
                 </li>
+                {% endif %}
+
+                {% if request.session.user_type == "Administrador" or request.session.user_type == "Gerente" or request.session.user_type == "Lider" %}
                 <li class="nav-item text-center">
                     <a class="nav-link d-flex flex-column align-items-center" href="{% url 'radar_chart_summary' %}">
                         <i class="fas fa-chart-pie"></i>
@@ -110,6 +121,8 @@
                         <span>Comparación</span>
                     </a>
                 </li>
+                {% endif %}
+
                 <li class="nav-item text-center">
                     <a class="nav-link d-flex flex-column align-items-center" href="{% url 'logout' %}">
                         <i class="fas fa-sign-out-alt"></i>
