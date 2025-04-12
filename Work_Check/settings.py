@@ -75,8 +75,15 @@ WSGI_APPLICATION = 'Work_Check.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'work_check_db', # Cambia esto por el nombre de tu base de datos
+        'USER': 'root', # Cambia esto por tu usuario de MySQL o MariaDB
+        'PASSWORD': '123456',  # Cambia esto por tu contraseña de MySQL o MariaDB
+        'HOST': 'localhost',
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'", 
+        },
     }
 }
 
