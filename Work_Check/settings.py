@@ -11,21 +11,33 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+import environ
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Inicializar el objeto env
+env = environ.Env(
+    # Definición de variables con valores por defecto (si es necesario)
+    DEBUG=(bool, False)
+)
+
+# Definir la ruta base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Leer el archivo .env si existe en el directorio BASE_DIR
+env_file = os.path.join(BASE_DIR, '.env')
+if os.path.exists(env_file):
+    environ.Env.read_env(env_file)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-i6bmfpf%+x1c_3s6d%edrn3f_^d63$$qxck67k7%8@h7(4$=e0'
+SECRET_KEY = env('SECRET_KEY', default='django-insecure-unsafe-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DEBUG", default=True)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 
 
 # Application definition
@@ -55,7 +67,7 @@ ROOT_URLCONF = 'Work_Check.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [],  # Puedes agregar rutas de templates aquí si lo requieres
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -76,13 +88,13 @@ WSGI_APPLICATION = 'Work_Check.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'work_check_db', # Cambia esto por el nombre de tu base de datos
-        'USER': 'root', # Cambia esto por tu usuario de MySQL o MariaDB
-        'PASSWORD': '123456',  # Cambia esto por tu contraseña de MySQL o MariaDB
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': env('DATABASE_NAME', default='work_check_db'),  # Nombre de la base de datos
+        'USER': env('DATABASE_USER', default='root'),            # Usuario de MySQL o MariaDB
+        'PASSWORD': env('DATABASE_PASSWORD', default='123456'),    # Contraseña de MySQL o MariaDB
+        'HOST': env('DATABASE_HOST', default='localhost'),
+        'PORT': env('DATABASE_PORT', default='3306'),
         'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'", 
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
     }
 }
