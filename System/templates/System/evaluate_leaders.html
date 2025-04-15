@@ -23,7 +23,7 @@
                     <form method="get" action="" class="mb-0">
                         <div class="mb-3">
                             <label for="employee_select" class="form-label">Seleccionar usuario a evaluar:</label>
-                            <select id="employee_select" name="employee_id" class="form-select" onchange="this.form.submit()">
+                            <select required id="employee_select" name="employee_id" class="form-select" onchange="this.form.submit()">
                                 <option value="">-- Seleccione --</option>
                                 {% for emp in assigned_employees %}
                                     <option value="{{ emp.id }}" {% if selected_employee and emp.id == selected_employee.id %}selected{% endif %}>
@@ -38,7 +38,7 @@
         </div>
     </div>
 
-{% if selected_employee %}
+    {% if selected_employee %}
     <div class="row mb-4">
         <div class="col-12">
             <div class="alert alert-info">
@@ -48,6 +48,78 @@
                         <strong>Posición del usuario a evaluar:</strong> {{ selected_employee.position.position_name }}
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Componente EvaluationScale -->
+    <!-- Botón flotante para mostrar/ocultar la Escala de Evaluación -->
+    <button id="toggleScaleButton" class="btn btn-primary position-fixed" style="bottom: 20px; left: 20px; z-index: 1050;">
+        <i class="fas fa-chart-line me-2"></i> Escala de Evaluación
+    </button>
+
+    <!-- Escala de Evaluación (oculta inicialmente) -->
+    <div id="evaluationScale" class="card shadow-sm mb-4 position-fixed" style="bottom: 80px; left: 20px; z-index: 1049; width: 60%; display: none;">
+        <div class="card-header bg-primary text-white" style="position: relative;">
+            <h5 class="card-title mb-0"><i class="fas fa-chart-line me-2"></i>Escala de Evaluación</h5>
+            <button type="button" class="btn-close btn-close-white " aria-label="Close" onclick="toggleScale()" style="position: absolute; top: 50%; right: 15px; transform: translate(-50%, -50%)"></button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="20%">Rango</th>
+                            <th width="80%">Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1.00 - 1.99 - Nivel 1</td>
+                            <td>
+                                <strong>Desempeño Inferior:</strong> Desempeño <em>inferior</em> al desempeño esperado. 
+                                El evaluado <strong>No cumple</strong> con alguna o algunas de las tareas asignadas, objetivos o responsabilidades en los plazos o en los estándares establecidos. 
+                                Necesita <strong>MEJORAR DESEMPEÑO INMEDIATAMENTE</strong>.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2.00 - 2.74 - Nivel 2</td>
+                            <td>
+                                <strong>Desempeño Esperado:</strong> El desempeño es el esperado para la posición. 
+                                El evaluado cumple con las tareas asignadas, objetivos y responsabilidades dentro de los plazos y estándares establecidos.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2.75 - 3.49 - Nivel 3</td>
+                            <td>
+                                <strong>Desempeño Destacado:</strong> Además de cumplir con el Desempeño Esperado, el evaluado:
+                                <ul>
+                                    <li>Realiza una o más tareas, objetivos o responsabilidades excediendo estándares o plazos establecidos.</li>
+                                    <li>Muestra efectividad para comunicar problemas o conflictos.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>3.50 - 4.49 - Nivel 4</td>
+                            <td>
+                                <strong>Desempeño Excelente:</strong> Además de cumplir con el Desempeño Destacado, el evaluado:
+                                <ul>
+                                    <li>Cumple la mayoría de las tareas, objetivos o responsabilidades excediendo estándares o plazos establecidos.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>4.50 - 5.00 - Nivel 5</td>
+                            <td>
+                                <strong>Desempeño Excepcional:</strong> Además de cumplir con el Desempeño Excelente, el evaluado:
+                                <ul>
+                                    <li>Cumple todas las tareas, objetivos o responsabilidades antes de los plazos o por encima de los estándares establecidos.</li>
+                                    <li>Alcanza objetivos en áreas más allá de su rol o función.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -78,7 +150,7 @@
                             <tr>
                                 <th>Desarrolla nuevas aplicaciones, y/o adapta sistemas o aplicaciones existentes con eficiencia y efectividad</th>
                                 <td class="text-center">
-                                    <select name="R1" id="R1" class="form-select form-select-sm" onchange="calcCategory('R')">
+                                    <select required name="R1" id="R1" class="form-select form-select-sm" onchange="calcCategory('R')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.R1 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.R1 == 2 %}selected{% endif %}>2</option>
@@ -97,7 +169,7 @@
                             <tr>
                                 <th>Está atento a las necesidades de los clientes durante el proceso de desarrollo o mejora de aplicaciones</th>
                                 <td class="text-center">
-                                    <select name="R2" id="R2" class="form-select form-select-sm" onchange="calcCategory('R')">
+                                    <select required name="R2" id="R2" class="form-select form-select-sm" onchange="calcCategory('R')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.R2 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.R2 == 2 %}selected{% endif %}>2</option>
@@ -110,7 +182,7 @@
                             <tr>
                                 <th>Trabaja con responsabilidad para cumplir a tiempo y de manera efectiva los objetivos del proyecto</th>
                                 <td class="text-center">
-                                    <select name="R3" id="R3" class="form-select form-select-sm" onchange="calcCategory('R')">
+                                    <select required name="R3" id="R3" class="form-select form-select-sm" onchange="calcCategory('R')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.R3 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.R3 == 2 %}selected{% endif %}>2</option>
@@ -123,7 +195,7 @@
                             <tr>
                                 <th>Documenta claramente y oportunamente los proyectos</th>
                                 <td class="text-center">
-                                    <select name="R4" id="R4" class="form-select form-select-sm" onchange="calcCategory('R')">
+                                    <select required name="R4" id="R4" class="form-select form-select-sm" onchange="calcCategory('R')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.R4 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.R4 == 2 %}selected{% endif %}>2</option>
@@ -165,7 +237,7 @@
                             <tr>
                                 <th>Se anticipa a las necesidades, crea soluciones preventivas y fomenta un entorno donde el equipo crezca y prospere</th>
                                 <td class="text-center">
-                                    <select name="L1" id="L1" class="form-select form-select-sm" onchange="calcCategory('L')">
+                                    <select required name="L1" id="L1" class="form-select form-select-sm" onchange="calcCategory('L')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.L1 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.L1 == 2 %}selected{% endif %}>2</option>
@@ -184,7 +256,7 @@
                             <tr>
                                 <th>Disposición para adaptarse, aprender y evolucionar en función de las necesidades cambiantes del equipo</th>
                                 <td class="text-center">
-                                    <select name="L2" id="L2" class="form-select form-select-sm" onchange="calcCategory('L')">
+                                    <select required name="L2" id="L2" class="form-select form-select-sm" onchange="calcCategory('L')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.L2 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.L2 == 2 %}selected{% endif %}>2</option>
@@ -197,7 +269,7 @@
                             <tr>
                                 <th>Fomenta relaciones saludables, entornos inclusivos y colaborativos, promoviendo confianza y empatía</th>
                                 <td class="text-center">
-                                    <select name="L3" id="L3" class="form-select form-select-sm" onchange="calcCategory('L')">
+                                    <select required name="L3" id="L3" class="form-select form-select-sm" onchange="calcCategory('L')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.L3 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.L3 == 2 %}selected{% endif %}>2</option>
@@ -210,7 +282,7 @@
                             <tr>
                                 <th>Gestiona las crisis priorizando el bienestar, estabilidad y necesidades de su equipo</th>
                                 <td class="text-center">
-                                    <select name="L4" id="L4" class="form-select form-select-sm" onchange="calcCategory('L')">
+                                    <select required name="L4" id="L4" class="form-select form-select-sm" onchange="calcCategory('L')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.L4 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.L4 == 2 %}selected{% endif %}>2</option>
@@ -223,7 +295,7 @@
                             <tr>
                                 <th>Gestiona eficazmente recursos, personas y objetivos asegurando alineación con los objetivos estratégicos</th>
                                 <td class="text-center">
-                                    <select name="L5" id="L5" class="form-select form-select-sm" onchange="calcCategory('L')">
+                                    <select required name="L5" id="L5" class="form-select form-select-sm" onchange="calcCategory('L')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.L5 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.L5 == 2 %}selected{% endif %}>2</option>
@@ -259,7 +331,7 @@
                             <tr>
                                 <th>Planifica y organiza el trabajo de manera efectiva</th>
                                 <td class="text-center">
-                                    <select name="H1" id="H1" class="form-select form-select-sm" onchange="calcCategory('H')">
+                                    <select required name="H1" id="H1" class="form-select form-select-sm" onchange="calcCategory('H')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.H1 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.H1 == 2 %}selected{% endif %}>2</option>
@@ -278,7 +350,7 @@
                             <tr>
                                 <th>Muestra habilidades efectivas para resolver problemas</th>
                                 <td class="text-center">
-                                    <select name="H2" id="H2" class="form-select form-select-sm" onchange="calcCategory('H')">
+                                    <select required name="H2" id="H2" class="form-select form-select-sm" onchange="calcCategory('H')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.H2 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.H2 == 2 %}selected{% endif %}>2</option>
@@ -291,7 +363,7 @@
                             <tr>
                                 <th>Muestra habilidad para comunicarse oral y por escrito efectivamente</th>
                                 <td class="text-center">
-                                    <select name="H3" id="H3" class="form-select form-select-sm" onchange="calcCategory('H')">
+                                    <select required name="H3" id="H3" class="form-select form-select-sm" onchange="calcCategory('H')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.H3 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.H3 == 2 %}selected{% endif %}>2</option>
@@ -304,7 +376,7 @@
                             <tr>
                                 <th>Muestra habilidad para comunicar información técnica de manera sencilla a personas no técnicas</th>
                                 <td class="text-center">
-                                    <select name="H4" id="H4" class="form-select form-select-sm" onchange="calcCategory('H')">
+                                    <select required name="H4" id="H4" class="form-select form-select-sm" onchange="calcCategory('H')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.H4 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.H4 == 2 %}selected{% endif %}>2</option>
@@ -317,7 +389,7 @@
                             <tr>
                                 <th>Muestra habilidad para resolver conflictos adecuadamente</th>
                                 <td class="text-center">
-                                    <select name="H5" id="H5" class="form-select form-select-sm" onchange="calcCategory('H')">
+                                    <select required name="H5" id="H5" class="form-select form-select-sm" onchange="calcCategory('H')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.H5 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.H5 == 2 %}selected{% endif %}>2</option>
@@ -353,7 +425,7 @@
                             <tr>
                                 <th>Ejerce buen juicio en el desarrollo de sus responsabilidades</th>
                                 <td class="text-center">
-                                    <select name="E1" id="E1" class="form-select form-select-sm" onchange="calcCategory('E')">
+                                    <select required name="E1" id="E1" class="form-select form-select-sm" onchange="calcCategory('E')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.E1 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.E1 == 2 %}selected{% endif %}>2</option>
@@ -372,7 +444,7 @@
                             <tr>
                                 <th>Busca cumplir sus responsabilidades con excelencia</th>
                                 <td class="text-center">
-                                    <select name="E2" id="E2" class="form-select form-select-sm" onchange="calcCategory('E')">
+                                    <select required name="E2" id="E2" class="form-select form-select-sm" onchange="calcCategory('E')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.E2 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.E2 == 2 %}selected{% endif %}>2</option>
@@ -385,7 +457,7 @@
                             <tr>
                                 <th>Demuestra adaptabilidad</th>
                                 <td class="text-center">
-                                    <select name="E3" id="E3" class="form-select form-select-sm" onchange="calcCategory('E')">
+                                    <select required name="E3" id="E3" class="form-select form-select-sm" onchange="calcCategory('E')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.E3 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.E3 == 2 %}selected{% endif %}>2</option>
@@ -398,7 +470,7 @@
                             <tr>
                                 <th>Coopera bien con los demás miembros del equipo</th>
                                 <td class="text-center">
-                                    <select name="E4" id="E4" class="form-select form-select-sm" onchange="calcCategory('E')">
+                                    <select required name="E4" id="E4" class="form-select form-select-sm" onchange="calcCategory('E')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.E4 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.E4 == 2 %}selected{% endif %}>2</option>
@@ -434,7 +506,7 @@
                             <tr>
                                 <th>Experto en el manejo de herramientas y tecnologías para alcanzar los estándares y objetivos de su posición</th>
                                 <td class="text-center">
-                                    <select name="C1" id="C1" class="form-select form-select-sm" onchange="calcCategory('C')">
+                                    <select required name="C1" id="C1" class="form-select form-select-sm" onchange="calcCategory('C')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.C1 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.C1 == 2 %}selected{% endif %}>2</option>
@@ -453,7 +525,7 @@
                             <tr>
                                 <th>Capacidad para aprender y aplicar nuevas herramientas y tecnologías</th>
                                 <td class="text-center">
-                                    <select name="C2" id="C2" class="form-select form-select-sm" onchange="calcCategory('C')">
+                                    <select required name="C2" id="C2" class="form-select form-select-sm" onchange="calcCategory('C')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.C2 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.C2 == 2 %}selected{% endif %}>2</option>
@@ -466,7 +538,7 @@
                             <tr>
                                 <th>Capacidad de trabajar sin la necesidad de una supervisión constante, administrando su tiempo eficientemente</th>
                                 <td class="text-center">
-                                    <select name="C3" id="C3" class="form-select form-select-sm" onchange="calcCategory('C')">
+                                    <select required name="C3" id="C3" class="form-select form-select-sm" onchange="calcCategory('C')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.C3 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.C3 == 2 %}selected{% endif %}>2</option>
@@ -479,7 +551,7 @@
                             <tr>
                                 <th>Maneja eficazmente la presión y pide ayuda cuando es necesario</th>
                                 <td class="text-center">
-                                    <select name="C4" id="C4" class="form-select form-select-sm" onchange="calcCategory('C')">
+                                    <select required name="C4" id="C4" class="form-select form-select-sm" onchange="calcCategory('C')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.C4 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.C4 == 2 %}selected{% endif %}>2</option>
@@ -492,7 +564,7 @@
                             <tr>
                                 <th>Investiga, recopila y analiza información hábilmente</th>
                                 <td class="text-center">
-                                    <select name="C5" id="C5" class="form-select form-select-sm" onchange="calcCategory('C')">
+                                    <select required name="C5" id="C5" class="form-select form-select-sm" onchange="calcCategory('C')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.C5 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.C5 == 2 %}selected{% endif %}>2</option>
@@ -505,7 +577,7 @@
                             <tr>
                                 <th>Capaz de identificar y medir el impacto de las decisiones tomadas</th>
                                 <td class="text-center">
-                                    <select name="C6" id="C6" class="form-select form-select-sm" onchange="calcCategory('C')">
+                                    <select required name="C6" id="C6" class="form-select form-select-sm" onchange="calcCategory('C')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.C6 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.C6 == 2 %}selected{% endif %}>2</option>
@@ -541,7 +613,7 @@
                             <tr>
                                 <th>Colabora con el cumplimiento de las metas del equipo</th>
                                 <td class="text-center">
-                                    <select name="M1" id="M1" class="form-select form-select-sm" onchange="calcCategory('M')">
+                                    <select required name="M1" id="M1" class="form-select form-select-sm" onchange="calcCategory('M')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.M1 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.M1 == 2 %}selected{% endif %}>2</option>
@@ -560,7 +632,7 @@
                             <tr>
                                 <th>Colabora con lograr los resultados que el cliente busca</th>
                                 <td class="text-center">
-                                    <select name="M2" id="M2" class="form-select form-select-sm" onchange="calcCategory('M')">
+                                    <select required name="M2" id="M2" class="form-select form-select-sm" onchange="calcCategory('M')">
                                         <option value=""></option>
                                         <option value="1" {% if evaluation_details_data.M2 == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if evaluation_details_data.M2 == 2 %}selected{% endif %}>2</option>
@@ -596,7 +668,7 @@
                             <tr>
                                 <th>Trabaja con honestidad e integridad</th>
                                 <td class="text-center">
-                                    <select name="V1" id="V1" class="form-select form-select-sm" onchange="calcCategory('V')">
+                                    <select required name="V1" id="V1" class="form-select form-select-sm" onchange="calcCategory('V')">
                                         <option value=""></option>
                                         <option value="0" {% if evaluation_details_data.V1 == 0 %}selected{% endif %}>0</option>
                                         <option value="1" {% if evaluation_details_data.V1 == 1 %}selected{% endif %}>1</option>
@@ -612,7 +684,7 @@
                             <tr>
                                 <th>Actúa con ética profesional en todo lo que hace</th>
                                 <td class="text-center">
-                                    <select name="V2" id="V2" class="form-select form-select-sm" onchange="calcCategory('V')">
+                                    <select required name="V2" id="V2" class="form-select form-select-sm" onchange="calcCategory('V')">
                                         <option value=""></option>
                                         <option value="0" {% if evaluation_details_data.V2 == 0 %}selected{% endif %}>0</option>
                                         <option value="1" {% if evaluation_details_data.V2 == 1 %}selected{% endif %}>1</option>
@@ -622,7 +694,7 @@
                             <tr>
                                 <th>Pone sus habilidades y conocimientos al servicio del equipo</th>
                                 <td class="text-center">
-                                    <select name="V3" id="V3" class="form-select form-select-sm" onchange="calcCategory('V')">
+                                    <select required name="V3" id="V3" class="form-select form-select-sm" onchange="calcCategory('V')">
                                         <option value=""></option>
                                         <option value="0" {% if evaluation_details_data.V3 == 0 %}selected{% endif %}>0</option>
                                         <option value="1" {% if evaluation_details_data.V3 == 1 %}selected{% endif %}>1</option>
@@ -632,7 +704,7 @@
                             <tr>
                                 <th>Prioriza las necesidades e intereses del equipo</th>
                                 <td class="text-center">
-                                    <select name="V4" id="V4" class="form-select form-select-sm" onchange="calcCategory('V')">
+                                    <select required name="V4" id="V4" class="form-select form-select-sm" onchange="calcCategory('V')">
                                         <option value=""></option>
                                         <option value="0" {% if evaluation_details_data.V4 == 0 %}selected{% endif %}>0</option>
                                         <option value="1" {% if evaluation_details_data.V4 == 1 %}selected{% endif %}>1</option>
@@ -642,7 +714,7 @@
                             <tr>
                                 <th>Busca la mejora continua</th>
                                 <td class="text-center">
-                                    <select name="V5" id="V5" class="form-select form-select-sm" onchange="calcCategory('V')">
+                                    <select required name="V5" id="V5" class="form-select form-select-sm" onchange="calcCategory('V')">
                                         <option value=""></option>
                                         <option value="0" {% if evaluation_details_data.V5 == 0 %}selected{% endif %}>0</option>
                                         <option value="1" {% if evaluation_details_data.V5 == 1 %}selected{% endif %}>1</option>
@@ -742,8 +814,8 @@
         <div class="row mb-4">
             <div class="col-12">
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button type="submit" name="action" value="Enviar formulario" class="btn btn-primary" onclick="return validateForm()">
-                        <i class="fas fa-paper-plane me-2"></i>Enviar formulario
+                    <button type="submit" name="action" value="Enviar formulario" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>Guardar
                     </button>
                     <button type="button" id="clearFormButton" class="btn btn-secondary">
                         <i class="fas fa-eraser me-2"></i>Limpiar formulario
@@ -759,73 +831,58 @@ document.addEventListener('DOMContentLoaded', function() {
     const clearFormButton = document.getElementById('clearFormButton');
     if (clearFormButton) {
         clearFormButton.addEventListener('click', function() {
-            if (confirm('¿Está seguro de que desea limpiar el formulario? Todos los datos ingresados se perderán.')) {
-                // Resetear todos los select a valor vacío
-                document.querySelectorAll('select').forEach(select => {
-                    select.value = '';
-                });
-                
-                // Resetear todos los textarea
-                document.querySelectorAll('textarea').forEach(textarea => {
-                    textarea.value = '';
-                });
-                
-                // Recalcular todas las categorías
-                ['R', 'L', 'H', 'E', 'C', 'M', 'V'].forEach(category => {
-                    calcCategory(category);
-                });
-                
-                // Actualizar el resumen
-                updateSummary();
-            }
+            // Obtener todos los inputs del formulario
+            const form = this.closest('form');
+            const inputs = form.querySelectorAll('input[type="number"], textarea');
+            const selects = form.querySelectorAll('select');
+            
+            // Limpiar cada input y textarea
+            inputs.forEach(function(input) {
+                input.value = '';
+            });
+            
+            // Limpiar cada select (volver a la opción vacía)
+            selects.forEach(function(select) {
+                select.selectedIndex = 0;
+            });
+            
+            // Actualizar los cálculos
+            calcCategory('R');
+            calcCategory('L');
+            calcCategory('H');
+            calcCategory('E');
+            calcCategory('C');
+            calcCategory('M');
+            calcCategory('V');
+            updateSummary();
         });
     }
     
-    // Inicializar cálculos
-    ['R', 'L', 'H', 'E', 'C', 'M', 'V'].forEach(category => {
-        calcCategory(category);
-    });
-    updateSummary();
+    // Inicializar cálculos cuando la página carga
+    setTimeout(function() {
+        calcCategory('R');
+        calcCategory('L');
+        calcCategory('H');
+        calcCategory('E');
+        calcCategory('C');
+        calcCategory('M');
+        calcCategory('V');
+        updateSummary();
+    }, 500); // Pequeño retraso para asegurarse de que todos los elementos están cargados
 });
 
-// Función para validar el formulario antes de enviar
-function validateForm() {
-    // Obtener todos los selects del formulario (excepto el selector de empleado)
-    const selects = document.querySelectorAll('form select:not(#employee_select)');
-    let allFieldsSelected = true;
-    let firstEmptySelect = null;
-    
-    // Verificar que todos los selects tengan un valor seleccionado
-    selects.forEach(select => {
-        if (select.value === '') {
-            allFieldsSelected = false;
-            // Guardar referencia al primer select vacío para hacer scroll hasta él
-            if (!firstEmptySelect) {
-                firstEmptySelect = select;
-                // Resaltar el select vacío
-                select.classList.add('is-invalid');
-                // Agregar evento para quitar la clase cuando se seleccione un valor
-                select.addEventListener('change', function() {
-                    if (this.value !== '') {
-                        this.classList.remove('is-invalid');
-                    }
-                }, { once: true });
-            }
-        }
-    });
-    
-    if (!allFieldsSelected) {
-        // Mostrar alerta
-        alert('Por favor, complete todos los campos de evaluación antes de enviar el formulario.');
-        // Hacer scroll hasta el primer campo vacío
-        if (firstEmptySelect) {
-            firstEmptySelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-        return false;
+// Función para mostrar/ocultar la Escala de Evaluación
+function toggleScale() {
+    const scale = document.getElementById('evaluationScale');
+    if (scale.style.display === 'none' || scale.style.display === '') {
+        scale.style.display = 'block';
+    } else {
+        scale.style.display = 'none';
     }
-    
-    return true;
 }
+
+// Agregar evento al botón flotante
+document.getElementById('toggleScaleButton').addEventListener('click', toggleScale);
 
 // Función para calcular el promedio de una categoría o suma para V
 function calcCategory(category) {
@@ -976,6 +1033,18 @@ function updateSummary() {
 }
 </script>
 <style>
+    /* Estilo para el botón flotante */
+    #toggleScaleButton {
+        border-radius: 50px;
+        padding: 10px 20px;
+    }
+
+    /* Estilo para la Escala de Evaluación flotante */
+    #evaluationScale {
+        max-height: 80vh;
+        overflow-y: auto;
+        border-radius: 8px;
+    }
     .card {
         border-radius: 8px;
         overflow: hidden;
@@ -1020,5 +1089,6 @@ function updateSummary() {
             padding: 0.4em 0.6em;
         }
     }
+
 </style>
 {% endblock %}

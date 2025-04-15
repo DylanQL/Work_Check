@@ -451,6 +451,20 @@ def leaders_evaluations(request):
       - Desde Summary: employee, evaluator, R, L, H, E, C, M, V, final_score, performance_level y position.
     """
     assignments = Permanent_EvaluationAssignment.objects.filter(summary__evaluation_type="Lideres")
+       
+    # Redondear los valores a dos decimales
+    for assignment in assignments:
+        summary = assignment.summary
+        if summary:
+            summary.R = round(summary.R, 2) if summary.R is not None else None
+            summary.L = round(summary.L, 2) if summary.L is not None else None
+            summary.H = round(summary.H, 2) if summary.H is not None else None
+            summary.E = round(summary.E, 2) if summary.E is not None else None
+            summary.C = round(summary.C, 2) if summary.C is not None else None
+            summary.M = round(summary.M, 2) if summary.M is not None else None
+            summary.V = round(summary.V, 2) if summary.V is not None else None
+            summary.final_score = round(summary.final_score, 2) if summary.final_score is not None else None
+
     return render(request, 'System/leaders_evaluations.html', {'assignments': assignments})
 
 @roles_required("Administrador")
@@ -466,6 +480,20 @@ def employees_evaluations(request):
         performance_level y position.
     """
     assignments = Permanent_EvaluationAssignment.objects.filter(summary__evaluation_type="Empleados")
+    
+    # Redondear los valores a dos decimales
+    for assignment in assignments:
+        summary = assignment.summary
+        if summary:
+            summary.R = round(summary.R, 2) if summary.R is not None else None
+            summary.L = round(summary.L, 2) if summary.L is not None else None
+            summary.H = round(summary.H, 2) if summary.H is not None else None
+            summary.E = round(summary.E, 2) if summary.E is not None else None
+            summary.C = round(summary.C, 2) if summary.C is not None else None
+            summary.M = round(summary.M, 2) if summary.M is not None else None
+            summary.V = round(summary.V, 2) if summary.V is not None else None
+            summary.final_score = round(summary.final_score, 2) if summary.final_score is not None else None
+            
     return render(request, 'System/employees_evaluations.html', {'assignments': assignments})
 
 
