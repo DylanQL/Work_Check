@@ -1,0 +1,50 @@
+{% extends 'System/base.html' %} {% block content %}
+<div class="container mt-4">
+  <h1>Lista de Posiciones</h1>
+  <a href="{% url 'position_create' %}" class="btn btn-primary mb-3"
+    ><i class="fas fa-plus-circle me-2"></i>Crear Nueva Posición</a
+  >
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Nombre</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for position in positions %}
+      <tr>
+        <td>{{ position.position_code }}</td>
+        <td>{{ position.position_name }}</td>
+        <td>
+          <a
+            href="{% url 'position_detail' position.id %}"
+            class="btn btn-sm btn-outline-info"
+          >
+            <i class="fas fa-file-alt me-1"></i>Ver</a
+          >
+          <a
+            href="{% url 'position_update' position.id %}"
+            class="btn btn-sm btn-outline-primary"
+          >
+            <i class="fas fa-edit me-1"></i>Editar</a
+          >
+          <a
+            href="{% url 'position_delete' position.id %}"
+            class="btn btn-sm btn-outline-danger"
+          >
+            <i class="fas fa-trash-alt me-1"></i>Eliminar</a
+          >
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3">No hay posiciones registradas.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

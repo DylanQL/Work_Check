@@ -72,4 +72,13 @@ urlpatterns = [
     
     # Ruta para gráfico de barras de comparación de evaluaciones
     path('bar_chart_comparison/', views.bar_chart_comparison, name='bar_chart_comparison'),
+    
+    # Ruta para la gestión de posiciones
+    path('positions/', views.PositionListView.as_view(), name='position_list'),
+    path('positions/<int:pk>/', views.PositionDetailView.as_view(), name='position_detail'),
+    path('positions/new/', views.PositionCreateView.as_view(), name='position_create'),
+    path('positions/<int:pk>/edit/', views.PositionUpdateView.as_view(), name='position_update'),
+    path('positions/<int:pk>/delete/', views.PositionDeleteView.as_view(), name='position_delete'),
+
+
 ]

@@ -1,8 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from functools import wraps
 from django.contrib import messages
 from .models import *
 from django.db import transaction
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, FormView, DeleteView
+from .forms import PositionForm, UserTemplateAssignForm 
 
 
 # Decorador personalizado para verificar que el usuario haya iniciado sesión
@@ -1183,3 +1186,39 @@ def bar_chart_comparison(request):
     }
     
     return render(request, 'System/bar_chart_comparison.html', context)
+
+# Listar posiciones
+class PositionListView(ListView):
+    model = Position
+    template_name = 'positions/position_list.html'
+    context_object_name = 'positions'
+
+# Ver detalle de una posición
+class PositionDetailView(DetailView):
+    model = Position
+    template_name = 'positions/position_detail.html'
+    context_object_name = 'position'
+
+# Crear una nueva posición
+class PositionCreateView(CreateView):
+    model = Position
+    form_class = PositionForm
+    template_name = 'positions/position_form.html'
+    success_url = reverse_lazy('position_list')
+
+# Actualizar una posición
+class PositionUpdateView(UpdateView):
+    model = Position
+    form_class = PositionForm
+    template_name = 'positions/position_form.html'
+    context_object_name = 'position'
+    success_url = reverse_lazy('position_list')
+
+# Eliminar una posición
+class PositionDeleteView(DeleteView):
+    model = Position
+    template_name = 'positions/position_confirm_delete.html'
+    context_object_name = 'position'
+    success_url = reverse_lazy('position_list')
+    
+
