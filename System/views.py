@@ -5,7 +5,11 @@ from .models import *
 from django.db import transaction
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, FormView, DeleteView
-from .forms import PositionForm, UserTemplateAssignForm 
+from django.views import View
+from .forms import PositionForm, UserTemplateAssignForm, UserTemplateEditForm 
+from django.db import transaction
+from .models import EvaluationDetails
+from django.utils.decorators import method_decorator
 
 
 # Decorador personalizado para verificar que el usuario haya iniciado sesión
@@ -499,9 +503,13 @@ def employees_evaluations(request):
             
     return render(request, 'System/employees_evaluations.html', {'assignments': assignments})
 
+def safe_get(post_data, key):
+    value = post_data.get(key)
+    return int(value) if value is not None and value.strip() != '' else None
 
 @roles_required("Gerente")
 def evaluate_leaders(request):
+    
     """
     Muestra y procesa un formulario para evaluar a líderes.
     - Solo se pueden evaluar usuarios que estén en Temp_EvaluationAssignment
@@ -595,50 +603,50 @@ def evaluate_leaders(request):
             employee_id_post = None
         
         # Recogemos todos los campos
-        R1 = request.POST.get('R1', 0)
-        R2 = request.POST.get('R2', 0)
-        R3 = request.POST.get('R3', 0)
-        R4 = request.POST.get('R4', 0)
-        R5 = request.POST.get('R5', 0)
+        R1 = safe_get(request.POST, 'R1')
+        R2 = safe_get(request.POST, 'R2')
+        R3 = safe_get(request.POST, 'R3')
+        R4 = safe_get(request.POST, 'R4')
+        R5 = safe_get(request.POST, 'R5')
         R_comments = request.POST.get('R_comments', '')
 
-        L1 = request.POST.get('L1', 0)
-        L2 = request.POST.get('L2', 0)
-        L3 = request.POST.get('L3', 0)
-        L4 = request.POST.get('L4', 0)
-        L5 = request.POST.get('L5', 0)
+        L1 = safe_get(request.POST, 'L1')
+        L2 = safe_get(request.POST, 'L2')
+        L3 = safe_get(request.POST, 'L3')
+        L4 = safe_get(request.POST, 'L4')
+        L5 = safe_get(request.POST, 'L5')
         L_comments = request.POST.get('L_comments', '')
 
-        H1 = request.POST.get('H1', 0)
-        H2 = request.POST.get('H2', 0)
-        H3 = request.POST.get('H3', 0)
-        H4 = request.POST.get('H4', 0)
-        H5 = request.POST.get('H5', 0)
+        H1 = safe_get(request.POST, 'H1')
+        H2 = safe_get(request.POST, 'H2')
+        H3 = safe_get(request.POST, 'H3')
+        H4 = safe_get(request.POST, 'H4')
+        H5 = safe_get(request.POST, 'H5')
         H_comments = request.POST.get('H_comments', '')
 
-        E1 = request.POST.get('E1', 0)
-        E2 = request.POST.get('E2', 0)
-        E3 = request.POST.get('E3', 0)
-        E4 = request.POST.get('E4', 0)
+        E1 = safe_get(request.POST, 'E1')
+        E2 = safe_get(request.POST, 'E2')
+        E3 = safe_get(request.POST, 'E3')
+        E4 = safe_get(request.POST, 'E4')
         E_comments = request.POST.get('E_comments', '')
 
-        C1 = request.POST.get('C1', 0)
-        C2 = request.POST.get('C2', 0)
-        C3 = request.POST.get('C3', 0)
-        C4 = request.POST.get('C4', 0)
-        C5 = request.POST.get('C5', 0)
-        C6 = request.POST.get('C6', 0)
+        C1 = safe_get(request.POST, 'C1')
+        C2 = safe_get(request.POST, 'C2')
+        C3 = safe_get(request.POST, 'C3')
+        C4 = safe_get(request.POST, 'C4')
+        C5 = safe_get(request.POST, 'C5')
+        C6 = safe_get(request.POST, 'C6')
         C_comments = request.POST.get('C_comments', '')
 
-        M1 = request.POST.get('M1', 0)
-        M2 = request.POST.get('M2', 0)
+        M1 = safe_get(request.POST, 'M1')
+        M2 = safe_get(request.POST, 'M2')
         M_comments = request.POST.get('M_comments', '')
 
-        V1 = request.POST.get('V1', 0)
-        V2 = request.POST.get('V2', 0)
-        V3 = request.POST.get('V3', 0)
-        V4 = request.POST.get('V4', 0)
-        V5 = request.POST.get('V5', 0)
+        V1 = safe_get(request.POST, 'V1')
+        V2 = safe_get(request.POST, 'V2')
+        V3 = safe_get(request.POST, 'V3')
+        V4 = safe_get(request.POST, 'V4')
+        V5 = safe_get(request.POST, 'V5')
         V_comments = request.POST.get('V_comments', '')
 
         final_comments = request.POST.get('final_comments', '')
@@ -650,19 +658,14 @@ def evaluate_leaders(request):
 
         # Si se hace clic en "Enviar formulario"
         if button_clicked == "Enviar formulario" and employee_id_post:
-            # Se maneja la creación/actualización de EvaluationDetails y Summary
             with transaction.atomic():
-                # 1. Crear/actualizar EvaluationDetails
                 assignment = assignment_by_employee.get(employee_id_post)
                 if not assignment:
-                    # Error, no hay asignación
                     return redirect('evaluate_leaders')
 
                 if assignment.evaluation_details:
-                    # Actualizar
                     ed = assignment.evaluation_details
                 else:
-                    # Crear
                     ed = EvaluationDetails()
 
                 ed.R1 = R1; ed.R2 = R2; ed.R3 = R3; ed.R4 = R4; ed.R5 = R5; ed.R_comments = R_comments
@@ -680,8 +683,8 @@ def evaluate_leaders(request):
                 # 2. Crear/actualizar Summary
                 # Calcular promedios
                 def avg(*values):
-                    vals = [int(v) for v in values]
-                    return sum(vals)/len(vals) if len(vals) > 0 else 0
+                    valid = [int(v) for v in values if v is not None]
+                    return sum(valid)/len(valid) if valid else None
 
                 R_avg = avg(R1, R2, R3, R4, R5)
                 L_avg = avg(L1, L2, L3, L4, L5)
@@ -689,10 +692,13 @@ def evaluate_leaders(request):
                 E_avg = avg(E1, E2, E3, E4)
                 C_avg = avg(C1, C2, C3, C4, C5, C6)
                 M_avg = avg(M1, M2)
+                
                 # V is a sum, not an average
-                V_sum = sum([int(v) for v in [V1, V2, V3, V4, V5]])
+                V_values = [safe_get(request.POST, f'V{i}') for i in range(1, 6)]
+                V_valid = [int(v) for v in V_values if v is not None]
+                V_sum = sum(V_valid) if V_valid else None
 
-                # Pesos
+                # Valores base
                 w_R = 0.20
                 w_L = 0.20
                 w_H = 0.10
@@ -701,17 +707,38 @@ def evaluate_leaders(request):
                 w_M = 0.15
                 w_V = 0.10
 
-                R_weighted = R_avg * w_R
-                L_weighted = L_avg * w_L
-                H_weighted = H_avg * w_H
-                E_weighted = E_avg * w_E
-                C_weighted = C_avg * w_C
-                M_weighted = M_avg * w_M
-                # Apply weighting to the sum of V, not to an average
-                V_weighted = V_sum * w_V
+                # Ajustar peso si no hay L
+                if L_avg is None:
+                    w_R += w_L
+                    w_L = 0  # ya no se usa
 
-                final_score = R_weighted + L_weighted + H_weighted + E_weighted + C_weighted + M_weighted + V_weighted
+                # Cálculo
+                weighted_sum = 0
+                total_weight = 0
 
+                if R_avg is not None:
+                    weighted_sum += R_avg * w_R
+                    total_weight += w_R
+                if L_avg is not None:
+                    weighted_sum += L_avg * w_L
+                    total_weight += w_L
+                if H_avg is not None:
+                    weighted_sum += H_avg * w_H
+                    total_weight += w_H
+                if E_avg is not None:
+                    weighted_sum += E_avg * w_E
+                    total_weight += w_E
+                if C_avg is not None:
+                    weighted_sum += C_avg * w_C
+                    total_weight += w_C
+                if M_avg is not None:
+                    weighted_sum += M_avg * w_M
+                    total_weight += w_M
+                if V_sum is not None:
+                    weighted_sum += V_sum * w_V
+                    total_weight += w_V
+
+                final_score = round(weighted_sum / total_weight, 2) if total_weight > 0 else None
 
                 # Performance_level basado en final_score con los niveles
                 if final_score >= 4.50 and final_score <= 5.00:
@@ -761,7 +788,7 @@ def evaluate_leaders(request):
         'evaluation_details_data': evaluation_details_data,
         'status_already_completed': status_already_completed
     }
-    return render(request, 'System/evaluate_leaders.html', context)
+    return render(request, 'evaluations/evaluate_leaders.html', context)
 
 @roles_required("Lider")
 def evaluate_employees(request):
@@ -811,7 +838,7 @@ def evaluate_employees(request):
         try:
             selected_employee_id = int(selected_employee_id)
             selected_employee = current_usuario.__class__.objects.get(id=selected_employee_id)
-            # O alternativamente: Usuario.objects.get(id=selected_employee_id)
+            # Obtener la asignación
             assignment_selected = assignment_by_employee.get(selected_employee_id)
             if assignment_selected and assignment_selected.status == "Completado":
                 # Cargar los datos de la EvaluationDetails existente
@@ -822,6 +849,8 @@ def evaluate_employees(request):
                     evaluation_details_data = {
                         'R1': ed.R1, 'R2': ed.R2, 'R3': ed.R3, 'R4': ed.R4, 'R5': ed.R5,
                         'R_comments': ed.R_comments,
+                        'L1': ed.L1, 'L2': ed.L2, 'L3': ed.L3, 'L4': ed.L4, 'L5': ed.L5,
+                        'L_comments': ed.L_comments,
                         'H1': ed.H1, 'H2': ed.H2, 'H3': ed.H3, 'H4': ed.H4, 'H5': ed.H5,
                         'H_comments': ed.H_comments,
                         'E1': ed.E1, 'E2': ed.E2, 'E3': ed.E3, 'E4': ed.E4,
@@ -834,7 +863,7 @@ def evaluate_employees(request):
                         'V_comments': ed.V_comments,
                         'final_comments': ed.final_comments
                     }
-        except (ValueError, Exception):
+        except (ValueError, Usuario.DoesNotExist):
             selected_employee = None
 
     # Obtener el TimeSheetScore del usuario seleccionado
@@ -859,65 +888,73 @@ def evaluate_employees(request):
         except (ValueError, TypeError):
             employee_id_post = None
 
-        # Recoger todos los campos del formulario para EvaluationDetails
-        R1 = request.POST.get('R1', 0)
-        R2 = request.POST.get('R2', 0)
-        R3 = request.POST.get('R3', 0)
-        R4 = request.POST.get('R4', 0)
-        R5 = request.POST.get('R5', 0)
+        # Recogemos todos los campos
+        R1 = safe_get(request.POST, 'R1')
+        R2 = safe_get(request.POST, 'R2')
+        R3 = safe_get(request.POST, 'R3')
+        R4 = safe_get(request.POST, 'R4')
+        R5 = safe_get(request.POST, 'R5')
         R_comments = request.POST.get('R_comments', '')
 
-        H1 = request.POST.get('H1', 0)
-        H2 = request.POST.get('H2', 0)
-        H3 = request.POST.get('H3', 0)
-        H4 = request.POST.get('H4', 0)
-        H5 = request.POST.get('H5', 0)
+        L1 = safe_get(request.POST, 'L1')
+        L2 = safe_get(request.POST, 'L2')
+        L3 = safe_get(request.POST, 'L3')
+        L4 = safe_get(request.POST, 'L4')
+        L5 = safe_get(request.POST, 'L5')
+        L_comments = request.POST.get('L_comments', '')
+
+        H1 = safe_get(request.POST, 'H1')
+        H2 = safe_get(request.POST, 'H2')
+        H3 = safe_get(request.POST, 'H3')
+        H4 = safe_get(request.POST, 'H4')
+        H5 = safe_get(request.POST, 'H5')
         H_comments = request.POST.get('H_comments', '')
 
-        E1 = request.POST.get('E1', 0)
-        E2 = request.POST.get('E2', 0)
-        E3 = request.POST.get('E3', 0)
-        E4 = request.POST.get('E4', 0)
+        E1 = safe_get(request.POST, 'E1')
+        E2 = safe_get(request.POST, 'E2')
+        E3 = safe_get(request.POST, 'E3')
+        E4 = safe_get(request.POST, 'E4')
         E_comments = request.POST.get('E_comments', '')
 
-        C1 = request.POST.get('C1', 0)
-        C2 = request.POST.get('C2', 0)
-        C3 = request.POST.get('C3', 0)
-        C4 = request.POST.get('C4', 0)
-        C5 = request.POST.get('C5', 0)
-        C6 = request.POST.get('C6', 0)
+        C1 = safe_get(request.POST, 'C1')
+        C2 = safe_get(request.POST, 'C2')
+        C3 = safe_get(request.POST, 'C3')
+        C4 = safe_get(request.POST, 'C4')
+        C5 = safe_get(request.POST, 'C5')
+        C6 = safe_get(request.POST, 'C6')
         C_comments = request.POST.get('C_comments', '')
 
-        M1 = request.POST.get('M1', 0)
-        M2 = request.POST.get('M2', 0)
+        M1 = safe_get(request.POST, 'M1')
+        M2 = safe_get(request.POST, 'M2')
         M_comments = request.POST.get('M_comments', '')
 
-        V1 = request.POST.get('V1', 0)
-        V2 = request.POST.get('V2', 0)
-        V3 = request.POST.get('V3', 0)
-        V4 = request.POST.get('V4', 0)
-        V5 = request.POST.get('V5', 0)
+        V1 = safe_get(request.POST, 'V1')
+        V2 = safe_get(request.POST, 'V2')
+        V3 = safe_get(request.POST, 'V3')
+        V4 = safe_get(request.POST, 'V4')
+        V5 = safe_get(request.POST, 'V5')
         V_comments = request.POST.get('V_comments', '')
 
         final_comments = request.POST.get('final_comments', '')
-
+        
         button_clicked = request.POST.get('action')
         if button_clicked == "Limpiar formulario":
             return redirect('evaluate_employees')
 
+        # Si se hace clic en "Enviar formulario"
         if button_clicked == "Enviar formulario" and employee_id_post:
-            from django.db import transaction
             with transaction.atomic():
                 assignment = assignment_by_employee.get(employee_id_post)
                 if not assignment:
-                    return redirect('evaluate_employees')
-                # Crear o actualizar EvaluationDetails
+                    return redirect('evaluate_leaders')
+
                 if assignment.evaluation_details:
                     ed = assignment.evaluation_details
                 else:
-                    from .models import EvaluationDetails
                     ed = EvaluationDetails()
+
                 ed.R1 = R1; ed.R2 = R2; ed.R3 = R3; ed.R4 = R4; ed.R5 = R5; ed.R_comments = R_comments
+                ed.L1 = L1; ed.L2 = L2; ed.L3 = L3; ed.L4 = L4; ed.L5 = L5; ed.L_comments = L_comments
                 ed.H1 = H1; ed.H2 = H2; ed.H3 = H3; ed.H4 = H4; ed.H5 = H5; ed.H_comments = H_comments
                 ed.E1 = E1; ed.E2 = E2; ed.E3 = E3; ed.E4 = E4; ed.E_comments = E_comments
                 ed.C1 = C1; ed.C2 = C2; ed.C3 = C3; ed.C4 = C4; ed.C5 = C5; ed.C6 = C6; ed.C_comments = C_comments
@@ -925,39 +962,68 @@ def evaluate_employees(request):
                 ed.V1 = V1; ed.V2 = V2; ed.V3 = V3; ed.V4 = V4; ed.V5 = V5; ed.V_comments = V_comments
                 ed.final_comments = final_comments
                 ed.save()
+
                 assignment.evaluation_details = ed
 
-                # Calcular promedios (conversión a float)
-                def avg(*vals):
-                    try:
-                        numbers = [float(v) for v in vals]
-                        return sum(numbers)/len(numbers) if numbers else 0
-                    except:
-                        return 0
+                # 2. Crear/actualizar Summary
+                # Calcular promedios
+                def avg(*values):
+                    valid = [int(v) for v in values if v is not None]
+                    return sum(valid)/len(valid) if valid else None
 
                 R_avg = avg(R1, R2, R3, R4, R5)
+                L_avg = avg(L1, L2, L3, L4, L5)
                 H_avg = avg(H1, H2, H3, H4, H5)
                 E_avg = avg(E1, E2, E3, E4)
                 C_avg = avg(C1, C2, C3, C4, C5, C6)
                 M_avg = avg(M1, M2)
-                V_sum = sum([int(v) for v in [V1, V2, V3, V4, V5]])
+                
+                # V is a sum, not an average
+                V_values = [safe_get(request.POST, f'V{i}') for i in range(1, 6)]
+                V_valid = [int(v) for v in V_values if v is not None]
+                V_sum = sum(V_valid) if V_valid else None
 
-                # Ponderados para empleados
-                w_R = 0.40
+                # Valores base
+                w_R = 0.20
+                w_L = 0.20
                 w_H = 0.10
                 w_E = 0.10
                 w_C = 0.15
                 w_M = 0.15
                 w_V = 0.10
 
-                R_weighted = R_avg * w_R
-                H_weighted = H_avg * w_H
-                E_weighted = E_avg * w_E
-                C_weighted = C_avg * w_C
-                M_weighted = M_avg * w_M
-                V_weighted = V_sum * w_V
+                # Ajustar peso si no hay L
+                if L_avg is None:
+                    w_R += w_L
+                    w_L = 0  # ya no se usa
 
-                final_score = R_weighted + H_weighted + E_weighted + C_weighted + M_weighted + V_weighted
+                # Cálculo
+                weighted_sum = 0
+                total_weight = 0
+
+                if R_avg is not None:
+                    weighted_sum += R_avg * w_R
+                    total_weight += w_R
+                if L_avg is not None:
+                    weighted_sum += L_avg * w_L
+                    total_weight += w_L
+                if H_avg is not None:
+                    weighted_sum += H_avg * w_H
+                    total_weight += w_H
+                if E_avg is not None:
+                    weighted_sum += E_avg * w_E
+                    total_weight += w_E
+                if C_avg is not None:
+                    weighted_sum += C_avg * w_C
+                    total_weight += w_C
+                if M_avg is not None:
+                    weighted_sum += M_avg * w_M
+                    total_weight += w_M
+                if V_sum is not None:
+                    weighted_sum += V_sum * w_V
+                    total_weight += w_V
+
+                final_score = round(weighted_sum / total_weight, 2) if total_weight > 0 else None
 
                 # Performance_level basado en final_score con los niveles
                 if final_score >= 4.50 and final_score <= 5.00:
@@ -971,31 +1037,33 @@ def evaluate_employees(request):
                 else:
                     performance_level = "Nivel 1"
 
-
-                # Crear o actualizar Summary
+                # Buscar o crear Summary
                 if assignment.summary:
                     summ = assignment.summary
                 else:
-                    from .models import Summary
                     summ = Summary()
+
+                # Rellenar summary
                 summ.employee = assignment.employee
                 summ.evaluator = assignment.evaluator
                 summ.R = R_avg
+                summ.L = L_avg
                 summ.H = H_avg
                 summ.E = E_avg
                 summ.C = C_avg
                 summ.M = M_avg
-                summ.V = V_sum
+                summ.V = V_sum  # Store the sum, not the average
                 summ.final_score = final_score
                 summ.performance_level = performance_level
-                summ.evaluation_type = "Empleados"
+                summ.evaluation_type = "Lideres"  # Se asume que es para líderes
+                # Se obtiene la posición del empleado
                 summ.position = assignment.employee.position
                 summ.save()
 
                 assignment.summary = summ
+                # Actualizar status
                 assignment.status = "Completado"
                 assignment.save()
-
             return redirect('evaluate_employees')
     
     context = {
@@ -1004,7 +1072,7 @@ def evaluate_employees(request):
         'evaluation_details_data': evaluation_details_data,
         'status_already_completed': status_already_completed,
     }
-    return render(request, 'System/evaluate_employees.html', context)
+    return render(request, 'evaluations/evaluate_employees.html', context)
 
 # Vista para mostrar gráfico radar de resumen de evaluaciones
 @roles_required("Administrador", "Gerente", "Lider")
@@ -1188,18 +1256,21 @@ def bar_chart_comparison(request):
     return render(request, 'System/bar_chart_comparison.html', context)
 
 # Listar posiciones
+@method_decorator(roles_required("Administrador"), name='dispatch')
 class PositionListView(ListView):
     model = Position
     template_name = 'positions/position_list.html'
     context_object_name = 'positions'
 
 # Ver detalle de una posición
+@method_decorator(roles_required("Administrador"), name='dispatch')
 class PositionDetailView(DetailView):
     model = Position
     template_name = 'positions/position_detail.html'
     context_object_name = 'position'
 
 # Crear una nueva posición
+@method_decorator(roles_required("Administrador"), name='dispatch')
 class PositionCreateView(CreateView):
     model = Position
     form_class = PositionForm
@@ -1207,6 +1278,7 @@ class PositionCreateView(CreateView):
     success_url = reverse_lazy('position_list')
 
 # Actualizar una posición
+@method_decorator(roles_required("Administrador"), name='dispatch')
 class PositionUpdateView(UpdateView):
     model = Position
     form_class = PositionForm
@@ -1215,6 +1287,7 @@ class PositionUpdateView(UpdateView):
     success_url = reverse_lazy('position_list')
 
 # Eliminar una posición
+@method_decorator(roles_required("Administrador"), name='dispatch')
 class PositionDeleteView(DeleteView):
     model = Position
     template_name = 'positions/position_confirm_delete.html'
@@ -1222,3 +1295,71 @@ class PositionDeleteView(DeleteView):
     success_url = reverse_lazy('position_list')
     
 
+# User_templates
+@method_decorator(roles_required("Administrador"), name='dispatch')
+class UserTemplateListView(ListView):
+    model = Usuario
+    template_name = 'users_templates/user_template_list.html'
+    context_object_name = 'users'
+
+    def get_queryset(self):
+        return Usuario.objects.exclude(user_type__in=['Administrador', 'Gerente']).select_related('template')
+
+@method_decorator(roles_required("Administrador"), name='dispatch')
+class UserTemplateAssignView(FormView):
+    template_name = 'users_templates/user_template_assign.html'
+    form_class = UserTemplateAssignForm 
+    success_url = reverse_lazy('user_template_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['users'] = Usuario.objects.exclude(user_type__in=['Administrador', 'Gerente'])
+        context['templates'] = Template.objects.all()
+        return context
+
+    def form_valid(self, form):
+        user_id = form.cleaned_data['user_id'].id
+        template_id = form.cleaned_data['template_id'].id
+        try:
+            user = Usuario.objects.get(id=user_id)
+            template = Template.objects.get(id=template_id)
+            user.template = template
+            user.save()
+        except (Usuario.DoesNotExist, Template.DoesNotExist):
+            pass
+        return super().form_valid(form)
+    
+@method_decorator(roles_required("Administrador"), name='dispatch')
+class UserTemplateEditView(View):
+    def get(self, request, user_id):
+        # Obtén el usuario y su plantilla actual
+        user = get_object_or_404(Usuario, id=user_id)
+        form = UserTemplateEditForm(initial={
+            'template_id': user.template.id if user.template else None  # Plantilla actual
+        })
+        return render(request, 'users_templates/user_template_edit.html', {'form': form, 'user': user})
+
+    def post(self, request, user_id):
+        # Obtén el usuario
+        user = get_object_or_404(Usuario, id=user_id)
+        form = UserTemplateEditForm(request.POST)  # Procesa los datos enviados
+        if form.is_valid():
+            # Actualiza la plantilla del usuario
+            template = form.cleaned_data['template_id']
+            user.template = template
+            user.save()
+            return redirect('user_template_list')  # Redirige a la lista de usuarios
+        else:
+            # Si el formulario no es válido, vuelve a renderizarlo con errores
+            return render(request, 'users_templates/user_template_edit.html', {'form': form, 'user': user})
+    
+@method_decorator(roles_required("Administrador"), name='dispatch')
+class UserTemplateUnassignView(DeleteView):
+    model = Usuario
+    success_url = reverse_lazy('user_template_list')
+
+    def post(self, request, *args, **kwargs):
+        user = self.get_object()
+        user.template = None
+        user.save()
+        return redirect(self.success_url)

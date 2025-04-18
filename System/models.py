@@ -5,6 +5,12 @@ class Position(models.Model):
     position_code = models.CharField(max_length=20)
     position_name = models.CharField(max_length=100)
 
+class Template(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name + " - " + self.description
 
 class Usuario(models.Model):
     first_name = models.CharField(max_length=50)
@@ -13,6 +19,8 @@ class Usuario(models.Model):
     second_last_name = models.CharField(max_length=50, blank=True, null=True)
     user_type = models.CharField(max_length=50)
     position = models.ForeignKey(Position, on_delete=models.PROTECT)
+    template = models.ForeignKey(Template, on_delete=models.SET_NULL, null=True, blank=True, related_name="usuarios")
+
 
 class TimeSheetScore(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)

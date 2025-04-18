@@ -1,27 +1,29 @@
-{% extends 'System/base.html' %} {% block content %}
+{% extends 'System/base.html' %} 
+{% block content %}
 <div class="container mt-4">
-  <h1>Detalle de Posición</h1>
-  <div class="card">
+  <h1 class="mb-4">Detalle de Posición</h1>
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Información de la Posición</h5>
+    </div>
     <div class="card-body">
-      <h5 class="card-title">{{ position.position_name }}</h5>
-      <p class="card-text">
-        <strong>Código:</strong> {{ position.position_code }}
-      </p>
-      <a href="{% url 'position_list' %}" class="btn btn-sm btn-secondary"
-        ><i class="fas fa-arrow-left me-2"></i>Volver a la lista</a
-      >
-      <a
-        href="{% url 'position_update' position.id %}"
-        class="btn btn-sm btn-outline-primary"
-      >
-        <i class="fas fa-edit me-1"></i>Editar</a
-      >
-      <a
-        href="{% url 'position_delete' position.id %}"
-        class="btn btn-sm btn-outline-danger"
-      >
-        <i class="fas fa-trash-alt me-1"></i>Eliminar</a
-      >
+      <div class="mb-3">
+        <h5 class="card-title"><strong>Descripción:</strong> {{ position.position_name }}</h5>
+      </div>
+      <div class="mb-3">
+        <p class="card-text"><strong>Código:</strong> {{ position.position_code }}</p>
+      </div>
+      <div class="d-flex justify-content-start gap-2">
+        <a href="{% url 'position_list' %}" class="btn btn-secondary btn-sm">
+          <i class="fas fa-arrow-left me-2"></i>Volver a la lista
+        </a>
+        <a href="{% url 'position_update' position.id %}" class="btn btn-outline-primary btn-sm">
+          <i class="fas fa-edit me-1"></i>Editar
+        </a>
+        <a href="{% url 'position_delete' position.id %}" class="btn btn-outline-danger btn-sm">
+          <i class="fas fa-trash-alt me-1"></i>Eliminar
+        </a>
+      </div>
     </div>
   </div>
 </div>

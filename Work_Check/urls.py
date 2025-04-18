@@ -80,5 +80,11 @@ urlpatterns = [
     path('positions/<int:pk>/edit/', views.PositionUpdateView.as_view(), name='position_update'),
     path('positions/<int:pk>/delete/', views.PositionDeleteView.as_view(), name='position_delete'),
 
+    
+    #Asignar plantillas a usuarios
+    path('user-templates/', views.UserTemplateListView.as_view(), name='user_template_list'),
+    path('user-templates/assign/', views.UserTemplateAssignView.as_view(), name='user_template_assign'),
+    path('user-template/edit/<int:user_id>/', views.UserTemplateEditView.as_view(), name='user_template_edit'),
+    path('user-templates/<int:pk>/unassign/', views.UserTemplateUnassignView.as_view(), name='user_template_unassign'),
 
 ]

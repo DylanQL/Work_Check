@@ -1,0 +1,48 @@
+{% extends 'System/base.html' %} {% block title %}
+Asignación de Plantillas
+{%endblock %} {% block content %}
+<div class="container">
+  <h2>Asignación de Plantillas a Usuarios</h2>
+  <a href="{% url 'user_template_assign' %}" class="btn btn-primary mb-3"
+    >Asignar Plantilla</a
+  >
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Nombre del Usuario</th>
+        <th>Plantilla Asignada</th>
+        <th>Descripción de plantilla</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td class="align-middle">{{ user.first_name }} {{ user.last_name }}</td>
+        <td class="align-middle">
+          {% if user.template %} {{ user.template.name }} {% else %} No asignada
+          {% endif %}
+        </td>
+        <td class="align-middle">
+          {% if user.template %} {{ user.template.description }} {% else %} No
+          asignada {% endif %}
+        </td>
+        <td class="align-middle">
+            {% if user.template %}
+            <a href="{% url 'user_template_edit' user.pk %}" class="btn btn-sm btn-outline-primary"
+            >
+              <i class="fas fa-edit me-1"></i>Editar</a>
+            <form method="post" action="{% url 'user_template_unassign' user.pk %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-danger"
+              >
+                <i class="fas fa-trash-alt me-1"></i>Desasignar</button>
+            </form>
+            {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

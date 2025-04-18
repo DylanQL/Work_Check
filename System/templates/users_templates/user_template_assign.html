@@ -1,0 +1,30 @@
+{% extends 'System/base.html' %}
+{% block title %}Asignar Plantilla{% endblock %}
+{% block content %}
+<div class="container">
+    <h2>Asignar Plantilla a Usuario</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="user_id" class="form-label">Usuario</label>
+            <select name="user_id" id="user_id" class="form-select" required>
+                <option value="">Seleccione un usuario</option>
+                {% for user in users %}
+                <option value="{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="template_id" class="form-label">Plantilla</label>
+            <select name="template_id" id="template_id" class="form-select" required>
+                <option value="">Seleccione una plantilla</option>
+                {% for template in templates %}
+                <option value="{{ template.id }}">{{ template.name }} - {{template.description}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">Asignar</button>
+        <a href="{% url 'user_template_list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
