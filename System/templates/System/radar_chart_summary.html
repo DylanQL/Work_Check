@@ -54,7 +54,6 @@
 <!-- Incluir Chart.js desde CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-{% if employee_data %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Obtener el contexto del canvas
@@ -73,8 +72,7 @@
         
         // Array para almacenar los datasets
         const datasets = [];
-        
-        // Función para generar colores consistentes
+
         function getRandomColor(index) {
             // Colores predefinidos para consistencia
             const colors = [
@@ -95,12 +93,13 @@
             } else {
                 return `rgb(${Math.floor(Math.random() * 200)}, ${Math.floor(Math.random() * 200)}, ${Math.floor(Math.random() * 200)})`;
             }
-        }
+        };
         
-        // Crear datasets para cada evaluación
-        {% for summary in employee_data.summaries %}
-        (function() {
-            const color = getRandomColor({{ forloop.counter0 }});
+        {% if employee_data and employee_data.summaries %}
+            // Crear datasets para cada evaluación
+            {% for summary in employee_data.summaries %}
+            (function() {
+                const color = getRandomColor({{ forloop.counter0 }});
             datasets.push({
                 label: 'Evaluación {{ summary.created_at }}',
                 data: [
@@ -120,8 +119,22 @@
                 pointHoverBorderColor: color,
                 borderWidth: 2
             });
-        })();
+            })();
         {% endfor %}
+        {% else %}
+            // Dataset vacío si no hay datos
+            datasets.push({
+                label: 'Sin datos disponibles',
+                data: [0, 0, 0, 0, 0, 0, 0],
+                backgroundColor: 'rgba(201, 203, 207, 0.2)',
+                borderColor: 'rgb(201, 203, 207)',
+                pointBackgroundColor: 'rgb(201, 203, 207)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(201, 203, 207)',
+                borderWidth: 2
+            });
+        {% endif %}
         
         // Configurar los datos del gráfico radar
         const chartData = {
@@ -197,28 +210,8 @@
             data: chartData,
             options: chartOptions
         });
-        
-        // Funcionalidad para los filtros
-        document.getElementById('positionFilter').addEventListener('change', function() {
-            // Implementar filtrado por posición
-            const positionId = this.value;
-            // Aquí se implementaría la lógica para filtrar por posición
-            // Esto requeriría una llamada AJAX al servidor para obtener los datos filtrados
-        });
-        
-        document.getElementById('employeeFilter').addEventListener('change', function() {
-            // Implementar filtrado por empleado
-            const employeeId = this.value;
-            // Aquí se implementaría la lógica para filtrar por empleado
-            // Esto requeriría una llamada AJAX al servidor para obtener los datos filtrados
-        });
     });
 </script>
-{% else %}
-<div class="alert alert-info mt-4">
-    <p>No hay datos de evaluación disponibles para mostrar en el gráfico radar.</p>
-</div>
-{% endif %}
 
 <style>
     .chart-container {
