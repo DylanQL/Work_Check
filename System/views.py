@@ -47,6 +47,26 @@ def roles_required(*allowed_roles):
         return wrapped_view
     return decorator
 
+# Función para generar usernames únicos
+def generate_unique_username(first_name, middle_name, last_name, second_last_name=None):
+    # Primera letra first_name + last_name
+    base_username = f"{first_name[0].lower()}{last_name.lower()}"
+    
+    # Primera letra middle_name + last_name o primera letra first_name + second_last_name
+    if UserAccount.objects.filter(username=base_username).exists():
+        if middle_name:
+            base_username = f"{middle_name[0].lower()}{last_name.lower()}"
+        elif second_last_name:
+            base_username = f"{first_name[0].lower()}{second_last_name.lower()}"
+    
+    # Si aún asi existe se agrega un número al final
+    counter = 1
+    unique_username = base_username
+    while UserAccount.objects.filter(username=unique_username).exists():
+        unique_username = f"{base_username}{counter}"
+        counter += 1
+    
+    return unique_username
 
 # Vista de Login
 def login_view(request):
@@ -102,9 +122,9 @@ def add_user(request):
         # Se crea el registro en la tabla Usuario
         usuario = Usuario.objects.create(
             first_name=first_name,
-            middle_name=middle_name if middle_name != '' else None,
+            middle_name=middle_name if middle_name != '' else '',
             last_name=last_name,
-            second_last_name=second_last_name if second_last_name != '' else None,
+            second_last_name=second_last_name if second_last_name != '' else '',
             dni=dni,
             user_type=user_type,
             position_id=position_id
@@ -116,8 +136,8 @@ def add_user(request):
             score_ts=0
         )
         
-        # Se genera el username concatenando first_name, last_name y second_last_name (si existe), en minúsculas sin espacios
-        username = (first_name + last_name + (second_last_name if second_last_name else '')).replace(" ", "").lower()
+        # Generar un username único
+        username = generate_unique_username(first_name, middle_name, last_name, second_last_name)
         default_password = "123456"
         
         # Se crea el registro en la tabla UserAccount
@@ -143,16 +163,16 @@ def update_user(request, user_id):
     
     if request.method == 'POST':
         usuario.first_name = request.POST.get('first_name').strip()
-        usuario.middle_name = request.POST.get('middle_name', '').strip() or None
+        usuario.middle_name = request.POST.get('middle_name', '').strip() or ''
         usuario.last_name = request.POST.get('last_name').strip()
-        usuario.second_last_name = request.POST.get('second_last_name', '').strip() or None
+        usuario.second_last_name = request.POST.get('second_last_name', '').strip() or ''
         usuario.dni = request.POST.get('dni').strip()
         usuario.user_type = request.POST.get('user_type').strip()
         usuario.position_id = request.POST.get('position')
         usuario.save()
         
-        # Actualización opcional del username en UserAccount
-        username = (usuario.first_name + usuario.last_name + (usuario.second_last_name if usuario.second_last_name else '')).replace(" ", "").lower()
+        # Actualizar el username en UserAccount
+        username = generate_unique_username(usuario.first_name, usuario.middle_name, usuario.last_name, usuario.second_last_name)
         user_account = UserAccount.objects.get(usuario=usuario)
         user_account.username = username
         user_account.save()
