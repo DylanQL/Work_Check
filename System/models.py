@@ -17,6 +17,7 @@ class Usuario(models.Model):
     middle_name = models.CharField(max_length=50, blank=True, null=True)
     last_name = models.CharField(max_length=50)
     second_last_name = models.CharField(max_length=50, blank=True, null=True)
+    dni = models.CharField(max_length=8, unique=True)
     user_type = models.CharField(max_length=50)
     position = models.ForeignKey(Position, on_delete=models.PROTECT)
     template = models.ForeignKey(Template, on_delete=models.SET_NULL, null=True, blank=True, related_name="usuarios")

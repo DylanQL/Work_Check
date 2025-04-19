@@ -95,6 +95,7 @@ def add_user(request):
         middle_name = request.POST.get('middle_name', '').strip()
         last_name = request.POST.get('last_name').strip()
         second_last_name = request.POST.get('second_last_name', '').strip()
+        dni = request.POST.get('dni').strip()
         user_type = request.POST.get('user_type').strip()
         position_id = request.POST.get('position')
         
@@ -104,6 +105,7 @@ def add_user(request):
             middle_name=middle_name if middle_name != '' else None,
             last_name=last_name,
             second_last_name=second_last_name if second_last_name != '' else None,
+            dni=dni,
             user_type=user_type,
             position_id=position_id
         )
@@ -126,7 +128,7 @@ def add_user(request):
             status="Activo"
         )
         
-        return redirect('home')
+        return redirect('manage_users')
     
     positions = Position.objects.all()
     return render(request, 'System/add_user.html', {'positions': positions})
@@ -137,13 +139,14 @@ def update_user(request, user_id):
     try:
         usuario = Usuario.objects.get(id=user_id)
     except Usuario.DoesNotExist:
-        return redirect('home')
+        return redirect('manage_users')
     
     if request.method == 'POST':
         usuario.first_name = request.POST.get('first_name').strip()
         usuario.middle_name = request.POST.get('middle_name', '').strip() or None
         usuario.last_name = request.POST.get('last_name').strip()
         usuario.second_last_name = request.POST.get('second_last_name', '').strip() or None
+        usuario.dni = request.POST.get('dni').strip()
         usuario.user_type = request.POST.get('user_type').strip()
         usuario.position_id = request.POST.get('position')
         usuario.save()
@@ -154,7 +157,7 @@ def update_user(request, user_id):
         user_account.username = username
         user_account.save()
         
-        return redirect('home')
+        return redirect('manage_users')
     
     positions = Position.objects.all()
     return render(request, 'System/update_user.html', {'usuario': usuario, 'positions': positions})
