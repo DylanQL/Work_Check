@@ -6,7 +6,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
-                <h2 class="mb-0"><i class="fas fa-tasks me-2"></i>Asignación de Evaluaciones (Temporal)</h2>
+                <h2 class="mb-0"><i class="fas fa-tasks me-2"></i>Asignación de Evaluaciones</h2>
                 <a href="{% url 'create_temp_assignment' %}" class="btn btn-primary">
                     <i class="fas fa-plus-circle me-2"></i>Crear Nueva Asignación
                 </a>
@@ -19,7 +19,7 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-header bg-light">
-                    <h5 class="card-title mb-0"><i class="fas fa-clipboard-list me-2"></i>Lista de Asignaciones Temporales</h5>
+                    <h5 class="card-title mb-0"><i class="fas fa-clipboard-list me-2"></i>Lista de Asignaciones</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -86,27 +86,6 @@
             </div>
         </div>
     </div>
-
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-light">
-                    <h5 class="card-title mb-0"><i class="fas fa-exchange-alt me-2"></i>Enviar a Histórico</h5>
-                </div>
-                <div class="card-body">
-                    <form action="{% url 'send_temp_assignments' %}" method="post" onsubmit="return confirm('¿Estás seguro de enviar los registros a histórico? Esta acción no se puede deshacer.');">
-                        {% csrf_token %}
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-history me-1"></i>Enviar Registros a Histórico
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
     {% if messages %}
     <div class="row mt-4">
         <div class="col-12">

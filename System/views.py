@@ -139,13 +139,13 @@ def add_user(request):
         # Generar un username único
         username = generate_unique_username(first_name, middle_name, last_name, second_last_name)
         default_password = "123456"
-        
+             
         # Se crea el registro en la tabla UserAccount
         UserAccount.objects.create(
             username=username,
             password=default_password,
             usuario=usuario,
-            status="Activo"
+            status="Activo",
         )
         
         return redirect('manage_users')
@@ -288,7 +288,7 @@ def delete_evaluation_cycle(request, cycle_id):
 # Lista de asignaciones temporales (mostrar solo los registros existentes)
 @roles_required("Administrador")
 def list_temp_evaluation_assignments(request):
-    assignments = Temp_EvaluationAssignment.objects.all()
+    assignments = EvaluationAssignment.objects.all()
     return render(request, 'System/manage_temp_evaluation_assignments.html', {'assignments': assignments})
 
 # Crear una nueva asignación de evaluación
@@ -297,7 +297,7 @@ def create_temp_evaluation_assignment(request):
     # Filtrar evaluadores según user_type ("Lider" o "Gerente")
     evaluators = Usuario.objects.filter(user_type__in=["Lider", "Gerente"])
     # Filtrar empleados que sean "Empleado" y que aún no tengan asignación
-    assigned_employee_ids = Temp_EvaluationAssignment.objects.values_list('employee_id', flat=True)
+    assigned_employee_ids = EvaluationAssignment.objects.values_list('employee_id', flat=True)
     allowed_employee_roles = ["Empleado", "Lider"]
     employees = Usuario.objects.filter(user_type__in=allowed_employee_roles).exclude(id__in=assigned_employee_ids)
     
@@ -307,7 +307,7 @@ def create_temp_evaluation_assignment(request):
         # Se asigna automáticamente el status "Pendiente"
         status = "Pendiente"
         
-        if Temp_EvaluationAssignment.objects.filter(employee_id=employee_id).exists():
+        if EvaluationAssignment.objects.filter(employee_id=employee_id).exists():
             error = "Ya existe una asignación para este empleado."
             return render(request, 'System/create_temp_evaluation_assignment.html', {
                 'evaluators': evaluators,
@@ -319,7 +319,7 @@ def create_temp_evaluation_assignment(request):
         last_cycle = EvaluationCycle.objects.order_by('-id').first()
         evaluation_cycle_value = last_cycle.name if last_cycle else ''
         
-        Temp_EvaluationAssignment.objects.create(
+        EvaluationAssignment.objects.create(
             evaluator_id=evaluator_id,
             employee_id=employee_id,
             status=status,
@@ -338,8 +338,8 @@ def create_temp_evaluation_assignment(request):
 @roles_required("Administrador")
 def update_temp_evaluation_assignment(request, assignment_id):
     try:
-        assignment = Temp_EvaluationAssignment.objects.get(id=assignment_id)
-    except Temp_EvaluationAssignment.DoesNotExist:
+        assignment = EvaluationAssignment.objects.get(id=assignment_id)
+    except EvaluationAssignment.DoesNotExist:
         return redirect('list_temp_assignments')
     
     # Filtrar evaluadores según user_type ("Lider" o "Gerente")
@@ -358,13 +358,12 @@ def update_temp_evaluation_assignment(request, assignment_id):
     })
 
 
-
 # Eliminar una asignación temporal (opcional, si se requiere)
 @roles_required("Administrador")
 def delete_temp_evaluation_assignment(request, assignment_id):
     try:
-        assignment = Temp_EvaluationAssignment.objects.get(id=assignment_id)
-    except Temp_EvaluationAssignment.DoesNotExist:
+        assignment = EvaluationAssignment.objects.get(id=assignment_id)
+    except EvaluationAssignment.DoesNotExist:
         return redirect('list_temp_assignments')
     
     if request.method == 'POST':
@@ -374,64 +373,64 @@ def delete_temp_evaluation_assignment(request, assignment_id):
     return render(request, 'System/delete_temp_evaluation_assignment.html', {'assignment': assignment})
 
 # Enviar registros a histórico:
-@roles_required("Administrador")
-def send_assignments_to_historic(request):
-    """
-    Envía los registros de Temp_EvaluationAssignment a Permanent_EvaluationAssignment.
+# @roles_required("Administrador")
+# def send_assignments_to_historic(request):
+#     """
+#     Envía los registros de EvaluationAssignment a EvaluationAssignment.
     
-    Requisitos:
-      - Todos los registros deben tener status "Completado".
-      - Cada registro debe tener asignado un Summary y un EvaluationDetails.
+#     Requisitos:
+#       - Todos los registros deben tener status "Completado".
+#       - Cada registro debe tener asignado un Summary y un EvaluationDetails.
       
-    Si se cumplen, se crea un registro en Permanent_EvaluationAssignment copiando:
-      evaluator, employee, status, evaluation_cycle, summary y evaluation_details.
-    Luego se eliminan los registros de Temp_EvaluationAssignment.
-    """
-    # Obtener todas las asignaciones temporales
-    assignments = Temp_EvaluationAssignment.objects.all()
+#     Si se cumplen, se crea un registro en EvaluationAssignment copiando:
+#       evaluator, employee, status, evaluation_cycle, summary y evaluation_details.
+#     Luego se eliminan los registros de EvaluationAssignment.
+#     """
+#     # Obtener todas las asignaciones temporales
+#     assignments = EvaluationAssignment.objects.all()
     
-    # Verificar que todos tengan status "Completado"
-    incomplete = assignments.exclude(status="Completado")
-    if incomplete.exists():
-        messages.error(request, "No todos los usuarios completaron sus evaluaciones.")
-        return redirect('list_temp_assignments')
+#     # Verificar que todos tengan status "Completado"
+#     incomplete = assignments.exclude(status="Completado")
+#     if incomplete.exists():
+#         messages.error(request, "No todos los usuarios completaron sus evaluaciones.")
+#         return redirect('list_temp_assignments')
     
-    if request.method == 'POST':
-        # Iterar sobre cada asignación temporal
-        for assign in assignments:
-            # Verificar que tenga un Summary asociado
-            if not assign.summary:
-                messages.error(
-                    request,
-                    f"La asignación para el empleado {assign.employee.first_name} {assign.employee.last_name} no tiene Summary asignado."
-                )
-                return redirect('list_temp_assignments')
-            # Verificar que tenga EvaluationDetails asociado
-            if not assign.evaluation_details:
-                messages.error(
-                    request,
-                    f"La asignación para el empleado {assign.employee.first_name} {assign.employee.last_name} no tiene Evaluation Details asignado."
-                )
-                return redirect('list_temp_assignments')
+#     if request.method == 'POST':
+#         # Iterar sobre cada asignación temporal
+#         for assign in assignments:
+#             # Verificar que tenga un Summary asociado
+#             if not assign.summary:
+#                 messages.error(
+#                     request,
+#                     f"La asignación para el empleado {assign.employee.first_name} {assign.employee.last_name} no tiene Summary asignado."
+#                 )
+#                 return redirect('list_temp_assignments')
+#             # Verificar que tenga EvaluationDetails asociado
+#             if not assign.evaluation_details:
+#                 messages.error(
+#                     request,
+#                     f"La asignación para el empleado {assign.employee.first_name} {assign.employee.last_name} no tiene Evaluation Details asignado."
+#                 )
+#                 return redirect('list_temp_assignments')
             
-            # Crear registro en Permanent_EvaluationAssignment
-            Permanent_EvaluationAssignment.objects.create(
-                evaluator=assign.evaluator,
-                employee=assign.employee,
-                status=assign.status,
-                evaluation_cycle=assign.evaluation_cycle,
-                summary=assign.summary,
-                evaluation_details=assign.evaluation_details  # Se copia el EvaluationDetails
-            )
-        # Eliminar todos los registros temporales
-        assignments.delete()
-        messages.success(request, "Registros enviados a histórico correctamente.")
-        return redirect('list_temp_assignments')
+#             # Crear registro en EvaluationAssignment
+#             EvaluationAssignment.objects.create(
+#                 evaluator=assign.evaluator,
+#                 employee=assign.employee,
+#                 status=assign.status,
+#                 evaluation_cycle=assign.evaluation_cycle,
+#                 summary=assign.summary,
+#                 evaluation_details=assign.evaluation_details  # Se copia el EvaluationDetails
+#             )
+#         # Eliminar todos los registros temporales
+#         assignments.delete()
+#         messages.success(request, "Registros enviados a histórico correctamente.")
+#         return redirect('list_temp_assignments')
     
-    return render(request, 'System/confirm_send_assignments.html', {})
+#     return render(request, 'System/confirm_send_assignments.html', {})
 
 
-# Vistas para mostrar los registros históricos (Permanent_EvaluationAssignment)
+# Vistas para mostrar los registros históricos (EvaluationAssignment)
 # y para mostrar el detalle de los registros de Summary y EvaluationDetails.
 
 @roles_required("Administrador")
@@ -441,7 +440,7 @@ def list_permanent_assignments(request):
     Se muestra una tabla con los registros; en los campos 'summary' y 'evaluation_details'
     se incluyen enlaces a la vista de detalle correspondiente si existe el registro.
     """
-    assignments = Permanent_EvaluationAssignment.objects.all()
+    assignments = EvaluationAssignment.objects.all()
     return render(request, 'System/manage_permanent_assignments.html', {'assignments': assignments})
 
 @roles_required("Administrador")
@@ -474,13 +473,13 @@ def leaders_evaluations(request):
     """
     Muestra las evaluaciones de líderes.
     
-    Se filtran los registros de Permanent_EvaluationAssignment cuyo 
+    Se filtran los registros de EvaluationAssignment cuyo 
     Summary asociado tenga evaluation_type igual a "Lideres".
     De cada registro se muestra:
-      - Desde Permanent_EvaluationAssignment: evaluation_cycle.
+      - Desde EvaluationAssignment: evaluation_cycle.
       - Desde Summary: employee, evaluator, R, L, H, E, C, M, V, final_score, performance_level y position.
     """
-    assignments = Permanent_EvaluationAssignment.objects.filter(summary__evaluation_type="Lideres")
+    assignments = EvaluationAssignment.objects.filter(summary__evaluation_type="Lideres")
        
     # Redondear los valores a dos decimales
     for assignment in assignments:
@@ -502,14 +501,14 @@ def employees_evaluations(request):
     """
     Muestra las evaluaciones de empleados.
     
-    Se filtran los registros de Permanent_EvaluationAssignment cuyo registro
+    Se filtran los registros de EvaluationAssignment cuyo registro
     asociado de Summary tenga evaluation_type igual a "Empleados". De cada registro,
     se muestran:
-      - Desde Permanent_EvaluationAssignment: evaluation_cycle.
+      - Desde EvaluationAssignment: evaluation_cycle.
       - Desde Summary: employee, evaluator, R, H, E, C, M, V, final_score,
         performance_level y position.
     """
-    assignments = Permanent_EvaluationAssignment.objects.filter(summary__evaluation_type="Empleados")
+    assignments = EvaluationAssignment.objects.filter(summary__evaluation_type="Empleados")
     
     # Redondear los valores a dos decimales
     for assignment in assignments:
@@ -535,13 +534,13 @@ def evaluate_leaders(request):
     
     """
     Muestra y procesa un formulario para evaluar a líderes.
-    - Solo se pueden evaluar usuarios que estén en Temp_EvaluationAssignment
+    - Solo se pueden evaluar usuarios que estén en EvaluationAssignment
       asignados al usuario logueado.
     - Se asigna la posición automáticamente al seleccionar el usuario a evaluar.
-    - Si el status en Temp_EvaluationAssignment es 'Completado', se cargan
+    - Si el status en EvaluationAssignment es 'Completado', se cargan
       los datos de EvaluationDetails para edición.
     - Al enviar el formulario, se crean/actualizan los registros en 
-      EvaluationDetails y Summary, y se actualiza Temp_EvaluationAssignment.
+      EvaluationDetails y Summary, y se actualiza EvaluationAssignment.
     """
     # 1. Obtener el usuario logueado y sus asignaciones
     current_user_id = request.session.get('user_id')
@@ -555,7 +554,7 @@ def evaluate_leaders(request):
         return redirect('login')
 
     # Filtrar asignaciones temporales donde el evaluador sea el usuario logueado
-    temp_assignments = Temp_EvaluationAssignment.objects.filter(evaluator=current_usuario)
+    temp_assignments = EvaluationAssignment.objects.filter(evaluator=current_usuario)
 
     # Obtener la lista de usuarios (employee) asignados a este evaluador
     # (solo su ID y su nombre para mostrar en el select)
@@ -818,12 +817,12 @@ def evaluate_employees(request):
     """
     Vista para evaluar a empleados.
     
-    Solo se muestran los empleados asignados al evaluador logueado (de Temp_EvaluationAssignment) 
+    Solo se muestran los empleados asignados al evaluador logueado (de EvaluationAssignment) 
     cuyo user_type sea "Empleado". Si la asignación ya tiene status "Completado", se precargan los datos
     de EvaluationDetails para editar.
     
     Al enviar el formulario se crean o actualizan los registros en 
-    EvaluationDetails y Summary, y se actualiza el registro de Temp_EvaluationAssignment con los IDs correspondientes y se marca como "Completado".
+    EvaluationDetails y Summary, y se actualiza el registro de EvaluationAssignment con los IDs correspondientes y se marca como "Completado".
     
     Los ponderados para el cálculo son:
       - Responsabilidades de la posición (R): 0.40
@@ -843,7 +842,7 @@ def evaluate_employees(request):
         return redirect('login')
 
     # Filtrar asignaciones temporales donde el evaluador sea el usuario logueado y el empleado tenga user_type "Empleado"
-    temp_assignments = Temp_EvaluationAssignment.objects.filter(evaluator=current_usuario, employee__user_type="Empleado")
+    temp_assignments = EvaluationAssignment.objects.filter(evaluator=current_usuario, employee__user_type="Empleado")
     
     # Lista de empleados asignados
     assigned_employees = [assignment.employee for assignment in temp_assignments]
@@ -1104,7 +1103,7 @@ def radar_chart_summary(request):
     positions = Position.objects.all()
     
     # Obtener todos los ciclos de evaluación únicos para el filtro
-    evaluation_cycles = Permanent_EvaluationAssignment.objects.values_list('evaluation_cycle', flat=True).distinct()
+    evaluation_cycles = EvaluationAssignment.objects.values_list('evaluation_cycle', flat=True).distinct()
     
     # Filtrar por posición si se proporcionó en la solicitud
     position_id = request.GET.get('position_id')
@@ -1122,7 +1121,7 @@ def radar_chart_summary(request):
     # Obtener los empleados según los filtros aplicados
     if evaluation_cycle:
         # Obtenemos los IDs de los empleados que tienen asignaciones en este ciclo
-        assignment_filter = Permanent_EvaluationAssignment.objects.filter(
+        assignment_filter = EvaluationAssignment.objects.filter(
             evaluation_cycle=evaluation_cycle
         )
         employee_ids = assignment_filter.values_list('employee_id', flat=True).distinct()
@@ -1133,7 +1132,7 @@ def radar_chart_summary(request):
     # Si no se seleccionó ningún ciclo, al menos filtramos por empleados que tengan alguna asignación
     else:
         # Obtenemos IDs de empleados con cualquier asignación permanente
-        employee_ids = Permanent_EvaluationAssignment.objects.values_list('employee_id', flat=True).distinct()
+        employee_ids = EvaluationAssignment.objects.values_list('employee_id', flat=True).distinct()
         employee_query = employee_query.filter(id__in=employee_ids)
     
     # Obtener la lista final de empleados aplicando todos los filtros
@@ -1146,7 +1145,7 @@ def radar_chart_summary(request):
     if employee_id:
         try:
             # Obtener únicamente las asignaciones permanentes para el empleado seleccionado
-            permanent_assignments_query = Permanent_EvaluationAssignment.objects.filter(
+            permanent_assignments_query = EvaluationAssignment.objects.filter(
                 employee_id=employee_id,
                 summary__isnull=False
             )
@@ -1206,7 +1205,7 @@ def radar_chart_summary(request):
 @roles_required("Administrador", "Gerente", "Lider")
 def bar_chart_comparison(request):
     # Obtener todos los ciclos de evaluación disponibles para el filtro
-    evaluation_cycles = Permanent_EvaluationAssignment.objects.values_list('evaluation_cycle', flat=True).distinct()
+    evaluation_cycles = EvaluationAssignment.objects.values_list('evaluation_cycle', flat=True).distinct()
     
     # Filtrar por ciclo de evaluación si se proporcionó en la solicitud
     cycle_id = request.GET.get('cycle_id')
@@ -1214,7 +1213,7 @@ def bar_chart_comparison(request):
     # Obtener los empleados relevantes según el ciclo seleccionado
     if cycle_id:
         # Obtener las asignaciones del ciclo seleccionado
-        assignments = Permanent_EvaluationAssignment.objects.filter(evaluation_cycle=cycle_id, summary__isnull=False)
+        assignments = EvaluationAssignment.objects.filter(evaluation_cycle=cycle_id, summary__isnull=False)
         # Obtener los empleados de esas asignaciones
         employee_ids = assignments.values_list('employee_id', flat=True).distinct()
         employees = Usuario.objects.filter(id__in=employee_ids)
@@ -1234,14 +1233,14 @@ def bar_chart_comparison(request):
                 
                 # Obtener la asignación del ciclo seleccionado para este empleado
                 if cycle_id:
-                    assignment = Permanent_EvaluationAssignment.objects.filter(
+                    assignment = EvaluationAssignment.objects.filter(
                         employee_id=employee_id,
                         evaluation_cycle=cycle_id,
                         summary__isnull=False
                     ).first()
                 else:
                     # Si no hay ciclo seleccionado, usar la asignación más reciente
-                    assignment = Permanent_EvaluationAssignment.objects.filter(
+                    assignment = EvaluationAssignment.objects.filter(
                         employee_id=employee_id,
                         summary__isnull=False
                     ).order_by('-created_at').first()

@@ -99,20 +99,11 @@ class Summary(models.Model):
     evaluation_type = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     position = models.ForeignKey(Position, on_delete=models.PROTECT)
-
-class Temp_EvaluationAssignment(models.Model):
-    evaluator = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='temp_evaluator_assignments')
-    employee = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='temp_employee_assignments')
-    status = models.CharField(max_length=50)
-    created_at = models.DateTimeField(auto_now_add=True)
-    summary = models.ForeignKey(Summary, on_delete=models.CASCADE, null=True, blank=True)
-    evaluation_details = models.ForeignKey(EvaluationDetails, on_delete=models.CASCADE, null=True, blank=True)
-    evaluation_cycle = models.CharField(max_length=50)
-
-class Permanent_EvaluationAssignment(models.Model):
+    
+class EvaluationAssignment(models.Model):
     evaluator = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='permanent_evaluator_assignments')
     employee = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='permanent_employee_assignments')
-    status = models.CharField(max_length=50)
+    status = models.CharField(max_length=50, default="Pendiente")
     created_at = models.DateTimeField(auto_now_add=True)
     summary = models.ForeignKey(Summary, on_delete=models.CASCADE, null=True, blank=True)
     evaluation_details = models.ForeignKey(EvaluationDetails, on_delete=models.CASCADE, null=True, blank=True)
