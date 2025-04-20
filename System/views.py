@@ -127,7 +127,8 @@ def add_user(request):
             second_last_name=second_last_name if second_last_name != '' else '',
             dni=dni,
             user_type=user_type,
-            position_id=position_id
+            position_id=position_id,
+            template_id = 1
         )
         
         # Se crea automáticamente el registro en la tabla TimeSheetScore con score_ts=0
