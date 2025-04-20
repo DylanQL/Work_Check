@@ -64,8 +64,8 @@
                                     <label for="user_type" class="form-label">Tipo de Usuario:</label>
                                     <select class="form-select" id="user_type" name="user_type" required>
                                         <option value="Empleado" {% if usuario.user_type == "Empleado" %}selected{% endif %}>Empleado</option>
-                                        <option value="Lider" {% if usuario.user_type == "Lider" %}selected{% endif %}>Líder</option>
-                                        <option value="Gerente" {% if usuario.user_type == "Gerente" %}selected{% endif %}>Gerente</option>
+                                        <option value="Lider" {% if usuario.user_type == "Lider" %}selected{% endif %}>Evaluador 1</option>
+                                        <option value="Gerente" {% if usuario.user_type == "Gerente" %}selected{% endif %}>Evaluador 2</option>
                                         <option value="Administrador" {% if usuario.user_type == "Administrador" %}selected{% endif %}>Administrador</option>
                                     </select>
                                 </div>

@@ -42,10 +42,12 @@
                                         {% if usuario.second_last_name %}{{ usuario.second_last_name }}{% endif %}
                                     </td>
                                     <td>
-                                        {% if usuario.user_type == 'leader' %}
-                                            <span class="badge bg-primary">Líder</span>
-                                        {% elif usuario.user_type == 'employee' %}
-                                            <span class="badge bg-info">Empleado</span>
+                                        {% if usuario.user_type == 'Lider' %}
+                                            <span class="badge bg-info">Evaluador 1</span>
+                                        {% elif usuario.user_type == 'Gerente' %}
+                                            <span class="badge bg-info">Evaluador 2</span>
+                                        {% elif usuario.user_type == 'Administrador' %}
+                                            <span class="badge bg-primary">Administrador</span>
                                         {% else %}
                                             <span class="badge bg-secondary">{{ usuario.user_type }}</span>
                                         {% endif %}
